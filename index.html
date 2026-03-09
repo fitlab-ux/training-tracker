@@ -727,18 +727,84 @@ body::before{
 <div id="appWrap" style="display:none">
   <div class="hdr">
     <div class="hdr-top">
-      <div class="app-logo">FITLAB</div>
+      <div class="app-logo" style="display:flex;align-items:center;gap:8px;cursor:default">
+        <svg width="22" height="24" viewBox="0 0 60 64" fill="none">
+          <path d="M28 2 L48 2 L58 18 L58 46 L48 62 L28 62 L18 46 L18 18 Z" fill="none" stroke="#00e87a" stroke-width="2.5"/>
+          <path d="M24 18 L24 46 M24 18 L38 18 M24 30 L34 30" stroke="#f4f5f6" stroke-width="4" stroke-linecap="square"/>
+          <path d="M40 18 L40 46 L54 46" stroke="#00e87a" stroke-width="4" stroke-linecap="square"/>
+          <circle cx="18" cy="18" r="3" fill="#00e87a" opacity="0.7"/>
+          <circle cx="58" cy="46" r="3" fill="#00e87a" opacity="0.7"/>
+        </svg>
+        <div>
+          <div style="font-family:var(--display);font-size:18px;letter-spacing:4px;color:var(--green);line-height:1;text-shadow:0 0 20px rgba(0,232,122,.4)">FITLAB</div>
+          <div style="font-family:var(--mono);font-size:7px;letter-spacing:2px;color:rgba(255,255,255,0.2);line-height:1;margin-top:1px">TRACK·TRAIN·TRANSFORM</div>
+        </div>
+      </div>
       <div class="hdr-right">
-        <div class="week-ctrl">
-          <button class="week-btn" onclick="changeWeek(-1)">‹</button>
-          <div class="week-label" id="weekLabel">WOCHE 1</div>
-          <button class="week-btn" onclick="changeWeek(1)">›</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="week-ctrl">
+            <button class="week-btn" onclick="changeWeek(-1)">‹</button>
+            <div class="week-label" id="weekLabel">WOCHE 1</div>
+            <button class="week-btn" onclick="changeWeek(1)">›</button>
+          </div>
+          <button onclick="showPlanMenu(event)" title="Neuer Plan / Ziel ändern" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⋮</button>
+        </div>
+        <!-- Plan menu -->
+        <div id="planMenu" style="display:none;position:fixed;top:56px;left:50%;transform:translateX(-50%);background:#111416;border:1px solid var(--border);border-radius:10px;min-width:220px;z-index:9999;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6)">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+            <div style="font-size:9px;letter-spacing:3px;color:var(--muted);font-family:var(--mono)">TRAINING OPTIONEN</div>
+          </div>
+          <div onclick="closePlanMenu();showGoalsScreen()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" onmouseover="this.style.background='rgba(0,232,122,.06)'" onmouseout="this.style.background='transparent'">
+            <span style="font-size:18px">🎯</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text)">Ziele ändern</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:1px">Gewicht, KF, Intensität</div>
+            </div>
+          </div>
+          <div onclick="closePlanMenu();switchView('leaderboard');setTimeout(()=>{lbTab='ai';renderLeaderboard();},100)" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-top:1px solid var(--border)" onmouseover="this.style.background='rgba(0,232,122,.06)'" onmouseout="this.style.background='transparent'">
+            <span style="font-size:18px">🤖</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text)">KI-Trainingsplan</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:1px">Claude erstellt deinen Plan</div>
+            </div>
+          </div>
+          <div onclick="closePlanMenu()" style="padding:12px 16px;text-align:center;border-top:1px solid var(--border);cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'">
+            <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">Abbrechen</span>
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div id="streakPill" style="display:none;background:linear-gradient(135deg,#f97316,#ef4444);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700;color:#fff;font-family:'Space Mono',monospace;cursor:pointer;" onclick="switchView('leaderboard')">🔥 0</div>
-          <div class="user-pill" onclick="switchView('progress')">
+          <div id="streakPill" style="display:none;background:linear-gradient(135deg,#f97316,#ef4444);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;cursor:pointer;" onclick="switchView('leaderboard')">🔥 0</div>
+          <!-- Avatar dropdown trigger -->
+          <div class="user-pill" id="avatarDropdownTrigger" onclick="toggleAvatarDropdown(event)" style="position:relative">
             <div class="user-avatar" id="userAvatar">?</div>
             <div class="user-name" id="userNamePill">...</div>
+            <div style="font-size:8px;color:var(--dim);margin-left:2px">▾</div>
+          </div>
+        </div>
+        <!-- Avatar dropdown menu -->
+        <div id="avatarDropdown" style="display:none;position:fixed;top:56px;right:12px;background:#111416;border:1px solid var(--border);border-radius:10px;min-width:180px;z-index:9999;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6)">
+          <!-- User info -->
+          <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:700;color:var(--text)" id="ddName">—</div>
+            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px" id="ddEmail">—</div>
+          </div>
+          <!-- Language toggle -->
+          <div style="padding:10px 16px;border-bottom:1px solid var(--border)">
+            <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:var(--mono);margin-bottom:8px">SPRACHE</div>
+            <div style="display:flex;gap:6px">
+              <button id="langDE" onclick="setLang('de')" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--green);background:rgba(0,232,122,.1);color:var(--green);font-size:12px;cursor:pointer;font-family:var(--mono);letter-spacing:1px">🇩🇪 DE</button>
+              <button id="langEN" onclick="setLang('en')" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);letter-spacing:1px">🇬🇧 EN</button>
+            </div>
+          </div>
+          <!-- Settings link -->
+          <div onclick="closeAvatarDropdown();switchView('settings')" style="padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
+            <span style="font-size:14px">⚙️</span>
+            <span style="font-size:12px;color:var(--dim)" id="ddSettings">Einstellungen</span>
+          </div>
+          <!-- Logout -->
+          <div onclick="closeAvatarDropdown();doLogout()" style="padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-top:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='rgba(239,68,68,.08)'" onmouseout="this.style.background='transparent'">
+            <span style="font-size:14px">🚪</span>
+            <span style="font-size:12px;color:#ef4444;font-weight:600" id="ddLogout">Ausloggen</span>
           </div>
         </div>
       </div>
@@ -1146,6 +1212,12 @@ async function enterApp(){
   LC = {};
   await preloadDay(currentWeek, currentDay);
   document.getElementById('celebSub').textContent = `Stark, ${name}! Sauna verdient! 💪`;
+  applyLang();
+  // Sync lang buttons
+  const sl=currentLang||'de';
+  const dDE=document.getElementById('langDE'),dEN=document.getElementById('langEN');
+  if(dDE){dDE.style.borderColor=sl==='de'?'var(--green)':'var(--border)';dDE.style.background=sl==='de'?'rgba(0,232,122,.1)':'transparent';dDE.style.color=sl==='de'?'var(--green)':'var(--muted)';}
+  if(dEN){dEN.style.borderColor=sl==='en'?'var(--green)':'var(--border)';dEN.style.background=sl==='en'?'rgba(0,232,122,.1)':'transparent';dEN.style.color=sl==='en'?'var(--green)':'var(--muted)';}
   updateStreakPill();
   renderTraining();
 }
@@ -1252,6 +1324,74 @@ async function doLogout(){
   currentWeek=1; currentDay='A'; LC={};
   document.getElementById('appWrap').style.display='none';
   showAuth();
+}
+
+// ── AVATAR DROPDOWN ──
+function toggleAvatarDropdown(e){
+  e.stopPropagation();
+  const dd=document.getElementById('avatarDropdown');
+  const isOpen=dd.style.display==='block';
+  if(isOpen){ dd.style.display='none'; return; }
+  // Update user info
+  const name=currentProfile?.nickname||currentProfile?.name||'—';
+  const email=currentUser?.email||'—';
+  document.getElementById('ddName').textContent=name;
+  document.getElementById('ddEmail').textContent=email;
+  dd.style.display='block';
+  // Close on outside click
+  setTimeout(()=>document.addEventListener('click',closeOnOutside),0);
+}
+function closeOnOutside(){ closeAvatarDropdown(); document.removeEventListener('click',closeOnOutside); }
+function closeAvatarDropdown(){ document.getElementById('avatarDropdown').style.display='none'; }
+function showPlanMenu(e){ e.stopPropagation(); const m=document.getElementById('planMenu'); const isOpen=m.style.display==='block'; m.style.display=isOpen?'none':'block'; if(!isOpen) setTimeout(()=>document.addEventListener('click',closePlanMenuOutside),0); }
+function closePlanMenuOutside(){ closePlanMenu(); document.removeEventListener('click',closePlanMenuOutside); }
+function closePlanMenu(){ document.getElementById('planMenu').style.display='none'; }
+
+// ── LANGUAGE SYSTEM ──
+let currentLang = localStorage.getItem('fitlab_lang')||'de';
+const LANG = {
+  de: {
+    training:'TRAINING', body:'KÖRPER', ranking:'RANKING', progress:'VERLAUF', settings:'EINSTELLUNGEN',
+    week:'WOCHE', logout:'Ausloggen', settingsLabel:'Einstellungen', language:'SPRACHE',
+    save:'Speichern', edit:'Bearbeiten', cancel:'Abbrechen',
+    newPlan:'Neuer Plan / Ziel ändern',
+  },
+  en: {
+    training:'TRAINING', body:'BODY', ranking:'RANKING', progress:'PROGRESS', settings:'SETTINGS',
+    week:'WEEK', logout:'Log out', settingsLabel:'Settings', language:'LANGUAGE',
+    save:'Save', edit:'Edit', cancel:'Cancel',
+    newPlan:'New Plan / Change Goal',
+  }
+};
+function t(key){ return (LANG[currentLang]||LANG.de)[key]||key; }
+function setLang(lang){
+  currentLang=lang;
+  localStorage.setItem('fitlab_lang',lang);
+  applyLang();
+  // Update buttons
+  document.getElementById('langDE').style.borderColor=lang==='de'?'var(--green)':'var(--border)';
+  document.getElementById('langDE').style.background=lang==='de'?'rgba(0,232,122,.1)':'transparent';
+  document.getElementById('langDE').style.color=lang==='de'?'var(--green)':'var(--muted)';
+  document.getElementById('langEN').style.borderColor=lang==='en'?'var(--green)':'var(--border)';
+  document.getElementById('langEN').style.background=lang==='en'?'rgba(0,232,122,.1)':'transparent';
+  document.getElementById('langEN').style.color=lang==='en'?'var(--green)':'var(--muted)';
+  // Re-render current view
+  const active=document.querySelector('.bnav-btn.active');
+  if(active) active.click();
+}
+function applyLang(){
+  // Nav labels
+  const navMap={training:'training',body:'body',ranking:'ranking',progress:'progress',settings:'settings'};
+  Object.entries(navMap).forEach(([view,key])=>{
+    const btn=document.getElementById('nav-'+view);
+    if(btn){ const icon=btn.querySelector('.bnav-icon');
+      if(icon){ btn.innerHTML=icon.outerHTML+(t(key)); }
+    }
+  });
+  document.getElementById('ddLogout').textContent=t('logout');
+  document.getElementById('ddSettings').textContent=t('settingsLabel');
+  const wl=document.getElementById('weekLabel');
+  if(wl){ const num=wl.textContent.replace(/[^0-9]/g,''); wl.textContent=t('week')+' '+num; }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1909,7 +2049,22 @@ async function renderBody(){
   }
 
   // ── HAUPT-METRIKEN ──
-  h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px;padding:0 2px">📊 AKTUELLE WERTE</div>`;
+  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 2px">
+    <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px">📊 AKTUELLE WERTE</div>
+    <button onclick="toggleBodyEdit()" id="bodyEditBtn" style="font-size:10px;font-family:var(--mono);letter-spacing:1px;color:var(--green);background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.25);border-radius:6px;padding:4px 10px;cursor:pointer">✏️ Bearbeiten</button>
+  </div>
+  <div id="bodyEditPanel" style="display:none;background:var(--card);border:1px solid rgba(0,232,122,.2);border-radius:var(--r);padding:16px;margin-bottom:12px">
+    <div style="font-size:10px;color:var(--muted);margin-bottom:12px;font-family:var(--mono)">Woche ${latestWeek||1} — Werte anpassen</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${STAT_FIELDS.map(f=>`<div>
+        <label style="font-size:9px;letter-spacing:1px;color:var(--muted);font-family:var(--mono)">${f.icon} ${f.label.toUpperCase()}</label>
+        <input type="number" step="0.1" placeholder="?" id="bedit_${f.key}" style="width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-family:var(--mono);margin-top:4px;outline:none"
+          value="${byWeekField[`${latestWeek||1}_${f.key}`]!==undefined?byWeekField[`${latestWeek||1}_${f.key}`]:''}">
+      </div>`).join('')}
+    </div>
+    <button onclick="saveBodyEdit(${latestWeek||1})" style="width:100%;margin-top:12px;padding:11px;background:var(--green);border:none;border-radius:var(--rs);color:#000;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer">💾 SPEICHERN</button>
+    <div id="bodyEditMsg" style="text-align:center;font-size:11px;margin-top:6px;font-family:var(--mono)"></div>
+  </div>`;
   h+=`<div class="stat-grid">`;
   STAT_FIELDS.forEach(f=>{
     const cur = latestWeek ? (byWeekField[`${latestWeek}_${f.key}`]??null) : null;
@@ -1931,36 +2086,61 @@ async function renderBody(){
   });
   h+=`</div>`;
 
-  // ── KÖRPERSEGMENTE ──
+  // ── KÖRPERSEGMENTE — Dual Bar Charts ──
   const segGroups=[
-    {label:'💪 Linker Arm', fat:'arm_l_fat', mus:'arm_l_mus'},
-    {label:'💪 Rechter Arm', fat:'arm_r_fat', mus:'arm_r_mus'},
-    {label:'🦵 Linkes Bein', fat:'leg_l_fat', mus:'leg_l_mus'},
-    {label:'🦵 Rechtes Bein', fat:'leg_r_fat', mus:'leg_r_mus'},
-    {label:'🫀 Rumpf', fat:'trunk_fat', mus:'trunk_mus'},
+    {label:'Linker Arm',  icon:'💪', fat:'arm_l_fat', mus:'arm_l_mus'},
+    {label:'Rechter Arm', icon:'💪', fat:'arm_r_fat', mus:'arm_r_mus'},
+    {label:'Linkes Bein', icon:'🦵', fat:'leg_l_fat', mus:'leg_l_mus'},
+    {label:'Rechtes Bein',icon:'🦵', fat:'leg_r_fat', mus:'leg_r_mus'},
+    {label:'Rumpf',       icon:'🫀', fat:'trunk_fat', mus:'trunk_mus'},
   ];
-  const hasSegs=segGroups.some(g=>byWeekField[`${latestWeek}_${g.fat}`]!==undefined);
+  const hasSegs=segGroups.some(g=>byWeekField[`${latestWeek}_${g.fat}`]!==undefined||byWeekField[`${latestWeek}_${g.mus}`]!==undefined);
   if(hasSegs){
     h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin:14px 0 8px;padding:0 2px">📐 KÖRPERSEGMENTE</div>`;
-    h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px">`;
+    h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px">`;
+    // Header row
+    h+=`<div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+      <div></div>
+      <div style="text-align:center;font-size:9px;letter-spacing:2px;color:#f97316;font-family:var(--mono)">KÖRPERFETT %</div>
+      <div style="text-align:center;font-size:9px;letter-spacing:2px;color:#00e87a;font-family:var(--mono)">MUSKELN %</div>
+    </div>`;
     segGroups.forEach(g=>{
-      const fat=byWeekField[`${latestWeek}_${g.fat}`];
-      const mus=byWeekField[`${latestWeek}_${g.mus}`];
-      if(fat===undefined&&mus===undefined) return;
-      h+=`<div style="margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;margin-bottom:6px">${g.label}</div>
-        ${fat!==undefined?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <div style="font-size:10px;color:var(--muted);width:80px">Körperfett</div>
-          <div style="flex:1;background:var(--surface);border-radius:3px;height:6px"><div style="background:#f97316;height:100%;width:${Math.min(100,fat*3)}%;border-radius:3px"></div></div>
-          <div style="font-size:11px;font-family:var(--mono);color:#f97316;width:40px;text-align:right">${fat}%</div>
-        </div>`:''}
-        ${mus!==undefined?`<div style="display:flex;align-items:center;gap:8px">
-          <div style="font-size:10px;color:var(--muted);width:80px">Muskeln</div>
-          <div style="flex:1;background:var(--surface);border-radius:3px;height:6px"><div style="background:#00ff87;height:100%;width:${Math.min(100,mus*2)}%;border-radius:3px"></div></div>
-          <div style="font-size:11px;font-family:var(--mono);color:#00ff87;width:40px;text-align:right">${mus}%</div>
-        </div>`:''}
+      const fatCur=byWeekField[`${latestWeek}_${g.fat}`];
+      const musCur=byWeekField[`${latestWeek}_${g.mus}`];
+      const fatStart=startWeek?byWeekField[`${startWeek}_${g.fat}`]:null;
+      const musStart=startWeek?byWeekField[`${startWeek}_${g.mus}`]:null;
+      if(fatCur===undefined&&musCur===undefined) return;
+      const fatPct=fatCur!==undefined?Math.min(100,fatCur*3.2):0;
+      const musPct=musCur!==undefined?Math.min(100,musCur*2.2):0;
+      const fatDiff=fatCur!==undefined&&fatStart!==undefined?(fatCur-fatStart).toFixed(1):null;
+      const musDiff=musCur!==undefined&&musStart!==undefined?(musCur-musStart).toFixed(1):null;
+      h+=`<div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;align-items:center;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:600">${g.icon} ${g.label}</div>
+        <!-- Fat bar -->
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;font-family:var(--mono);color:#f97316;font-weight:700">${fatCur!==undefined?fatCur+'%':'—'}</span>
+            ${fatDiff!==null?`<span style="font-size:9px;font-family:var(--mono);color:${parseFloat(fatDiff)<0?'#00e87a':'#f97316'}">${parseFloat(fatDiff)>0?'+':''}${fatDiff}</span>`:''}
+          </div>
+          <div style="background:var(--surface);border-radius:4px;height:8px;overflow:hidden;position:relative">
+            ${fatStart!==undefined&&fatStart!==fatCur?`<div style="background:rgba(249,115,22,0.2);height:100%;width:${Math.min(100,fatStart*3.2)}%;border-radius:4px;position:absolute"></div>`:''}
+            <div style="background:linear-gradient(90deg,#f97316,#fb923c);height:100%;width:${fatPct}%;border-radius:4px;position:relative;transition:width .8s ease"></div>
+          </div>
+        </div>
+        <!-- Muscle bar -->
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;font-family:var(--mono);color:#00e87a;font-weight:700">${musCur!==undefined?musCur+'%':'—'}</span>
+            ${musDiff!==null?`<span style="font-size:9px;font-family:var(--mono);color:${parseFloat(musDiff)>0?'#00e87a':'#f97316'}">${parseFloat(musDiff)>0?'+':''}${musDiff}</span>`:''}
+          </div>
+          <div style="background:var(--surface);border-radius:4px;height:8px;overflow:hidden;position:relative">
+            ${musStart!==undefined&&musStart!==musCur?`<div style="background:rgba(0,232,122,0.15);height:100%;width:${Math.min(100,musStart*2.2)}%;border-radius:4px;position:absolute"></div>`:''}
+            <div style="background:linear-gradient(90deg,#00c468,#00e87a);height:100%;width:${musPct}%;border-radius:4px;transition:width .8s ease"></div>
+          </div>
+        </div>
       </div>`;
     });
+    h+=`<div style="font-size:9px;color:var(--muted);font-family:var(--mono);margin-top:4px">Hellerer Balken = Startwert · Dunkler = Aktuell</div>`;
     h+=`</div>`;
   }
 
@@ -2018,6 +2198,42 @@ async function renderBody(){
   </div>`;
 
   document.getElementById('bodyContent').innerHTML=h;
+}
+
+function toggleBodyEdit(){
+  const p=document.getElementById('bodyEditPanel');
+  const b=document.getElementById('bodyEditBtn');
+  const open=p.style.display==='block';
+  p.style.display=open?'none':'block';
+  b.textContent=open?'✏️ Bearbeiten':'✕ Schließen';
+  b.style.color=open?'var(--green)':'var(--muted)';
+}
+
+async function saveBodyEdit(week){
+  let bmiCalc=null;
+  const kgEl=document.getElementById('bedit_kg');
+  if(kgEl&&kgEl.value&&currentProfile?.height){
+    const h=currentProfile.height/100;
+    bmiCalc=parseFloat((parseFloat(kgEl.value)/(h*h)).toFixed(1));
+  }
+  for(const f of STAT_FIELDS){
+    const el=document.getElementById('bedit_'+f.key);
+    if(el&&el.value!==''){
+      await sb.from('body_stats').upsert({
+        user_id:currentUser.id,week:week,field:f.key,value:parseFloat(el.value),
+        updated_at:new Date().toISOString()
+      },{onConflict:'user_id,week,field'});
+    }
+  }
+  if(bmiCalc){
+    await sb.from('body_stats').upsert({
+      user_id:currentUser.id,week:week,field:'bmi',value:bmiCalc,
+      updated_at:new Date().toISOString()
+    },{onConflict:'user_id,week,field'});
+  }
+  const msg=document.getElementById('bodyEditMsg');
+  if(msg){msg.style.color='var(--green)';msg.textContent='✅ Gespeichert!';setTimeout(()=>msg.textContent='',2000);}
+  setTimeout(()=>renderBody(),400);
 }
 
 async function saveBody(){
