@@ -93,12 +93,32 @@ body::before{
 .auth-wrap{
   min-height:100vh;
   display:flex;
+  align-items:stretch;
+  background:var(--black);
+  position:relative;
+  overflow:hidden;
+}
+.auth-visual{
+  flex:1;
+  display:none;
+  position:relative;
+  overflow:hidden;
+  min-height:100vh;
+}
+@media(min-width:800px){
+  .auth-visual{ display:block; }
+  .auth-panel{ width:420px; flex-shrink:0; }
+}
+.auth-panel{
+  flex:1;
+  display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,135,.06), transparent),
-             radial-gradient(ellipse 60% 40% at 80% 80%, rgba(61,127,255,.05), transparent),
-             var(--bg);
+  padding:32px 24px;
+  background:var(--black);
+  position:relative;
+  z-index:2;
+  overflow-y:auto;
 }
 .auth-box{width:100%;max-width:380px;}
 .auth-logo{
@@ -679,6 +699,22 @@ body::before{
 .loading{display:flex;align-items:center;justify-content:center;padding:50px;color:var(--muted);gap:12px;font-size:12px;font-family:var(--mono);}
 .spinner{width:20px;height:20px;border:1.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── AUTH SLIDESHOW ── */
+.auth-slide{
+  position:absolute;inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:0;
+  transition:opacity 1.2s ease;
+}
+.auth-slide.active{ opacity:1; }
+.slide-dot{
+  width:24px;height:3px;border-radius:2px;
+  background:rgba(255,255,255,.3);
+  cursor:pointer;transition:all .3s;
+}
+.slide-dot.active{ background:var(--green);width:32px; }
 .setup-note{background:var(--card);border:1px solid var(--orange);border-radius:var(--r);padding:16px;margin-bottom:16px;}
 .setup-note h3{color:var(--orange);font-size:13px;margin-bottom:8px;}
 .setup-note p{font-size:11px;color:var(--dim);line-height:1.6;}
@@ -689,37 +725,91 @@ body::before{
 
 <!-- ══ AUTH ══ -->
 <div id="authWrap" class="auth-wrap" style="display:none">
-  <div class="auth-box">
-    <div class="auth-logo">FITLAB</div>
-    <div class="auth-sub">12-WOCHEN TRANSFORMATION</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">Registrieren</button>
+
+  <!-- LEFT: Visual panel with athlete images (desktop only) -->
+  <div class="auth-visual" id="authVisual">
+    <!-- Slideshow images using Unsplash fitness/athletic photos -->
+    <div id="authSlides" style="position:absolute;inset:0">
+      <div class="auth-slide active" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=900&q=85&fit=crop')"></div>
+      <div class="auth-slide" style="background-image:url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900&q=85&fit=crop')"></div>
+      <div class="auth-slide" style="background-image:url('https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=900&q=85&fit=crop')"></div>
+      <div class="auth-slide" style="background-image:url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=900&q=85&fit=crop')"></div>
     </div>
-    <div id="loginForm">
-      <div class="auth-field"><label>E-MAIL</label><input type="email" id="loginEmail" placeholder="deine@email.de" autocomplete="email"></div>
-      <div class="auth-field"><label>PASSWORT</label><input type="password" id="loginPw" placeholder="••••••••" autocomplete="current-password"></div>
-      <button class="auth-btn" onclick="doLogin()">Einloggen</button>
-      <div style="text-align:center;margin-top:12px;">
-        <span onclick="switchAuthTab('forgot')" style="font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--mono);text-decoration:underline;text-underline-offset:3px;">Passwort vergessen?</span>
+    <!-- Dark overlay + gradient -->
+    <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(4,5,6,0) 0%, rgba(4,5,6,.15) 60%, rgba(4,5,6,.95) 100%), linear-gradient(to bottom, transparent 40%, rgba(4,5,6,.8) 100%);z-index:1"></div>
+    <!-- Brand overlay bottom-left -->
+    <div style="position:absolute;bottom:48px;left:40px;z-index:2">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <svg width="32" height="35" viewBox="0 0 60 64" fill="none">
+          <path d="M28 2L48 2L58 18L58 46L48 62L28 62L18 46L18 18Z" fill="none" stroke="#00e87a" stroke-width="2"/>
+          <path d="M24 18L24 46M24 18L38 18M24 30L34 30" stroke="#f4f5f6" stroke-width="3.5" stroke-linecap="square"/>
+          <path d="M40 18L40 46L54 46" stroke="#00e87a" stroke-width="3.5" stroke-linecap="square"/>
+        </svg>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:6px;color:#f4f5f6;line-height:1">FITLAB</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.35);margin-top:2px">TRACK · TRAIN · TRANSFORM</div>
+        </div>
+      </div>
+      <div style="font-family:'Barlow',sans-serif;font-size:28px;font-weight:700;color:#f4f5f6;line-height:1.2;max-width:320px">
+        Deine Transformation.<br><span style="color:#00e87a">Deine Daten.</span><br>Dein Ranking.
+      </div>
+      <!-- Slide dots -->
+      <div style="display:flex;gap:6px;margin-top:20px" id="slideDots">
+        <div class="slide-dot active" onclick="goSlide(0)"></div>
+        <div class="slide-dot" onclick="goSlide(1)"></div>
+        <div class="slide-dot" onclick="goSlide(2)"></div>
+        <div class="slide-dot" onclick="goSlide(3)"></div>
       </div>
     </div>
-    <div id="registerForm" style="display:none">
-      <div class="auth-field"><label>DEIN NAME</label><input type="text" id="regName" placeholder="z.B. Michael" autocomplete="name"></div>
-      <div class="auth-field"><label>E-MAIL</label><input type="email" id="regEmail" placeholder="deine@email.de" autocomplete="email"></div>
-      <div class="auth-field"><label>PASSWORT</label><input type="password" id="regPw" placeholder="Min. 6 Zeichen" autocomplete="new-password"></div>
-      <button class="auth-btn" onclick="doRegister()">Account erstellen</button>
-    </div>
-    <div id="forgotForm" style="display:none">
-      <div style="font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.6;font-family:var(--mono);">Gib deine E-Mail ein. Du erhältst einen Link zum Zurücksetzen.</div>
-      <div class="auth-field"><label>E-MAIL</label><input type="email" id="forgotEmail" placeholder="deine@email.de" autocomplete="email"></div>
-      <button class="auth-btn" onclick="doForgotPassword()">Reset-Link senden</button>
-      <div style="text-align:center;margin-top:12px;">
-        <span onclick="switchAuthTab('login')" style="font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--mono);">← Zurück zum Login</span>
+  </div>
+
+  <!-- RIGHT: Login panel -->
+  <div class="auth-panel">
+    <div class="auth-box">
+      <!-- Logo (mobile only / always) -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
+        <svg width="26" height="28" viewBox="0 0 60 64" fill="none">
+          <path d="M28 2L48 2L58 18L58 46L48 62L28 62L18 46L18 18Z" fill="none" stroke="#00e87a" stroke-width="2.5"/>
+          <path d="M24 18L24 46M24 18L38 18M24 30L34 30" stroke="#f4f5f6" stroke-width="4" stroke-linecap="square"/>
+          <path d="M40 18L40 46L54 46" stroke="#00e87a" stroke-width="4" stroke-linecap="square"/>
+          <circle cx="18" cy="18" r="3" fill="#00e87a" opacity="0.7"/>
+          <circle cx="58" cy="46" r="3" fill="#00e87a" opacity="0.7"/>
+        </svg>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:5px;color:var(--green);line-height:1;text-shadow:0 0 20px rgba(0,232,122,.4)">FITLAB</div>
+          <div style="font-family:'DM Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.2);margin-top:1px">TRACK · TRAIN · TRANSFORM</div>
+        </div>
       </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Registrieren</button>
+      </div>
+      <div id="loginForm">
+        <div class="auth-field"><label>E-MAIL</label><input type="email" id="loginEmail" placeholder="deine@email.de" autocomplete="email"></div>
+        <div class="auth-field"><label>PASSWORT</label><input type="password" id="loginPw" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="auth-btn" onclick="doLogin()">Einloggen</button>
+        <div style="text-align:center;margin-top:12px;">
+          <span onclick="switchAuthTab('forgot')" style="font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--mono);text-decoration:underline;text-underline-offset:3px;">Passwort vergessen?</span>
+        </div>
+      </div>
+      <div id="registerForm" style="display:none">
+        <div class="auth-field"><label>DEIN NAME</label><input type="text" id="regName" placeholder="z.B. Michael" autocomplete="name"></div>
+        <div class="auth-field"><label>E-MAIL</label><input type="email" id="regEmail" placeholder="deine@email.de" autocomplete="email"></div>
+        <div class="auth-field"><label>PASSWORT</label><input type="password" id="regPw" placeholder="Min. 6 Zeichen" autocomplete="new-password"></div>
+        <button class="auth-btn" onclick="doRegister()">Account erstellen</button>
+      </div>
+      <div id="forgotForm" style="display:none">
+        <div style="font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.6;font-family:var(--mono);">Gib deine E-Mail ein. Du erhältst einen Link zum Zurücksetzen.</div>
+        <div class="auth-field"><label>E-MAIL</label><input type="email" id="forgotEmail" placeholder="deine@email.de" autocomplete="email"></div>
+        <button class="auth-btn" onclick="doForgotPassword()">Reset-Link senden</button>
+        <div style="text-align:center;margin-top:12px;">
+          <span onclick="switchAuthTab('login')" style="font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--mono);">← Zurück zum Login</span>
+        </div>
+      </div>
+      <div class="auth-err" id="authErr"></div>
+      <div class="auth-ok" id="authOk"></div>
     </div>
-    <div class="auth-err" id="authErr"></div>
-    <div class="auth-ok" id="authOk"></div>
   </div>
 </div>
 
@@ -746,30 +836,6 @@ body::before{
             <button class="week-btn" onclick="changeWeek(-1)">‹</button>
             <div class="week-label" id="weekLabel">WOCHE 1</div>
             <button class="week-btn" onclick="changeWeek(1)">›</button>
-          </div>
-          <button onclick="showPlanMenu(event)" title="Neuer Plan / Ziel ändern" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⋮</button>
-        </div>
-        <!-- Plan menu -->
-        <div id="planMenu" style="display:none;position:fixed;top:56px;left:50%;transform:translateX(-50%);background:#111416;border:1px solid var(--border);border-radius:10px;min-width:220px;z-index:9999;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6)">
-          <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-            <div style="font-size:9px;letter-spacing:3px;color:var(--muted);font-family:var(--mono)">TRAINING OPTIONEN</div>
-          </div>
-          <div onclick="closePlanMenu();showGoalsScreen()" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" onmouseover="this.style.background='rgba(0,232,122,.06)'" onmouseout="this.style.background='transparent'">
-            <span style="font-size:18px">🎯</span>
-            <div>
-              <div style="font-size:12px;font-weight:700;color:var(--text)">Ziele ändern</div>
-              <div style="font-size:10px;color:var(--muted);margin-top:1px">Gewicht, KF, Intensität</div>
-            </div>
-          </div>
-          <div onclick="closePlanMenu();switchView('leaderboard');setTimeout(()=>{lbTab='ai';renderLeaderboard();},100)" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-top:1px solid var(--border)" onmouseover="this.style.background='rgba(0,232,122,.06)'" onmouseout="this.style.background='transparent'">
-            <span style="font-size:18px">🤖</span>
-            <div>
-              <div style="font-size:12px;font-weight:700;color:var(--text)">KI-Trainingsplan</div>
-              <div style="font-size:10px;color:var(--muted);margin-top:1px">Claude erstellt deinen Plan</div>
-            </div>
-          </div>
-          <div onclick="closePlanMenu()" style="padding:12px 16px;text-align:center;border-top:1px solid var(--border);cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'">
-            <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">Abbrechen</span>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -813,7 +879,10 @@ body::before{
     <div class="prog-row"><span id="progText">0 von 0</span><span id="progPct">0%</span></div>
   </div>
 
-  <div class="tabs" id="dayTabs"></div>
+  <div style="display:flex;align-items:center;gap:0;background:var(--bg2);border-bottom:1px solid var(--border)">
+    <div class="tabs" id="dayTabs" style="flex:1;border-bottom:none;padding-right:4px"></div>
+    <button onclick="showGoalsScreen(false)" style="flex-shrink:0;margin:6px 10px 6px 0;padding:7px 12px;background:linear-gradient(135deg,#00e87a,#00c468);border:none;border-radius:8px;color:#040506;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 12px rgba(0,232,122,.3)">🤖 KI-PLAN</button>
+  </div>
 
   <div id="viewTraining" class="view active"><div class="main" id="trainingContent"></div></div>
   <div id="viewBody" class="view"><div class="main" id="bodyContent"></div></div>
@@ -1087,99 +1156,254 @@ async function saveOnboarding(){
   showGoalsScreen();
 }
 
-function showGoalsScreen(){
+// ── UNIFIED KI-PLAN FLOW ──
+// Called from: onboarding completion OR ⊕ KI-PLAN button in tab bar
+function showGoalsScreen(fromOnboarding=false){
   const name = currentProfile?.name || 'Athlet';
-  document.getElementById('authWrap').style.display='flex';
-  document.getElementById('appWrap').style.display='none';
-  document.getElementById('authWrap').innerHTML=`
-    <div class="auth-box" style="max-width:420px">
-      <div class="auth-logo">DEINE ZIELE</div>
-      <div class="auth-sub">WAS WILLST DU ERREICHEN?</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:20px;text-align:center;line-height:1.6">
-        ${name}, definiere deine Transformation. Das hilft uns deinen Plan zu optimieren.
-      </div>
+  const p = currentProfile || {};
 
-      <div class="auth-field" style="margin-bottom:12px">
-        <label>PRIMÄRES ZIEL</label>
-        <select id="goal_primary" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
-          <option value="fat_loss">🔥 Fettabbau & Definition</option>
-          <option value="muscle">💪 Muskelaufbau</option>
-          <option value="both">⚡ Beides (Rekomposition)</option>
-          <option value="endurance">🏃 Ausdauer & Fitness</option>
-          <option value="health">❤️ Gesundheit & Wohlbefinden</option>
-        </select>
-      </div>
+  // Build profile context string for KI
+  const curKg   = p.current_kg   || '?';
+  const curFat  = p.current_fat  || '?';
+  const curAge  = p.age          || '?';
+  const curSex  = p.sex==='m'?'männlich':'weiblich';
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div class="auth-field">
-          <label>ZIELGEWICHT (kg)</label>
-          <input type="number" step="0.5" id="goal_kg" placeholder="z.B. 77">
+  const overlay = document.createElement('div');
+  overlay.id = 'kiPlanOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,5,6,.97);z-index:9000;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:440px;padding-bottom:40px">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+        <div>
+          <div style="font-family:var(--display);font-size:28px;letter-spacing:4px;color:var(--green)">KI-PLAN</div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-top:2px">ZIELE · TRAINING · ERNÄHRUNG</div>
         </div>
-        <div class="auth-field">
-          <label>ZIEL KF% </label>
-          <input type="number" step="0.5" id="goal_fat" placeholder="z.B. 13">
+        ${!fromOnboarding?`<button onclick="document.getElementById('kiPlanOverlay').remove()" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:16px;cursor:pointer">✕</button>`:''}
+      </div>
+
+      <!-- Context pill -->
+      <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:11px;color:var(--muted);font-family:var(--mono);line-height:1.8">
+        👤 ${name} · ${curAge} J · ${curSex}<br>
+        ⚖️ Aktuell: ${curKg} kg · KF: ${curFat}%<br>
+        <span style="color:rgba(0,232,122,.5);font-size:9px">Die KI nutzt deine Körperwerte automatisch</span>
+      </div>
+
+      <!-- 1. Primäres Ziel -->
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">01 — PRIMÄRES ZIEL</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="kpGoalGrid">
+          ${[['🔥','Fettabbau','fat_loss'],['💪','Muskelaufbau','muscle'],['⚡','Rekomposition','both'],['❤️','Gesundheit','health']].map(([ic,lb,v])=>
+            `<button onclick="kpSelect('goal','${v}',this,'kpGoalGrid')" style="padding:12px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:20px">${ic}</span>${lb}</button>`
+          ).join('')}
         </div>
       </div>
 
-      <div class="auth-field" style="margin-bottom:12px">
-        <label>VERFÜGBARE TRAININGSTAGE / WOCHE</label>
-        <select id="goal_days" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
-          <option value="3">3 Tage</option>
-          <option value="4">4 Tage</option>
-          <option value="5" selected>5 Tage</option>
-          <option value="6">6 Tage</option>
-        </select>
+      <!-- 2. Zielwerte -->
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">02 — ZIELWERTE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="font-size:9px;letter-spacing:1px;color:var(--muted);font-family:var(--mono)">ZIELGEWICHT (kg)</label>
+            <input type="number" step="0.5" id="kp_kg" placeholder="${p.goal_kg||'z.B. 77'}" value="${p.goal_kg||''}" style="width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:var(--mono);margin-top:5px;outline:none">
+          </div>
+          <div>
+            <label style="font-size:9px;letter-spacing:1px;color:var(--muted);font-family:var(--mono)">ZIEL KF%</label>
+            <input type="number" step="0.5" id="kp_fat" placeholder="${p.goal_fat||'z.B. 13'}" value="${p.goal_fat||''}" style="width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:var(--mono);margin-top:5px;outline:none">
+          </div>
+        </div>
       </div>
 
-      <div class="auth-field" style="margin-bottom:12px">
-        <label>ERFAHRUNGSLEVEL</label>
-        <select id="goal_level" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
-          <option value="beginner">🌱 Anfänger (< 1 Jahr)</option>
-          <option value="intermediate" selected>🔥 Fortgeschritten (1-3 Jahre)</option>
-          <option value="advanced">⚡ Profi (3+ Jahre)</option>
-        </select>
+      <!-- 3. Wunsch-Deadline (optional) -->
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">03 — WUNSCH-DEADLINE <span style="color:var(--dim)">(OPTIONAL)</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="kpDeadlineGrid">
+          ${[['4 Wo','4'],['8 Wo','8'],['12 Wo','12'],['Offen','0']].map(([lb,v])=>
+            `<button onclick="kpSelect('deadline','${v}',this,'kpDeadlineGrid')" style="padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">${lb}</button>`
+          ).join('')}
+        </div>
+        <div style="font-size:9px;color:var(--muted);font-family:var(--mono);margin-top:6px;padding:0 2px">
+          💡 Die KI berechnet ob dein Zeitrahmen realistisch ist
+        </div>
       </div>
 
-      <div class="auth-field" style="margin-bottom:16px">
-        <label>VERFÜGBARES EQUIPMENT</label>
-        <select id="goal_equipment" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
-          <option value="gym_full">🏋️ Fitnessstudio (voll ausgestattet)</option>
-          <option value="gym_basic">💪 Gym (Grundausstattung)</option>
-          <option value="home_equipment">🏠 Zuhause mit Equipment</option>
-          <option value="home_bodyweight">🤸 Zuhause ohne Equipment</option>
-        </select>
+      <!-- 4. Trainingstage -->
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">04 — TRAININGSTAGE / WOCHE</div>
+        <div style="display:flex;gap:8px" id="kpDaysGrid">
+          ${[3,4,5,6].map(d=>
+            `<button onclick="kpSelect('days','${d}',this,'kpDaysGrid')" style="flex:1;padding:12px 4px;border-radius:8px;border:1px solid ${(p.goal_days||5)==d?'var(--green)':'var(--border)'};background:${(p.goal_days||5)==d?'rgba(0,232,122,.1)':'var(--surface)'};color:${(p.goal_days||5)==d?'var(--green)':'var(--dim)'};font-size:16px;font-weight:700;cursor:pointer">${d}</button>`
+          ).join('')}
+        </div>
       </div>
 
-      <div id="goalErr" style="color:var(--red);font-size:11px;margin-bottom:10px;font-family:var(--mono)"></div>
-      <button class="auth-btn" onclick="saveGoals()" style="margin-bottom:12px">🚀 Plan erstellen lassen!</button>
-      <div style="text-align:center">
-        <a href="#" onclick="skipGoals()" style="font-size:11px;color:var(--muted);text-decoration:none">Überspringen →</a>
+      <!-- 5. Level + Equipment -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">05 — LEVEL</div>
+          <div style="display:flex;flex-direction:column;gap:6px" id="kpLevelGrid">
+            ${[['🌱 Anfänger','beginner'],['🔥 Fortgeschritten','intermediate'],['⚡ Profi','advanced']].map(([lb,v])=>
+              `<button onclick="kpSelect('level','${v}',this,'kpLevelGrid')" style="padding:9px 10px;border-radius:8px;border:1px solid ${(p.goal_level||'intermediate')===v?'var(--green)':'var(--border)'};background:${(p.goal_level||'intermediate')===v?'rgba(0,232,122,.1)':'var(--surface)'};color:${(p.goal_level||'intermediate')===v?'var(--green)':'var(--dim)'};font-size:10px;font-weight:600;cursor:pointer;text-align:left">${lb}</button>`
+            ).join('')}
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">06 — EQUIPMENT</div>
+          <div style="display:flex;flex-direction:column;gap:6px" id="kpEquipGrid">
+            ${[['🏋️ Studio','gym_full'],['🏠 Heim + Equipment','home_equipment'],['🤸 Bodyweight','home_bodyweight']].map(([lb,v])=>
+              `<button onclick="kpSelect('equip','${v}',this,'kpEquipGrid')" style="padding:9px 10px;border-radius:8px;border:1px solid ${(p.goal_equipment||'gym_full')===v?'var(--green)':'var(--border)'};background:${(p.goal_equipment||'gym_full')===v?'rgba(0,232,122,.1)':'var(--surface)'};color:${(p.goal_equipment||'gym_full')===v?'var(--green)':'var(--dim)'};font-size:10px;font-weight:600;cursor:pointer;text-align:left">${lb}</button>`
+            ).join('')}
+          </div>
+        </div>
       </div>
+
+      <!-- Einschränkungen / Freitext -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:8px">07 — BESONDERES <span style="color:var(--dim)">(OPTIONAL)</span></div>
+        <textarea id="kp_notes" placeholder="z.B. Knieprobleme, kein Gluten, Wettkampf am 15. Juni..." rows="2" style="width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:var(--body);outline:none;resize:none;line-height:1.5">${p.goal_notes||''}</textarea>
+      </div>
+
+      <!-- CTA Button -->
+      <button id="kpGenBtn" onclick="generateKIPlan(${fromOnboarding})" style="width:100%;padding:16px;background:linear-gradient(135deg,#00e87a,#00c468);border:none;border-radius:10px;color:#040506;font-family:var(--display);font-size:20px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 24px rgba(0,232,122,.25)">
+        🤖 KI-PLAN ERSTELLEN
+      </button>
+      <div style="text-align:center;margin-top:12px">
+        <a href="#" onclick="document.getElementById('kiPlanOverlay').remove();${fromOnboarding?'enterApp();':''}" style="font-size:11px;color:var(--muted);text-decoration:none;font-family:var(--mono)">Überspringen →</a>
+      </div>
+
+      <!-- Output area -->
+      <div id="kpOutput" style="margin-top:20px"></div>
     </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Pre-select saved values
+  const gv=p.goal_primary||'fat_loss';
+  const gb=document.querySelector(`#kpGoalGrid button[onclick*="'${gv}'"]`);
+  if(gb) kpSelect('goal',gv,gb,'kpGoalGrid');
+  const dv=String(p.goal_days||5);
+  const db=document.querySelector(`#kpDaysGrid button[onclick*="'${dv}'"]`);
+  if(db) kpSelect('days',dv,db,'kpDaysGrid');
+}
+
+// KI-Plan state
+let kpState = {goal:'fat_loss',deadline:'0',days:'5',level:'intermediate',equip:'gym_full'};
+
+function kpSelect(field, val, el, gridId){
+  kpState[field]=val;
+  document.getElementById(gridId).querySelectorAll('button').forEach(b=>{
+    b.style.borderColor='var(--border)';
+    b.style.background='var(--surface)';
+    b.style.color='var(--dim)';
+  });
+  el.style.borderColor='var(--green)';
+  el.style.background='rgba(0,232,122,.1)';
+  el.style.color='var(--green)';
+}
+
+async function generateKIPlan(fromOnboarding=false){
+  const btn=document.getElementById('kpGenBtn');
+  const out=document.getElementById('kpOutput');
+  const kgGoal=document.getElementById('kp_kg')?.value;
+  const fatGoal=document.getElementById('kp_fat')?.value;
+  const notes=document.getElementById('kp_notes')?.value||'';
+
+  // Save goals to profile
+  await sb.from('profiles').update({
+    goal_primary:kpState.goal,
+    goal_kg:kgGoal?parseFloat(kgGoal):null,
+    goal_fat:fatGoal?parseFloat(fatGoal):null,
+    goal_days:parseInt(kpState.days)||5,
+    goal_level:kpState.level,
+    goal_equipment:kpState.equip,
+    goal_notes:notes||null,
+  }).eq('id',currentUser.id);
+  currentProfile={...(currentProfile||{}),
+    goal_primary:kpState.goal, goal_kg:kgGoal?parseFloat(kgGoal):null,
+    goal_fat:fatGoal?parseFloat(fatGoal):null, goal_days:parseInt(kpState.days)||5,
+    goal_level:kpState.level, goal_equipment:kpState.equip, goal_notes:notes
+  };
+
+  btn.disabled=true;
+  btn.style.background='var(--surface)';
+  btn.style.color='var(--muted)';
+  btn.textContent='🤖 Denkt nach...';
+  out.innerHTML='<div class="loading"><div class="spinner"></div><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">KI erstellt deinen Plan...</span></div>';
+
+  const p=currentProfile||{};
+  const goalMap={fat_loss:'Fettabbau & Definition',muscle:'Muskelaufbau',both:'Körperrekomposition (Fett ↓ + Muskeln ↑)',health:'Gesundheit & Wohlbefinden'};
+  const equipMap={gym_full:'vollausgestattetes Fitnessstudio',home_equipment:'Heimtraining mit Equipment',home_bodyweight:'nur Körpergewicht'};
+  const levelMap={beginner:'Anfänger',intermediate:'Fortgeschritten',advanced:'Profi'};
+  const deadlineStr=kpState.deadline==='0'?'kein fester Zeitrahmen':`Wunsch-Deadline: ${kpState.deadline} Wochen`;
+
+  const prompt=`Du bist Elite-Personal-Trainer und Ernährungsberater. Erstelle einen vollständigen personalisierten Plan auf Deutsch.
+
+PROFIL:
+- Name: ${p.name||'Athlet'} · Alter: ${p.age||'?'} · Geschlecht: ${p.sex==='m'?'männlich':'weiblich'}
+- Körpergewicht: ${p.current_kg||'?'} kg · Körperfett: ${p.current_fat||'?'}% · Grundumsatz: ~${p.bmr||1800} kcal
+- Level: ${levelMap[kpState.level]} · Equipment: ${equipMap[kpState.equip]}
+- Trainingstage/Woche: ${kpState.days}
+
+ZIELE:
+- Primäres Ziel: ${goalMap[kpState.goal]||kpState.goal}
+- Zielgewicht: ${kgGoal||'nicht angegeben'} kg · Ziel-KF: ${fatGoal||'nicht angegeben'}%
+- ${deadlineStr}
+${notes?`- Besonderes: ${notes}`:''}
+
+AUFGABE — Erstelle exakt diese Abschnitte:
+
+## ⏱ REALISTISCHE ZEITEINSCHÄTZUNG
+Berechne auf Basis der Körperwerte wie lange das Ziel realistisch dauert. ${kpState.deadline!=='0'?`Kommentiere ob ${kpState.deadline} Wochen realistisch ist.`:''} Erkläre kurz warum.
+
+## 📅 TRAININGSPLAN — WOCHENSTRUKTUR
+Zeige eine Woche mit ${kpState.days} Trainingstagen. Für jeden Tag: Muskelgruppe + 4-5 Übungen mit Sets×Reps.
+
+## 🥗 ERNÄHRUNGSPLAN
+- Tages-Kalorienziel mit Makro-Split (Protein/Carbs/Fett in g)
+- 3 konkrete Mahlzeiten-Beispiele (Frühstück, Mittag, Abend)
+- Top 3 Ernährungsregeln für dieses Ziel
+
+## ⚡ TOP 3 SOFORT-MASSNAHMEN
+Was soll ${p.name||'der Athlet'} diese Woche sofort umsetzen?
+
+Format: Kompakt, mit Emojis, max 600 Wörter total.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Fehler beim Generieren.';
+
+    out.innerHTML=`
+      <div style="background:linear-gradient(160deg,#040d07,#0a0a0a);border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:18px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(0,232,122,.1)">
+          <svg width="18" height="20" viewBox="0 0 60 64" fill="none"><path d="M28 2L48 2L58 18L58 46L48 62L28 62L18 46L18 18Z" fill="none" stroke="#00e87a" stroke-width="2"/><path d="M24 18L24 46M24 18L38 18M24 30L34 30" stroke="#f4f5f6" stroke-width="3.5" stroke-linecap="square"/><path d="M40 18L40 46L54 46" stroke="#00e87a" stroke-width="3.5" stroke-linecap="square"/></svg>
+          <div>
+            <div style="font-family:var(--display);font-size:14px;letter-spacing:3px;color:var(--green)">DEIN PERSÖNLICHER PLAN</div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-top:1px">ERSTELLT VON FITLAB KI · ${new Date().toLocaleDateString('de-DE')}</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--silver);line-height:1.8;white-space:pre-wrap;font-family:var(--body)">${text}</div>
+      </div>
+      <button onclick="document.getElementById('kiPlanOverlay').remove();${fromOnboarding?'enterApp();':''}" style="width:100%;padding:14px;background:var(--green);border:none;border-radius:10px;color:#040506;font-family:var(--display);font-size:18px;letter-spacing:3px;cursor:pointer">
+        TRAINING STARTEN →
+      </button>
+      <button onclick="generateKIPlan(${fromOnboarding})" style="width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:11px;font-family:var(--mono);letter-spacing:2px;cursor:pointer;margin-top:8px">
+        ↺ NEU GENERIEREN
+      </button>`;
+  } catch(e){
+    out.innerHTML=`<div style="color:#f97316;font-size:11px;font-family:var(--mono);padding:12px;background:rgba(249,115,22,.08);border-radius:8px">⚠️ API-Fehler: ${e.message}<br><br>Tipp: Anthropic API Key in den App-Einstellungen hinterlegen.</div>`;
+  }
+  btn.disabled=false;
+  btn.style.background='linear-gradient(135deg,#00e87a,#00c468)';
+  btn.style.color='#040506';
+  btn.textContent='🤖 NEU GENERIEREN';
 }
 
 async function saveGoals(){
-  const btn=document.querySelector('#authWrap .auth-btn');
-  if(btn){btn.disabled=true;btn.textContent='Speichern...';}
-  const goals={
-    primary: document.getElementById('goal_primary')?.value,
-    kg: document.getElementById('goal_kg')?.value,
-    fat: document.getElementById('goal_fat')?.value,
-    days: document.getElementById('goal_days')?.value,
-    level: document.getElementById('goal_level')?.value,
-    equipment: document.getElementById('goal_equipment')?.value,
-  };
-  // Save goals to profile
-  await sb.from('profiles').update({
-    goal_primary: goals.primary,
-    goal_kg: goals.kg ? parseFloat(goals.kg) : null,
-    goal_fat: goals.fat ? parseFloat(goals.fat) : null,
-    goal_days: goals.days ? parseInt(goals.days) : 5,
-    goal_level: goals.level,
-    goal_equipment: goals.equipment,
-  }).eq('id',currentUser.id);
-  currentProfile = {...(currentProfile||{}), ...goals};
-  if(btn){btn.disabled=false;}
   enterApp();
 }
 
@@ -1219,7 +1443,8 @@ async function enterApp(){
   if(dDE){dDE.style.borderColor=sl==='de'?'var(--green)':'var(--border)';dDE.style.background=sl==='de'?'rgba(0,232,122,.1)':'transparent';dDE.style.color=sl==='de'?'var(--green)':'var(--muted)';}
   if(dEN){dEN.style.borderColor=sl==='en'?'var(--green)':'var(--border)';dEN.style.background=sl==='en'?'rgba(0,232,122,.1)':'transparent';dEN.style.color=sl==='en'?'var(--green)':'var(--muted)';}
   updateStreakPill();
-  renderTraining();
+  // Always land on Training tab
+  switchView('training');
 }
 
 function skipOnboarding(){
@@ -1280,7 +1505,26 @@ async function doResetPassword(){
   btn.disabled=false; btn.textContent='Passwort speichern';
   if(error){document.getElementById('resetErr').textContent=error.message;return;}
   document.getElementById('resetOk').textContent='✓ Passwort geändert! Einloggen...';
-  setTimeout(()=>{ window.history.replaceState({},'',window.location.pathname); initSupabase(); },1500);
+  setTimeout(()=>{ window.history.replaceState({},'',window.location.pathname); // ── AUTH SLIDESHOW ──
+let slideIdx=0;
+const SLIDE_INTERVAL=4500;
+function goSlide(n){
+  const slides=document.querySelectorAll('.auth-slide');
+  const dots=document.querySelectorAll('.slide-dot');
+  if(!slides.length) return;
+  slides[slideIdx].classList.remove('active');
+  dots[slideIdx]?.classList.remove('active');
+  slideIdx=n%slides.length;
+  slides[slideIdx].classList.add('active');
+  dots[slideIdx]?.classList.add('active');
+}
+function startSlideshow(){
+  if(document.querySelectorAll('.auth-slide').length>1)
+    setInterval(()=>goSlide(slideIdx+1), SLIDE_INTERVAL);
+}
+startSlideshow();
+
+initSupabase(); },1500);
 }
 
 
@@ -2278,7 +2522,7 @@ async function renderLeaderboard(){
   <div class="lb-period" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
     <button class="lb-period-btn ${lbTab==='ranking'?'active':''}" onclick="setLbTab('ranking')">🏆 Ranking</button>
     <button class="lb-period-btn ${lbTab==='trophies'?'active':''}" onclick="setLbTab('trophies')">🎖️ Trophäen</button>
-    <button class="lb-period-btn ${lbTab==='ai'?'active':''}" onclick="setLbTab('ai')">🤖 KI-Plan</button>
+
   </div>`;
 
   if(lbTab==='ranking'){
@@ -2353,37 +2597,7 @@ async function renderLeaderboard(){
       </div>`;
     });
     h+='</div>';
-  } else if(lbTab==='ai'){
-    h+=`<div style="background:linear-gradient(135deg,#0f1a35,#1a0a2e);border:1px solid #3a2a5a;border-radius:var(--r);padding:16px;margin-bottom:14px;">
-      <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:2px;background:linear-gradient(135deg,#c084fc,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">KI TRAININGSPLAN</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px;">Claude erstellt deinen personalisierten Plan</div>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:600;margin-bottom:10px;">🎯 Hauptziel?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="goalGrid">
-        ${[['🔥 Fett verlieren','fat'],['💪 Muskeln aufbauen','muscle'],['❤️ Ausdauer','cardio'],['🏃 Athletik','athletic']].map(([l,v])=>`<button onclick="selectGoal('${v}',this)" style="padding:10px 8px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">${l}</button>`).join('')}
-      </div>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:600;margin-bottom:10px;">🏋️ Equipment?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="equipGrid">
-        ${[['🏢 Studio','studio'],['🏠 Heimtraining','home'],['🎽 Körpergewicht','bodyweight'],['🔀 Gemischt','mixed']].map(([l,v])=>`<button onclick="selectEquip('${v}',this)" style="padding:10px 8px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">${l}</button>`).join('')}
-      </div>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:600;margin-bottom:10px;">📅 Tage / Woche?</div>
-      <div style="display:flex;gap:8px;" id="daysGrid">
-        ${[2,3,4,5,6].map(d=>`<button onclick="selectDays(${d},this)" style="flex:1;padding:10px 4px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;font-weight:700;cursor:pointer">${d}</button>`).join('')}
-      </div>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;">
-      <div style="font-size:12px;font-weight:600;margin-bottom:10px;">🎓 Level?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;" id="levelGrid">
-        ${[['🌱 Anfänger','beginner'],['🔥 Mittel','intermediate'],['⚡ Fortgeschritten','advanced']].map(([l,v])=>`<button onclick="selectLevel('${v}',this)" style="padding:10px 6px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;font-weight:600;cursor:pointer">${l}</button>`).join('')}
-      </div>
-    </div>
-    <button id="genPlanBtn" onclick="generateAIPlan()" style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#f97316);border:none;border-radius:var(--rs);color:#fff;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:8px;">🤖 Plan generieren</button>
-    <div id="aiPlanOutput"></div>`;
+
   }
 
   document.getElementById('lbContent').innerHTML=h;
@@ -3232,6 +3446,25 @@ function stopConfetti(){
 // ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
+// ── AUTH SLIDESHOW ──
+let slideIdx=0;
+const SLIDE_INTERVAL=4500;
+function goSlide(n){
+  const slides=document.querySelectorAll('.auth-slide');
+  const dots=document.querySelectorAll('.slide-dot');
+  if(!slides.length) return;
+  slides[slideIdx].classList.remove('active');
+  dots[slideIdx]?.classList.remove('active');
+  slideIdx=n%slides.length;
+  slides[slideIdx].classList.add('active');
+  dots[slideIdx]?.classList.add('active');
+}
+function startSlideshow(){
+  if(document.querySelectorAll('.auth-slide').length>1)
+    setInterval(()=>goSlide(slideIdx+1), SLIDE_INTERVAL);
+}
+startSlideshow();
+
 initSupabase();
 </script>
 </body>
