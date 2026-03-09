@@ -562,7 +562,7 @@ body::before{
 .save-btn:hover{box-shadow:0 0 20px var(--green-glow);}
 .chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px;}
 .chart-title{font-size:11px;font-weight:700;margin-bottom:12px;color:var(--dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;}
-.chart-area{position:relative;height:80px;}
+.chart-area{position:relative;height:100px;}
 .chart-labels{display:flex;justify-content:space-between;margin-top:4px;}
 .chart-label{font-size:9px;color:var(--muted);font-family:var(--mono);}
 
@@ -1121,7 +1121,7 @@ function skipGoals(){
   enterApp();
 }
 
-function enterApp(){
+async function enterApp(){
   document.getElementById('authWrap').style.display='none';
   document.getElementById('appWrap').style.display='block';
   const name = currentProfile?.name || currentUser?.email?.split('@')[0] || 'User';
@@ -1135,6 +1135,17 @@ function enterApp(){
     av.textContent = currentProfile?.avatar_icon || name.charAt(0).toUpperCase();
     av.style.background = currentProfile?.avatar_color || 'linear-gradient(135deg,var(--green),var(--blue))';
   }
+  // ── Restore last active week from DB ──
+  try {
+    const {data:lastRow} = await sb.from('training_data')
+      .select('week').eq('user_id',currentUser.id)
+      .order('week',{ascending:false}).limit(1).single();
+    if(lastRow?.week) currentWeek = lastRow.week;
+  } catch(e){}
+  // Preload current day
+  LC = {};
+  await preloadDay(currentWeek, currentDay);
+  document.getElementById('celebSub').textContent = `Stark, ${name}! Sauna verdient! 💪`;
   updateStreakPill();
   renderTraining();
 }
@@ -1238,6 +1249,8 @@ async function doRegister(){
 async function doLogout(){
   await sb.auth.signOut();
   currentUser=null; currentProfile=null;
+  currentWeek=1; currentDay='A'; LC={};
+  document.getElementById('appWrap').style.display='none';
   showAuth();
 }
 
@@ -1787,23 +1800,66 @@ function makeMiniChart(vals, color, lb){
   </svg>`;
 }
 
-function makeBigChart(label, wVals, color){
-  if(wVals.length<2) return '';
+function makeBigChart(label, wVals, color, goalVal){
+  if(wVals.length<1) return '';
+  if(wVals.length===1){
+    return `<div class="chart-wrap">
+      <div class="chart-title">${label}</div>
+      <div style="text-align:center;padding:18px;font-size:22px;font-weight:700;color:${color};font-family:var(--mono)">${wVals[0].v}<span style="font-size:12px;color:var(--muted);margin-left:4px">${wVals[0].w}</span></div>
+      <div style="text-align:center;font-size:10px;color:var(--muted)">Noch zu wenig Daten für Verlauf</div>
+    </div>`;
+  }
   const vals=wVals.map(x=>x.v);
-  const min=Math.min(...vals)*0.97, max=Math.max(...vals)*1.03, range=max-min||1;
-  const W=320,H=80,pL=8,pR=8,pT=8,pB=8,cW=W-pL-pR,cH=H-pT-pB;
-  const pts=wVals.map((x,i)=>`${pL+(i/(wVals.length-1))*cW},${pT+(1-(x.v-min)/range)*cH}`);
+  const minV=Math.min(...vals), maxV=Math.max(...vals);
+  const pad=(maxV-minV)*0.15||0.5;
+  const min=minV-pad, max=maxV+pad, range=max-min;
+  const W=320,H=100,pL=32,pR=12,pT=14,pB=20,cW=W-pL-pR,cH=H-pT-pB;
+  const gid='cg'+label.replace(/[^a-z]/gi,'');
+  const pts=wVals.map((x,i)=>`${pL+(i/(wVals.length-1||1))*cW},${pT+(1-(x.v-min)/range)*cH}`);
+  const first=wVals[0].v, last=wVals[wVals.length-1].v;
+  const trend=last-first;
+  // Y-axis labels
+  const yLabels=[minV,Math.round((minV+maxV)/2*10)/10,maxV];
   return `<div class="chart-wrap">
-    <div class="chart-title">${label}</div>
-    <div class="chart-area">
-      <svg width="100%" height="80" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-        <defs><linearGradient id="cg${label.replace(/\s/g,'')}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
-        </linearGradient></defs>
-        <polygon points="${pL},${H} ${pts.join(' ')} ${pL+(wVals.length-1)/(wVals.length-1)*cW+pR},${H}" fill="url(#cg${label.replace(/\s/g,'')})" />
-        <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
-        ${wVals.map((x,i)=>{const px=pL+(i/(wVals.length-1))*cW,py=pT+(1-(x.v-min)/range)*cH;return`<circle cx="${px}" cy="${py}" r="3" fill="${color}"/><text x="${px}" y="${py-6}" text-anchor="middle" font-size="8" fill="#888">${x.v}</text>`;}).join('')}
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+      <div class="chart-title" style="margin:0">${label}</div>
+      <div style="font-size:10px;font-family:var(--mono);color:${trend===0?'var(--muted)':trend<0?'#00ff87':'#f97316'}">
+        ${trend>0?'▲':'▼'} ${Math.abs(trend).toFixed(1)} ${trend===0?'':'seit Start'}
+      </div>
+    </div>
+    <div class="chart-area" style="height:100px">
+      <svg width="100%" height="100" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- grid lines -->
+        ${[0,0.5,1].map(t=>{
+          const y=pT+t*cH;
+          return `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+        }).join('')}
+        <!-- y-axis labels -->
+        ${yLabels.map((v,i)=>{
+          const y=pT+(1-i*0.5)*cH;
+          return `<text x="${pL-4}" y="${y+3}" text-anchor="end" font-size="7" fill="rgba(255,255,255,0.3)" font-family="monospace">${v}</text>`;
+        }).join('')}
+        <!-- goal line if set -->
+        ${goalVal?`<line x1="${pL}" y1="${pT+(1-(goalVal-min)/range)*cH}" x2="${W-pR}" y2="${pT+(1-(goalVal-min)/range)*cH}" stroke="#00ff87" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+        <text x="${W-pR+2}" y="${pT+(1-(goalVal-min)/range)*cH+3}" font-size="7" fill="#00ff87" opacity="0.6">Ziel</text>`:''}
+        <!-- area fill -->
+        <polygon points="${pL},${pT+cH} ${pts.join(' ')} ${pL+(wVals.length-1)/(wVals.length-1||1)*cW+pL>W-pR?W-pR:pL+(wVals.length-1)*cW/(wVals.length-1||1)},${pT+cH}" fill="url(#${gid})" />
+        <!-- line -->
+        <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- dots + value labels -->
+        ${wVals.map((x,i)=>{
+          const px=pL+(i/(wVals.length-1||1))*cW;
+          const py=pT+(1-(x.v-min)/range)*cH;
+          const isFirst=i===0, isLast=i===wVals.length-1;
+          return `<circle cx="${px}" cy="${py}" r="${isFirst||isLast?4:2.5}" fill="${color}" stroke="#080808" stroke-width="1.5"/>
+          ${isFirst||isLast||wVals.length<=6?`<text x="${px}" y="${py-7}" text-anchor="middle" font-size="8" fill="${color}" font-family="monospace" font-weight="bold">${x.v}</text>`:''}`;
+        }).join('')}
       </svg>
     </div>
     <div class="chart-labels">${wVals.map(x=>`<span class="chart-label">${x.w}</span>`).join('')}</div>
@@ -1909,11 +1965,15 @@ async function renderBody(){
   }
 
   // ── ANALYTICS CHARTS ──
+  const goalKgVal = currentProfile?.goal_kg || null;
+  const goalFatVal = currentProfile?.goal_fat || null;
   const chartFields=[
-    {key:'kg',label:'⚖️ Gewicht (kg)',color:'#3d7fff',lb:true},
-    {key:'fat',label:'🔥 Körperfett (%)',color:'#f97316',lb:true},
-    {key:'muscle',label:'💪 Muskelmasse (kg)',color:'#00ff87',lb:false},
-    {key:'pulse',label:'❤️ Ruhepuls (bpm)',color:'#ff3b3b',lb:true},
+    {key:'kg',    label:'⚖️ Gewicht (kg)',      color:'#3d7fff', lb:true,  goal:goalKgVal},
+    {key:'fat',   label:'🔥 Körperfett (%)',     color:'#f97316', lb:true,  goal:goalFatVal},
+    {key:'muscle',label:'💪 Muskelmasse (kg)',   color:'#00ff87', lb:false, goal:null},
+    {key:'pulse', label:'❤️ Ruhepuls (bpm)',     color:'#ff3b3b', lb:true,  goal:65},
+    {key:'metage',label:'🧬 Metab. Alter (J)',   color:'#a855f7', lb:true,  goal:35},
+    {key:'visz',  label:'🫀 Viszeral Score',     color:'#ec4899', lb:true,  goal:null},
   ];
   const chartData = chartFields.map(f=>{
     const vals=[];
@@ -1922,12 +1982,12 @@ async function renderBody(){
       if(v!==undefined) vals.push({w:`W${w}`,v});
     }
     return {...f,vals};
-  }).filter(f=>f.vals.length>=2);
+  }).filter(f=>f.vals.length>=1);
 
   if(chartData.length>0){
-    h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin:14px 0 8px;padding:0 2px">📈 ENTWICKLUNG</div>`;
+    h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin:14px 0 8px;padding:0 2px">📈 VERLAUF & TRENDS</div>`;
     chartData.forEach(f=>{
-      h+=makeBigChart(f.label, f.vals, f.color);
+      h+=makeBigChart(f.label, f.vals, f.color, f.goal);
     });
   }
 
@@ -2396,8 +2456,14 @@ async function renderSettings(){
   // ── ACCOUNT ──
   h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;">
     <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">ACCOUNT</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6">E-Mail: <span style="color:var(--dim)">${email}</span></div>
-    <button class="logout-btn" onclick="doLogout()">Ausloggen</button>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px">E-Mail</div>
+    <div style="font-size:13px;color:var(--dim);margin-bottom:16px;font-family:var(--mono)">${email}</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px">User ID</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:16px;font-family:var(--mono);word-break:break-all">${currentUser?.id||'—'}</div>
+    <button onclick="doLogout()" style="width:100%;padding:13px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:var(--rs);color:#ef4444;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s"
+      onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+      🚪 Ausloggen
+    </button>
   </div>`;
 
   document.getElementById('settingsContent').innerHTML=h;
