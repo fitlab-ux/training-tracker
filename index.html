@@ -1361,7 +1361,7 @@ function updateProgress(){
   if(pct===100&&total>0&&!getCached(currentWeek,currentDay,'cele')){
     dbSet(currentWeek,currentDay,'cele',true);
     LC[`${currentWeek}_${currentDay}_cele`]=true;
-    setTimeout(()=>document.getElementById('celebrate').classList.add('show'); launchConfetti();,600);
+    setTimeout(()=>{document.getElementById('celebrate').classList.add('show'); launchConfetti();},600);
     updateStreakPill();
   }
 }
@@ -2591,20 +2591,6 @@ async function shareToSnapchat(imgData, name, pts){
   const a=document.createElement('a'); a.href=imgData; a.download=`fitlab_${name}.png`; a.click();
   setTimeout(()=>window.open('https://www.snapchat.com','_blank'),800);
   awardSharePoints();
-}
-
-
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y);
-  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);
-  ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();
 }
 
 // ══════════════════════════════════════════════════════
