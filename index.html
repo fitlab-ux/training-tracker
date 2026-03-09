@@ -1247,7 +1247,13 @@ async function fetchLeaderboard(period){
   }
 
   return profiles.map(p=>({
-    id: p.id, name: p.name, color: p.avatar_color,
+    id: p.id,
+    name: p.nickname||p.name,
+    realName: p.name,
+    hasNick: !!p.nickname,
+    color: p.avatar_color||'#00ff87',
+    icon: p.avatar_icon||'💪',
+    photo: p.avatar_photo||null,
     points: Math.round(userPoints[p.id]||0),
     sessions: userSessions[p.id]?.size||0,
     sauna: userSauna[p.id]||0,
@@ -1352,6 +1358,42 @@ async function addDay(id){
 // ══════════════════════════════════════════════════════
 // PROGRESS BAR
 // ══════════════════════════════════════════════════════
+async function calcStreak(){
+  const {data} = await sb.from('training_data').select('week,day,key,value').eq('user_id',currentUser.id).eq('key','cele').eq('value','true');
+  if(!data||data.length===0) return 0;
+  // Build set of completed week_day combos
+  const done=new Set(data.map(r=>`${r.week}_${r.day}`));
+  // Count consecutive days back from current
+  const days=getUnlockedDays();
+  let streak=0;
+  for(let w=currentWeek;w>=1;w--){
+    for(let di=days.length-1;di>=0;di--){
+      if(done.has(`${w}_${days[di]}`)) streak++;
+      else return streak;
+    }
+  }
+  return streak;
+}
+
+async function updateStreakPill(){
+  const streak=await calcStreak();
+  const pill=document.getElementById('streakPill');
+  if(!pill) return;
+  if(streak>=1){
+    pill.style.display='flex';
+    pill.textContent='🔥 '+streak;
+    if(streak>=7){
+      pill.style.background='linear-gradient(135deg,#9f6bff,#3d7fff)';
+    } else if(streak>=3){
+      pill.style.background='linear-gradient(135deg,#f97316,#ef4444)';
+    } else {
+      pill.style.background='linear-gradient(135deg,#f97316,#ef4444)';
+    }
+  } else {
+    pill.style.display='none';
+  }
+}
+
 function updateProgress(){
   const day=DAY_TEMPLATES[currentDay]||DAY_TEMPLATES.A;
   let total=0,done=0;
@@ -1574,25 +1616,82 @@ async function resetDay(){
 // ══════════════════════════════════════════════════════
 // BODY STATS
 // ══════════════════════════════════════════════════════
+// Main metrics (shown in dashboard cards)
 const STAT_FIELDS=[
-  {key:'kg',label:'Gewicht',unit:'kg',icon:'⚖️',lb:true},
-  {key:'fat',label:'Körperfett',unit:'%',icon:'🔥',lb:true},
-  {key:'muscle',label:'Muskelmasse',unit:'kg',icon:'💪',lb:false},
-  {key:'bmi',label:'BMI',unit:'',icon:'📊',lb:true},
-  {key:'pulse',label:'Ruhepuls',unit:'bpm',icon:'❤️',lb:true},
-  {key:'metage',label:'Metab. Alter',unit:'J',icon:'🧬',lb:true},
-  {key:'visz',label:'Viszeral',unit:'',icon:'🫀',lb:true},
-  {key:'lbm',label:'Lean Body Mass',unit:'kg',icon:'🦾',lb:false},
-  {key:'arm_l',label:'Linker Arm',unit:'%',icon:'💪',lb:true},
-  {key:'arm_r',label:'Rechter Arm',unit:'%',icon:'💪',lb:true},
-  {key:'leg_l',label:'Linkes Bein',unit:'%',icon:'🦵',lb:true},
-  {key:'leg_r',label:'Rechtes Bein',unit:'%',icon:'🦵',lb:true},
-  {key:'trunk',label:'Rumpf',unit:'%',icon:'🫀',lb:true},
+  {key:'kg',label:'Gewicht',unit:'kg',icon:'⚖️',lb:true,chart:true},
+  {key:'fat',label:'Körperfett',unit:'%',icon:'🔥',lb:true,chart:true},
+  {key:'muscle',label:'Muskelmasse',unit:'kg',icon:'💪',lb:false,chart:true},
+  {key:'bmi',label:'BMI',unit:'',icon:'📊',lb:true,chart:false},
+  {key:'pulse',label:'Ruhepuls',unit:'bpm',icon:'❤️',lb:true,chart:true},
+  {key:'metage',label:'Metab. Alter',unit:'J',icon:'🧬',lb:true,chart:false},
+  {key:'visz',label:'Viszeral',unit:'',icon:'🫀',lb:true,chart:false},
+  {key:'lbm',label:'Lean Body Mass',unit:'kg',icon:'🦾',lb:false,chart:false},
+  {key:'slm',label:'Soft Lean Mass',unit:'kg',icon:'🧬',lb:false,chart:false},
+  {key:'bone',label:'Knochen',unit:'kg',icon:'🦴',lb:false,chart:false},
+  {key:'protein',label:'Protein',unit:'kg',icon:'🥩',lb:false,chart:false},
+  {key:'bmr',label:'Grundumsatz',unit:'kcal',icon:'🔋',lb:false,chart:false},
+  {key:'tdee',label:'Leistungsumsatz',unit:'kcal',icon:'⚡',lb:false,chart:false},
 ];
+// Segment fields (body parts)
+const SEG_FIELDS=[
+  {key:'arm_l_fat',label:'Linker Arm KF',unit:'%',icon:'💪',lb:true,seg:'arm_l'},
+  {key:'arm_l_mus',label:'Linker Arm Muskeln',unit:'%',icon:'💪',lb:false,seg:'arm_l'},
+  {key:'arm_r_fat',label:'Rechter Arm KF',unit:'%',icon:'💪',lb:true,seg:'arm_r'},
+  {key:'arm_r_mus',label:'Rechter Arm Muskeln',unit:'%',icon:'💪',lb:false,seg:'arm_r'},
+  {key:'leg_l_fat',label:'Linkes Bein KF',unit:'%',icon:'🦵',lb:true,seg:'leg_l'},
+  {key:'leg_l_mus',label:'Linkes Bein Muskeln',unit:'%',icon:'🦵',lb:false,seg:'leg_l'},
+  {key:'leg_r_fat',label:'Rechtes Bein KF',unit:'%',icon:'🦵',lb:true,seg:'leg_r'},
+  {key:'leg_r_mus',label:'Rechtes Bein Muskeln',unit:'%',icon:'🦵',lb:false,seg:'leg_r'},
+  {key:'trunk_fat',label:'Rumpf KF',unit:'%',icon:'🫀',lb:true,seg:'trunk'},
+  {key:'trunk_mus',label:'Rumpf Muskeln',unit:'%',icon:'🫀',lb:false,seg:'trunk'},
+  {key:'visz_seg',label:'Viszeral (Segment)',unit:'',icon:'🫀',lb:true,seg:'trunk'},
+];
+const ALL_FIELDS=[...STAT_FIELDS,...SEG_FIELDS];
 
 async function loadBodyStats(){
   const {data}=await sb.from('body_stats').select('*').eq('user_id',currentUser.id);
   return data||[];
+}
+
+async function loadBodyStats(){
+  const {data}=await sb.from('body_stats').select('*').eq('user_id',currentUser.id);
+  return data||[];
+}
+
+function makeMiniChart(vals, color, lb){
+  if(vals.length<2) return '';
+  const min=Math.min(...vals)*0.97, max=Math.max(...vals)*1.03, range=max-min||1;
+  const W=120,H=36,pL=4,pR=4,pT=4,pB=4,cW=W-pL-pR,cH=H-pT-pB;
+  const pts=vals.map((v,i)=>`${pL+(i/(vals.length-1))*cW},${pT+(1-(v-min)/range)*cH}`);
+  const trend=vals[vals.length-1]-vals[0];
+  const lineColor = trend===0?'#888':((lb&&trend<0)||(!lb&&trend>0))?'#00ff87':'#f97316';
+  return `<svg width="100%" height="36" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block">
+    <polyline points="${pts.join(' ')}" fill="none" stroke="${lineColor}" stroke-width="1.5" stroke-linecap="round"/>
+    ${vals.map((v,i)=>{const px=pL+(i/(vals.length-1))*cW,py=pT+(1-(v-min)/range)*cH;return`<circle cx="${px}" cy="${py}" r="2" fill="${lineColor}"/>`;}).join('')}
+  </svg>`;
+}
+
+function makeBigChart(label, wVals, color){
+  if(wVals.length<2) return '';
+  const vals=wVals.map(x=>x.v);
+  const min=Math.min(...vals)*0.97, max=Math.max(...vals)*1.03, range=max-min||1;
+  const W=320,H=80,pL=8,pR=8,pT=8,pB=8,cW=W-pL-pR,cH=H-pT-pB;
+  const pts=wVals.map((x,i)=>`${pL+(i/(wVals.length-1))*cW},${pT+(1-(x.v-min)/range)*cH}`);
+  return `<div class="chart-wrap">
+    <div class="chart-title">${label}</div>
+    <div class="chart-area">
+      <svg width="100%" height="80" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs><linearGradient id="cg${label.replace(/\s/g,'')}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+        </linearGradient></defs>
+        <polygon points="${pL},${H} ${pts.join(' ')} ${pL+(wVals.length-1)/(wVals.length-1)*cW+pR},${H}" fill="url(#cg${label.replace(/\s/g,'')})" />
+        <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+        ${wVals.map((x,i)=>{const px=pL+(i/(wVals.length-1))*cW,py=pT+(1-(x.v-min)/range)*cH;return`<circle cx="${px}" cy="${py}" r="3" fill="${color}"/><text x="${px}" y="${py-6}" text-anchor="middle" font-size="8" fill="#888">${x.v}</text>`;}).join('')}
+      </svg>
+    </div>
+    <div class="chart-labels">${wVals.map(x=>`<span class="chart-label">${x.w}</span>`).join('')}</div>
+  </div>`;
 }
 
 async function renderBody(){
@@ -1601,89 +1700,127 @@ async function renderBody(){
   const byWeekField={};
   stats.forEach(r=>{ byWeekField[`${r.week}_${r.field}`]=r.value; });
 
-  // Find earliest week with data as "start"
-  let startWeek=0;
-  for(let w=1;w<=MAX_WEEKS;w++){ if(byWeekField[`${w}_kg`]){startWeek=w;break;} }
-  let latest=0;
-  for(let w=MAX_WEEKS;w>=1;w--){ if(byWeekField[`${w}_kg`]){latest=w;break;} }
+  let startWeek=0, latestWeek=0;
+  for(let w=1;w<=MAX_WEEKS;w++){ if(byWeekField[`${w}_kg`]){if(!startWeek)startWeek=w; latestWeek=w;} }
 
-  const startKg = startWeek ? byWeekField[`${startWeek}_kg`] : null;
-  const name = currentProfile?.name || 'du';
+  const name = currentProfile?.name||'Athlet';
 
   let h=`<div class="stat-hero">
-    <div class="stat-hero-title">KÖRPER ENTWICKLUNG</div>
-    <div class="stat-hero-sub">${name} · 12-Wochen Transformation</div>
+    <div class="stat-hero-title">KÖRPER ANALYSE</div>
+    <div class="stat-hero-sub">${name} · Transformation</div>
   </div>`;
 
-  // Info box
-  h+=`<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:11px;color:var(--dim);line-height:1.6;">
-    ℹ️ Alle Werte werden <b>manuell eingetragen</b> — direkt von deiner Waage oder Messung ablesen und hier eingeben. BMI wird automatisch berechnet wenn Gewicht und Größe hinterlegt sind.
-  </div>`;
-
-  if(!startWeek){
-    h+=`<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">
-      Noch keine Messwerte — trage unten deine ersten Werte ein! 👇
+  // ── ZIEL-FORTSCHRITT ──
+  const curKg = latestWeek ? (byWeekField[`${latestWeek}_kg`]||null) : null;
+  const startKg = startWeek ? (byWeekField[`${startWeek}_kg`]||null) : null;
+  const goalKg = 77; // Target from transformation program
+  if(curKg && startKg){
+    const totalNeed = startKg - goalKg;
+    const done = startKg - curKg;
+    const pct = Math.max(0,Math.min(100,Math.round((done/totalNeed)*100)));
+    const remaining = (curKg - goalKg).toFixed(1);
+    const trendColor = curKg <= goalKg ? '#00ff87' : done > 0 ? '#00ff87' : '#f97316';
+    h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px">🎯 ZIEL-FORTSCHRITT</div>
+        <div style="font-size:11px;color:var(--muted)">Ziel: ${goalKg} kg</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;color:${trendColor};font-weight:700">${done>=0?'-'+done.toFixed(1):'+'+Math.abs(done).toFixed(1)} kg seit Start</span>
+        <span style="font-size:12px;color:var(--muted)">${remaining > 0 ? 'noch '+remaining+' kg' : '🏆 Ziel erreicht!'}</span>
+      </div>
+      <div style="background:var(--surface);border-radius:4px;height:8px;overflow:hidden">
+        <div style="background:linear-gradient(90deg,${trendColor},${trendColor}88);height:100%;width:${pct}%;border-radius:4px;transition:width .6s ease"></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;text-align:right">${pct}% erreicht</div>
     </div>`;
-  } else {
-    h+=`<div class="stat-grid">`;
-    STAT_FIELDS.slice(0,8).forEach(f=>{
-      const cur=latest?(byWeekField[`${latest}_${f.key}`]||null):null;
-      const start=startWeek?(byWeekField[`${startWeek}_${f.key}`]||null):null;
-      const diff=cur!==null&&start!==null?(cur-start).toFixed(1):null;
-      const diffN=diff?parseFloat(diff):0;
-      const improved=f.lb?diffN<0:diffN>0;
-      const dc=diff===null?'neu':diffN===0?'neu':improved?'pos':'neg';
-      const sign=diffN>0?'+':'';
-      h+=`<div class="stat-card">
-        <div class="stat-label">${f.icon} ${f.label}</div>
-        <div class="stat-val">${cur!==null?cur:'—'}<span class="stat-unit">${f.unit}</span></div>
-        ${diff!==null&&diffN!==0?`<div class="stat-delta ${dc}">${sign}${diff} seit Start</div>`:`<div class="stat-delta neu">${cur!==null?'Aktuell':'Kein Wert'}</div>`}
-      </div>`;
-    });
-    h+='</div>';
-
-    // Body composition segments (Arm/Bein/Rumpf)
-    const segFields=STAT_FIELDS.slice(8);
-    const hasSegs=segFields.some(f=>byWeekField[`${latest}_${f.key}`]);
-    if(hasSegs){
-      h+=`<div class="prog-card"><div class="prog-card-title">📐 Körpersegmente — Fettanteil %</div>`;
-      segFields.forEach(f=>{
-        const v=byWeekField[`${latest}_${f.key}`];
-        h+=`<div class="prog-row2">
-          <div class="prog-item-label">${f.icon} ${f.label}</div>
-          <div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:${v?Math.min(100,v*3):0}%"></div></div>
-          <div class="prog-item-val">${v!==undefined?v+'%':'—'}</div>
-        </div>`;
-      });
-      h+='</div>';
-    }
-
-    // Weight chart
-    const wVals=[];
-    if(startKg) wVals.push({w:'Start',v:startKg});
-    for(let w=1;w<=MAX_WEEKS;w++){ if(byWeekField[`${w}_kg`]&&w!==startWeek) wVals.push({w:`W${w}`,v:byWeekField[`${w}_kg`]}); }
-    if(wVals.length>1){
-      const min=Math.min(...wVals.map(x=>x.v))*0.99,max=Math.max(...wVals.map(x=>x.v))*1.01,range=max-min||1;
-      const W=300,H=80,pL=8,pR=8,pT=8,pB=8,cW=W-pL-pR,cH=H-pT-pB;
-      const pts=wVals.map((x,i)=>`${pL+(i/(wVals.length-1))*cW},${pT+(1-(x.v-min)/range)*cH}`);
-      const lc=wVals[wVals.length-1].v<startKg?'#22c55e':'#f97316';
-      h+=`<div class="chart-wrap">
-        <div class="chart-title">⚖️ Gewicht — Verlauf</div>
-        <div class="chart-area">
-          <svg width="100%" height="80" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-            <polyline points="${pts.join(' ')}" fill="none" stroke="${lc}" stroke-width="2" stroke-linecap="round"/>
-            ${wVals.map((x,i)=>{const px=pL+(i/(wVals.length-1))*cW,py=pT+(1-(x.v-min)/range)*cH;return `<circle cx="${px}" cy="${py}" r="3" fill="${lc}"/>`;}).join('')}
-          </svg>
-        </div>
-        <div class="chart-labels">${wVals.map(x=>`<span class="chart-label">${x.w}</span>`).join('')}</div>
-      </div>`;
-    }
   }
 
-  // Input section — always shows correct current week
+  // ── HAUPT-METRIKEN ──
+  h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px;padding:0 2px">📊 AKTUELLE WERTE</div>`;
+  h+=`<div class="stat-grid">`;
+  STAT_FIELDS.forEach(f=>{
+    const cur = latestWeek ? (byWeekField[`${latestWeek}_${f.key}`]??null) : null;
+    const start = startWeek ? (byWeekField[`${startWeek}_${f.key}`]??null) : null;
+    const diff = (cur!==null&&start!==null&&cur!==start) ? (cur-start) : null;
+    const improved = diff!==null ? (f.lb ? diff<0 : diff>0) : null;
+    const deltaColor = diff===null?'var(--muted)':improved?'#00ff87':'#f97316';
+    const sign = diff!==null&&diff>0?'+':'';
+    // Mini sparkline
+    const sparkVals=[];
+    for(let w=1;w<=MAX_WEEKS;w++){ const v=byWeekField[`${w}_${f.key}`]; if(v!==undefined)sparkVals.push(v); }
+    const spark = sparkVals.length>=2 ? makeMiniChart(sparkVals, '#00ff87', f.lb) : '';
+    h+=`<div class="stat-card" style="position:relative;overflow:hidden">
+      <div class="stat-label">${f.icon} ${f.label}</div>
+      <div class="stat-val">${cur!==null?cur:'—'}<span class="stat-unit"> ${f.unit}</span></div>
+      ${diff!==null?`<div style="font-size:10px;color:${deltaColor};font-family:var(--mono);margin-top:2px">${sign}${diff.toFixed(1)} seit Start</div>`:`<div style="font-size:10px;color:var(--muted);margin-top:2px">Kein Vergleich</div>`}
+      ${spark?`<div style="margin-top:6px;opacity:0.7">${spark}</div>`:''}
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // ── KÖRPERSEGMENTE ──
+  const segGroups=[
+    {label:'💪 Linker Arm', fat:'arm_l_fat', mus:'arm_l_mus'},
+    {label:'💪 Rechter Arm', fat:'arm_r_fat', mus:'arm_r_mus'},
+    {label:'🦵 Linkes Bein', fat:'leg_l_fat', mus:'leg_l_mus'},
+    {label:'🦵 Rechtes Bein', fat:'leg_r_fat', mus:'leg_r_mus'},
+    {label:'🫀 Rumpf', fat:'trunk_fat', mus:'trunk_mus'},
+  ];
+  const hasSegs=segGroups.some(g=>byWeekField[`${latestWeek}_${g.fat}`]!==undefined);
+  if(hasSegs){
+    h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin:14px 0 8px;padding:0 2px">📐 KÖRPERSEGMENTE</div>`;
+    h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px">`;
+    segGroups.forEach(g=>{
+      const fat=byWeekField[`${latestWeek}_${g.fat}`];
+      const mus=byWeekField[`${latestWeek}_${g.mus}`];
+      if(fat===undefined&&mus===undefined) return;
+      h+=`<div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px">${g.label}</div>
+        ${fat!==undefined?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="font-size:10px;color:var(--muted);width:80px">Körperfett</div>
+          <div style="flex:1;background:var(--surface);border-radius:3px;height:6px"><div style="background:#f97316;height:100%;width:${Math.min(100,fat*3)}%;border-radius:3px"></div></div>
+          <div style="font-size:11px;font-family:var(--mono);color:#f97316;width:40px;text-align:right">${fat}%</div>
+        </div>`:''}
+        ${mus!==undefined?`<div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:10px;color:var(--muted);width:80px">Muskeln</div>
+          <div style="flex:1;background:var(--surface);border-radius:3px;height:6px"><div style="background:#00ff87;height:100%;width:${Math.min(100,mus*2)}%;border-radius:3px"></div></div>
+          <div style="font-size:11px;font-family:var(--mono);color:#00ff87;width:40px;text-align:right">${mus}%</div>
+        </div>`:''}
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // ── ANALYTICS CHARTS ──
+  const chartFields=[
+    {key:'kg',label:'⚖️ Gewicht (kg)',color:'#3d7fff',lb:true},
+    {key:'fat',label:'🔥 Körperfett (%)',color:'#f97316',lb:true},
+    {key:'muscle',label:'💪 Muskelmasse (kg)',color:'#00ff87',lb:false},
+    {key:'pulse',label:'❤️ Ruhepuls (bpm)',color:'#ff3b3b',lb:true},
+  ];
+  const chartData = chartFields.map(f=>{
+    const vals=[];
+    for(let w=1;w<=MAX_WEEKS;w++){
+      const v=byWeekField[`${w}_${f.key}`];
+      if(v!==undefined) vals.push({w:`W${w}`,v});
+    }
+    return {...f,vals};
+  }).filter(f=>f.vals.length>=2);
+
+  if(chartData.length>0){
+    h+=`<div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin:14px 0 8px;padding:0 2px">📈 ENTWICKLUNG</div>`;
+    chartData.forEach(f=>{
+      h+=makeBigChart(f.label, f.vals, f.color);
+    });
+  }
+
+  // ── EINGABE ──
   h+=`<div class="stat-input-section">
-    <div class="stat-input-title">📝 Wochenmessung — Woche ${currentWeek}</div>
-    <div style="font-size:10px;color:var(--muted);margin-bottom:10px;">Werte von deiner Waage direkt hier eintragen. BMI wird auto-berechnet wenn du Gewicht + Größe angibst.</div>
+    <div class="stat-input-title">📝 Messung eintragen — Woche ${currentWeek}</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Werte direkt von deiner Waage / Messung eingeben. BMI wird auto-berechnet.</div>
+    
+    <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px">HAUPTWERTE</div>
     <div class="stat-inputs">
       ${STAT_FIELDS.map(f=>`<div class="stat-field">
         <label>${f.icon} ${f.label} (${f.unit||'—'})</label>
@@ -1691,21 +1828,31 @@ async function renderBody(){
           value="${byWeekField[`${currentWeek}_${f.key}`]!==undefined?byWeekField[`${currentWeek}_${f.key}`]:''}">
       </div>`).join('')}
     </div>
+
+    <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;margin:12px 0 8px">KÖRPERSEGMENTE</div>
+    <div class="stat-inputs">
+      ${SEG_FIELDS.map(f=>`<div class="stat-field">
+        <label>${f.icon} ${f.label} (${f.unit||'—'})</label>
+        <input type="number" step="0.1" placeholder="?" id="bf_${f.key}"
+          value="${byWeekField[`${currentWeek}_${f.key}`]!==undefined?byWeekField[`${currentWeek}_${f.key}`]:''}">
+      </div>`).join('')}
+    </div>
     <button class="save-btn" onclick="saveBody()">💾 Woche ${currentWeek} speichern</button>
+    <div id="bodyMsg" style="font-size:11px;text-align:center;margin-top:8px;font-family:var(--mono)"></div>
   </div>`;
 
   document.getElementById('bodyContent').innerHTML=h;
 }
 
 async function saveBody(){
-  const heightEl=currentProfile?.height;
   let bmiCalc=null;
   const kgEl=document.getElementById('bf_kg');
   if(kgEl&&kgEl.value&&currentProfile?.height){
     const h=currentProfile.height/100;
     bmiCalc=parseFloat((parseFloat(kgEl.value)/(h*h)).toFixed(1));
   }
-  for(const f of STAT_FIELDS){
+  const allFields=[...STAT_FIELDS,...SEG_FIELDS];
+  for(const f of allFields){
     const el=document.getElementById('bf_'+f.key);
     if(el&&el.value!==''){
       await sb.from('body_stats').upsert({
@@ -1714,13 +1861,14 @@ async function saveBody(){
       },{onConflict:'user_id,week,field'});
     }
   }
-  // Auto-save BMI if calculable
   if(bmiCalc){
     await sb.from('body_stats').upsert({
       user_id:currentUser.id,week:currentWeek,field:'bmi',value:bmiCalc,
       updated_at:new Date().toISOString()
     },{onConflict:'user_id,week,field'});
   }
+  const msg=document.getElementById('bodyMsg');
+  if(msg){msg.style.color='var(--green)';msg.textContent='✅ Gespeichert!';setTimeout(()=>msg.textContent='',2000);}
   renderBody();
 }
 
@@ -1762,10 +1910,13 @@ async function renderLeaderboard(){
         const rankEmoji=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
         const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':'rn';
         const pct=Math.round((u.points/maxPts)*100);
+        const avatarHtml = u.photo
+          ? `<div class="lb-avatar" style="background:${u.color};background-image:url(${u.photo});background-size:cover;background-position:center"></div>`
+          : `<div class="lb-avatar" style="background:${u.color}">${u.icon||u.name.charAt(0).toUpperCase()}</div>`;
         h+=`<div class="lb-card ${u.isMe?'lb-me':''}">
           <div class="lb-row">
             <div class="lb-rank ${rankClass}">${rankEmoji}</div>
-            <div class="lb-avatar" style="background:${u.color}">${u.name.charAt(0).toUpperCase()}</div>
+            ${avatarHtml}
             <div class="lb-info">
               <div class="lb-name">${u.name}${u.isMe?' <span style="font-size:9px;color:var(--blue-l);font-family:DM Mono,monospace">(du)</span>':''}</div>
               <div class="lb-sub">${u.sessions} Sessions · ${u.sauna} Sauna 🧖</div>
@@ -2109,6 +2260,10 @@ async function renderSettings(){
   h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;">
     <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">PROFIL</div>
     <div class="auth-field"><label>ANZEIGENAME</label><input type="text" id="settingsName" value="${name}" placeholder="Dein Name"></div>
+    <div class="auth-field" style="margin-top:10px">
+      <label>NICKNAME <span style="font-size:9px;color:var(--muted);font-weight:400">(sichtbar im Ranking · muss einzigartig sein)</span></label>
+      <input type="text" id="settingsNick" value="${currentProfile?.nickname||''}" placeholder="z.B. IronMike · max 20 Zeichen" maxlength="20">
+    </div>
     <button onclick="saveProfile()" style="width:100%;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px;">Name speichern</button>
     <div id="profileMsg" style="font-size:11px;text-align:center;margin-top:8px;font-family:var(--mono)"></div>
   </div>`;
@@ -2216,13 +2371,27 @@ async function saveAvatar(){
 
 async function saveProfile(){
   const name=document.getElementById('settingsName').value.trim();
+  const nickEl=document.getElementById('settingsNick');
+  const nick=nickEl?nickEl.value.trim():'';
   if(!name){document.getElementById('profileMsg').style.color='var(--red)';document.getElementById('profileMsg').textContent='Name darf nicht leer sein.';return;}
-  const {error}=await sb.from('profiles').update({name}).eq('id',currentUser.id);
+  // Unique nickname check
+  if(nick && nick !== (currentProfile?.nickname||'')){
+    const {data:existing}=await sb.from('profiles').select('id').eq('nickname',nick).neq('id',currentUser.id);
+    if(existing&&existing.length>0){
+      const msg=document.getElementById('profileMsg');
+      msg.style.color='var(--red)'; msg.textContent='❌ Nickname "'+nick+'" ist bereits vergeben!';
+      setTimeout(()=>msg.textContent='',3000);
+      return;
+    }
+  }
+  const updates={name};
+  if(nick!==undefined) updates.nickname=nick||null;
+  const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
   const msg=document.getElementById('profileMsg');
   if(error){msg.style.color='var(--red)';msg.textContent='Fehler: '+error.message;return;}
-  currentProfile={...currentProfile,name};
-  document.getElementById('userNamePill').textContent=name;
-  msg.style.color='var(--green)'; msg.textContent='✓ Name gespeichert!';
+  currentProfile={...currentProfile,name,nickname:nick||null};
+  document.getElementById('userNamePill').textContent=nick||name;
+  msg.style.color='var(--green)'; msg.textContent='✓ Profil gespeichert!';
   setTimeout(()=>msg.textContent='',2000);
 }
 
@@ -2282,7 +2451,7 @@ async function fetchLeaderboardEx(period){
   }
 
   return profiles.map(p=>({
-    id:p.id, name:p.name, color:p.avatar_color,
+    id:p.id, name:p.nickname||p.name, realName:p.name, color:p.avatar_color||'#00ff87', icon:p.avatar_icon||'💪', photo:p.avatar_photo||null,
     points:Math.round(userPoints[p.id]||0),
     sessions:userSessions[p.id]?.size||0,
     sauna:userSauna[p.id]||0,
