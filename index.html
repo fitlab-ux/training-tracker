@@ -881,7 +881,7 @@ body::before{
 
   <div style="display:flex;align-items:center;gap:0;background:var(--bg2);border-bottom:1px solid var(--border)">
     <div class="tabs" id="dayTabs" style="flex:1;border-bottom:none;padding-right:4px"></div>
-    <button onclick="showGoalsScreen(false)" style="flex-shrink:0;margin:6px 10px 6px 0;padding:7px 12px;background:linear-gradient(135deg,#00e87a,#00c468);border:none;border-radius:8px;color:#040506;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 12px rgba(0,232,122,.3)">🤖 KI-PLAN</button>
+    <button onclick="showGoalsScreen(false)" style="flex-shrink:0;margin:6px 10px 6px 0;padding:7px 12px;background:linear-gradient(135deg,#00e87a,#00c468);border:none;border-radius:8px;color:#040506;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 12px rgba(0,232,122,.3)">🎯 NEUES ZIEL</button>
   </div>
 
   <div id="viewTraining" class="view active"><div class="main" id="trainingContent"></div></div>
@@ -1778,11 +1778,11 @@ async function fetchLeaderboard(period){
 // TRAINING DATA
 // ══════════════════════════════════════════════════════
 const DAY_TEMPLATES = {
-  A:{name:'TAG A',subtitle:'Oberkörper + Zone 2',type:'KRAFT + CARDIO',duration:'80–90 Min',sauna:false,timeHint:'❶ Cardio-Stimulus',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier oder Vollkornbrot'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse + Kohlenhydrate nach Wahle'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + kleiner Snack'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein + Wasser — sofort nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Kohlenhydratarm: Salat + Proteinquelle'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier: Oberkörper vorklappen, Arme ziehen NACH der Hüfte. Schultern locker. 50% Intensität.',weights:[]},{name:'Arm Circles + Schulter Mobil.',sets:2,reps:'30 Sek je Richtung',emoji:'🔄',tip:'Arme weit kreisen, erst vorwärts dann rückwärts. Schulterblätter zusammenziehen.',weights:[]},{name:'Band Pull-Aparts',sets:2,reps:'15 Wdh',emoji:'↔️',tip:'Band auf Brusthöhe, Arme gestreckt auseinanderziehen. Hintere Schulter aktivieren.',weights:[]}]},{name:'BLOCK 1 — BRUST & RÜCKEN',color:'#3b82f6',exercises:[{name:'Bankdrücken (Langhantel)',sets:4,reps:'6–8 Wdh',emoji:'🏋️',superset:true,tip:'Schulterblätter zusammen, Brust raus. Stange kontrolliert senken, explosiv drücken. 85% 1RM.',weights:[40,50,60,70,80,90,100]},{name:'Langhantelrudern',sets:4,reps:'8–10 Wdh',emoji:'💪',superset:true,tip:'Oberkörper 45° vorgebeugt. Stange zum Bauchnabel ziehen, Ellbogen eng.',weights:[30,40,50,60,70,80]},{name:'Schrägbank Kurzhantel',sets:3,reps:'10–12 Wdh',emoji:'📐',superset:true,tip:'Volle Dehnung unten. Langsam senken, kontrolliert drücken.',weights:[16,18,20,22,24,26,28,30]},{name:'Klimmzüge / Latzug',sets:3,reps:'Max / 10 Wdh',emoji:'🔝',superset:true,tip:'Schulterblätter zuerst nach unten, dann Ellbogen ziehen. Letzter Satz bis Versagen!',weights:[0,40,50,60,70]}]},{name:'BLOCK 2 — SCHULTERN & ARME',color:'#1976D2',exercises:[{name:'Militärpress (sitzend)',sets:3,reps:'8–10 Wdh',emoji:'⬆️',superset:true,tip:'Rücken gerade, Kern angespannt. Nicht ins Hohlkreuz fallen.',weights:[30,40,50,60,70]},{name:'Seitheben',sets:3,reps:'12–15 Wdh',emoji:'✈️',superset:true,tip:'Kein Schwung! Arme nur bis Schulterhöhe. Kleiner Finger leicht oben.',weights:[6,8,10,12,14,16]},{name:'Bizeps-Curls (Kurzhantel)',sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Ellbogen am Körper fixiert. 3 Sek runter, 1 Sek hoch.',weights:[10,12,14,16,18,20]},{name:'Trizeps-Dips / Pushdown',sets:3,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'Voll strecken oben, 90° unten. Bei Dips Oberkörper leicht nach vorne.',weights:[0,15,20,25,30]}]},{name:'ZONE 2 CARDIO — nach Kraft',color:'#22c55e',exercises:[{name:'Stepper — Zone 2',sets:1,reps:'20 Min',emoji:'🪜',tip:'Ziel-HF: 130–145 bpm. Aufrecht stehen, Gesäß aktivieren. Kein Hohlkreuz!',weights:[]},{name:'SkiErg — Finish-Intervalle',sets:5,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'5 Intervalle als Abschluss. Maximale Zugkraft die 30 Sek.',weights:[]}]}]},
-  B:{name:'TAG B',subtitle:'Beine + Core',type:'FETTVERBRENNER',duration:'65–75 Min',sauna:true,saunaTemp:'90–100°C',timeHint:'Stärkster Trainingstag!',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier — heute mehr Carbs!'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse + Kartoffeln oder Reis — heute mehr Carbs'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Joghurt oder Vollkornbrot'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein — sofort nach der Sauna'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Mozzarella + Tomaten oder Wurst + Salat'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier-Bewegung. Locker einpendeln, Atemfrequenz normalisieren.',weights:[]},{name:'Hip Circles + Leg Swings + Goblet Squat',sets:2,reps:'10 Wdh je',emoji:'🔄',tip:'Hüfte locker kreisen, Beine schwingen, tief in Kniebeuge. Keine Eile.',weights:[]}]},{name:'BLOCK 1 — QUADRIZEPS & GESÄSS',color:'#3b82f6',exercises:[{name:'Kniebeugen (Langhantel)',sets:5,reps:'5–6 Wdh',emoji:'🏋️',tip:'KÖNIG DER ÜBUNGEN! Brust raus, Knie über Zehen, tief bis parallel. 90% 1RM.',weights:[40,50,60,70,80,90,100,110,120]},{name:'Beinpresse',sets:4,reps:'10–12 Wdh',emoji:'🦵',tip:'Füße schulterbreit, tief bis 90°. Knie nicht nach innen.',weights:[60,80,100,120,140,160,180]},{name:'Bulgarische Split Squat',sets:3,reps:'10 je Bein',emoji:'📐',tip:'Hinterer Fuß auf Bank. Vorderes Knie über dem Fuß.',weights:[0,10,12,14,16,18,20]},{name:'Beinstrecker (Maschine)',sets:3,reps:'15 Wdh',emoji:'🔥',tip:'Langsam strecken, oben 1 Sek halten. Brennt — ist gut!',weights:[30,40,50,60,70,80]}]},{name:'BLOCK 2 — HINTERE KETTE & WADEN',color:'#1976D2',exercises:[{name:'Rumänisches Kreuzheben',sets:4,reps:'8–10 Wdh',emoji:'⬇️',superset:true,tip:'Stange körpernah, Rücken gerade. Langsam kippen bis Dehnung spürbar.',weights:[40,50,60,70,80,90]},{name:'Beinbeuger liegend',sets:4,reps:'12 Wdh',emoji:'🦵',superset:true,tip:'3 Sek runter, schnell ziehen. Hüfte bleibt auf der Bank.',weights:[30,40,50,60,70]},{name:'Wadenheben (stehend)',sets:4,reps:'20 Wdh',emoji:'👟',tip:'Volle Bewegung: ganz unten dehnen, ganz oben strecken. Oben 1 Sek halten.',weights:[0,20,30,40,50,60]}]},{name:'CORE FINISHER',color:'#22c55e',exercises:[{name:'Plank',sets:3,reps:'45–60 Sek',emoji:'⬛',tip:'Hüfte gerade, Gesäß anspannen. Kein Hohlkreuz.',weights:[]},{name:'Ab Rollout / Crunch Maschine',sets:3,reps:'15 Wdh',emoji:'🔄',tip:'Langsam ausrollen. Niemals ins Hohlkreuz!',weights:[0,10,20,30]},{name:'Russische Twists',sets:3,reps:'20 Wdh',emoji:'↩️',tip:'Füße leicht angehoben. Mit Gewicht links-rechts drehen.',weights:[4,6,8,10,12]},{name:'Hängendes Knieheben',sets:3,reps:'15 Wdh',emoji:'⬆️',tip:'Knie langsam zur Brust. Kein Schwingen.',weights:[]}]}]},
-  C:{name:'TAG C',subtitle:'Reines Cardio',type:'HERZ-TAG ❤️',duration:'60–65 Min',sauna:true,saunaTemp:'85–95°C',timeHint:'❷+❸ Cardio-Stimulus',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Eier + Gemüse — heute weniger Carbs'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse — leichte Portion (Cardio-Tag)'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Nur Banane — leichter Magen für Cardio!'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein + Beeren — nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Großer Salat mit Feta oder Ruccola-Erdbeere'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'ZONE 2 — STEPPER oder LAUFBAND',color:'#3b82f6',exercises:[{name:'Stepper Zone 2',sets:1,reps:'35–40 Min',emoji:'🪜',tip:'130–145 bpm die GESAMTE Zeit. Gleichmäßig — das formt das Herz. Aufrecht, Gesäß aktivieren.',weights:[]},{name:'Laufband Incline (Alternative)',sets:1,reps:'35–40 Min',emoji:'🏔️',tip:'Steigung 8–12%, Tempo 5–6 km/h. Kein Festhalten! Arme schwingen lassen.',weights:[]}]},{name:'SKIERG — HIIT FINISH',color:'#f97316',exercises:[{name:'SkiErg 30/30 Intervalle',sets:8,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'VOLLGAS die 30 Sek. Hüftstoß + Armzug synchron. Dann wirklich pausieren!',weights:[]},{name:'Burpees oder Box Jumps',sets:4,reps:'10 Wdh',emoji:'⬆️',tip:'Explosiv! Burpees: Plank → Liegestütz → Sprung. Box Jumps: weich landen.',weights:[]}]},{name:'CORE CIRCUIT',color:'#22c55e',exercises:[{name:'Plank Varianten',sets:3,reps:'45 Sek',emoji:'⬛',tip:'Front → Side links → Side rechts. Je 45 Sek.',weights:[]},{name:'Ab Wheel Rollout',sets:3,reps:'12 Wdh',emoji:'🔄',tip:'Langsam ausrollen bis kurz vor Boden. Kontrolliert zurück.',weights:[]},{name:'Hollow Body Hold',sets:3,reps:'30 Sek',emoji:'🤸',tip:'Arme über Kopf, Beine gestreckt angehoben. Kreuz flach halten.',weights:[]},{name:'V-Ups oder Knieheben',sets:3,reps:'15 Wdh',emoji:'⬆️',tip:'V-Ups: gleichzeitig Arme und Beine zur Mitte.',weights:[]}]}]},
-  D:{name:'TAG D',subtitle:'Ganzkörper + Zone 2',type:'OPTIONAL + CARDIO',duration:'80–90 Min',sauna:false,timeHint:'Optional · 4. Tag',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier + Obst'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Kräftig essen — großer Trainingstag!'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Vollkornbrot mit Quark'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein — direkt nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Wurst + Karottensalat oder Caprese'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier, Arme nach Hüfte. Locker einpendeln. 50% Intensität.',weights:[]},{name:'Mobility: Hüfte + Schulter + Thorax',sets:1,reps:'5 Min',emoji:'🔄',tip:'Hüftkreisen, Arm Circles, Thorax-Rotation. Alles lockern.',weights:[]}]},{name:'GANZKÖRPER COMPOUND',color:'#3b82f6',exercises:[{name:'Kreuzheben',sets:4,reps:'5 Wdh',emoji:'🏋️',tip:'Rücken GERADE, Stange über Mittelfuß. Gesäß rein, dann ziehen. 85% 1RM.',weights:[60,70,80,90,100,110,120,130,140]},{name:'Frontsquat',sets:3,reps:'8 Wdh',emoji:'🦵',superset:true,tip:'Stange auf Schultern vorne. Aufrechter Oberkörper. Technik > Gewicht!',weights:[30,40,50,60,70,80]},{name:'Push Press',sets:3,reps:'8 Wdh',emoji:'⬆️',superset:true,tip:'Kurz in die Knie, dann explosiv strecken. Power!',weights:[30,40,50,60,70]},{name:'Klimmzüge + Dips',sets:3,reps:'Max Wdh',emoji:'💪',superset:true,tip:'Klimmzüge bis Versagen, dann sofort Dips.',weights:[0]},{name:'Langhantelrudern',sets:3,reps:'10 Wdh',emoji:'🚣',superset:true,tip:'Enger Griff, Ellbogen eng. Stange zum Bauch, 2 Sek halten.',weights:[40,50,60,70,80]},{name:'Farmers Walk',sets:3,reps:'40 Meter',emoji:'🏃',tip:'Schwere Kurzhanteln, aufrecht, Schultern zurück.',weights:[16,18,20,22,24,26,28,30,32]},{name:'Kettlebell Swings',sets:4,reps:'20 Wdh',emoji:'⚡',tip:'HÜFTSTOSS — nicht Kniebeuge! Arme sind nur Seile.',weights:[12,16,20,24,28,32]}]},{name:'ZONE 2 — nach Kraft',color:'#22c55e',exercises:[{name:'Stepper Zone 2',sets:1,reps:'20 Min',emoji:'🪜',tip:'130–145 bpm. HF-Uhr checken, nicht Gefühl.',weights:[]},{name:'Laufband Incline',sets:1,reps:'20 Min',emoji:'🏔️',tip:'Steigung 10%, Tempo 5–6 km/h. Kein Festhalten!',weights:[]}]}]},
-  E:{name:'TAG E',subtitle:'Cardio + Mobility',type:'BONUS CARDIO',duration:'50–60 Min',sauna:true,saunaTemp:'80–90°C',timeHint:'Flexibel · 5. Tag',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Leicht — Eier + Obst'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse nach Wahl'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Proteinreich + Gemüse'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — vor dem Schlafen'}],blocks:[{name:'ZONE 2 — STEPPER',color:'#3b82f6',exercises:[{name:'Stepper Zone 2',sets:1,reps:'30–35 Min',emoji:'🪜',tip:'130–145 bpm. Gleichmäßig — das formt das Herz.',weights:[]}]},{name:'SKIERG — HIIT',color:'#f97316',exercises:[{name:'SkiErg 30/30',sets:6,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'6 Runden maximal intensiv.',weights:[]}]},{name:'MOBILITÄT',color:'#22c55e',exercises:[{name:'Hüftbeuger + Pigeon Pose',sets:2,reps:'60 Sek je Seite',emoji:'🧘',tip:'Nach Stepper: Hüftbeuger stark verkürzt. Tief dehnen, atmen.',weights:[]},{name:'Thorax-Rotation + Schulter',sets:2,reps:'45 Sek je Seite',emoji:'🔄',tip:'Knie zur Seite, Oberkörper dreht gegenläufig. Schulter bleibt am Boden.',weights:[]}]}]}
+  A:{name:'TAG 1',subtitle:'Oberkörper + Zone 2',type:'KRAFT + CARDIO',duration:'80–90 Min',sauna:false,timeHint:'❶ Cardio-Stimulus',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier oder Vollkornbrot'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse + Kohlenhydrate nach Wahle'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + kleiner Snack'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein + Wasser — sofort nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Kohlenhydratarm: Salat + Proteinquelle'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier: Oberkörper vorklappen, Arme ziehen NACH der Hüfte. Schultern locker. 50% Intensität.',weights:[]},{name:'Arm Circles + Schulter Mobil.',sets:2,reps:'30 Sek je Richtung',emoji:'🔄',tip:'Arme weit kreisen, erst vorwärts dann rückwärts. Schulterblätter zusammenziehen.',weights:[]},{name:'Band Pull-Aparts',sets:2,reps:'15 Wdh',emoji:'↔️',tip:'Band auf Brusthöhe, Arme gestreckt auseinanderziehen. Hintere Schulter aktivieren.',weights:[]}]},{name:'BLOCK 1 — BRUST & RÜCKEN',color:'#3b82f6',exercises:[{name:'Bankdrücken (Langhantel)',sets:4,reps:'6–8 Wdh',emoji:'🏋️',superset:true,tip:'Schulterblätter zusammen, Brust raus. Stange kontrolliert senken, explosiv drücken. 85% 1RM.',weights:[40,50,60,70,80,90,100]},{name:'Langhantelrudern',sets:4,reps:'8–10 Wdh',emoji:'💪',superset:true,tip:'Oberkörper 45° vorgebeugt. Stange zum Bauchnabel ziehen, Ellbogen eng.',weights:[30,40,50,60,70,80]},{name:'Schrägbank Kurzhantel',sets:3,reps:'10–12 Wdh',emoji:'📐',superset:true,tip:'Volle Dehnung unten. Langsam senken, kontrolliert drücken.',weights:[16,18,20,22,24,26,28,30]},{name:'Klimmzüge / Latzug',sets:3,reps:'Max / 10 Wdh',emoji:'🔝',superset:true,tip:'Schulterblätter zuerst nach unten, dann Ellbogen ziehen. Letzter Satz bis Versagen!',weights:[0,40,50,60,70]}]},{name:'BLOCK 2 — SCHULTERN & ARME',color:'#1976D2',exercises:[{name:'Militärpress (sitzend)',sets:3,reps:'8–10 Wdh',emoji:'⬆️',superset:true,tip:'Rücken gerade, Kern angespannt. Nicht ins Hohlkreuz fallen.',weights:[30,40,50,60,70]},{name:'Seitheben',sets:3,reps:'12–15 Wdh',emoji:'✈️',superset:true,tip:'Kein Schwung! Arme nur bis Schulterhöhe. Kleiner Finger leicht oben.',weights:[6,8,10,12,14,16]},{name:'Bizeps-Curls (Kurzhantel)',sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Ellbogen am Körper fixiert. 3 Sek runter, 1 Sek hoch.',weights:[10,12,14,16,18,20]},{name:'Trizeps-Dips / Pushdown',sets:3,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'Voll strecken oben, 90° unten. Bei Dips Oberkörper leicht nach vorne.',weights:[0,15,20,25,30]}]},{name:'ZONE 2 CARDIO — nach Kraft',color:'#22c55e',exercises:[{name:'Stepper — Zone 2',sets:1,reps:'20 Min',emoji:'🪜',tip:'Ziel-HF: 130–145 bpm. Aufrecht stehen, Gesäß aktivieren. Kein Hohlkreuz!',weights:[]},{name:'SkiErg — Finish-Intervalle',sets:5,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'5 Intervalle als Abschluss. Maximale Zugkraft die 30 Sek.',weights:[]}]}]},
+  B:{name:'TAG 2',subtitle:'Beine + Core',type:'FETTVERBRENNER',duration:'65–75 Min',sauna:true,saunaTemp:'90–100°C',timeHint:'Stärkster Trainingstag!',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier — heute mehr Carbs!'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse + Kartoffeln oder Reis — heute mehr Carbs'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Joghurt oder Vollkornbrot'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein — sofort nach der Sauna'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Mozzarella + Tomaten oder Wurst + Salat'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier-Bewegung. Locker einpendeln, Atemfrequenz normalisieren.',weights:[]},{name:'Hip Circles + Leg Swings + Goblet Squat',sets:2,reps:'10 Wdh je',emoji:'🔄',tip:'Hüfte locker kreisen, Beine schwingen, tief in Kniebeuge. Keine Eile.',weights:[]}]},{name:'BLOCK 1 — QUADRIZEPS & GESÄSS',color:'#3b82f6',exercises:[{name:'Kniebeugen (Langhantel)',sets:5,reps:'5–6 Wdh',emoji:'🏋️',tip:'KÖNIG DER ÜBUNGEN! Brust raus, Knie über Zehen, tief bis parallel. 90% 1RM.',weights:[40,50,60,70,80,90,100,110,120]},{name:'Beinpresse',sets:4,reps:'10–12 Wdh',emoji:'🦵',tip:'Füße schulterbreit, tief bis 90°. Knie nicht nach innen.',weights:[60,80,100,120,140,160,180]},{name:'Bulgarische Split Squat',sets:3,reps:'10 je Bein',emoji:'📐',tip:'Hinterer Fuß auf Bank. Vorderes Knie über dem Fuß.',weights:[0,10,12,14,16,18,20]},{name:'Beinstrecker (Maschine)',sets:3,reps:'15 Wdh',emoji:'🔥',tip:'Langsam strecken, oben 1 Sek halten. Brennt — ist gut!',weights:[30,40,50,60,70,80]}]},{name:'BLOCK 2 — HINTERE KETTE & WADEN',color:'#1976D2',exercises:[{name:'Rumänisches Kreuzheben',sets:4,reps:'8–10 Wdh',emoji:'⬇️',superset:true,tip:'Stange körpernah, Rücken gerade. Langsam kippen bis Dehnung spürbar.',weights:[40,50,60,70,80,90]},{name:'Beinbeuger liegend',sets:4,reps:'12 Wdh',emoji:'🦵',superset:true,tip:'3 Sek runter, schnell ziehen. Hüfte bleibt auf der Bank.',weights:[30,40,50,60,70]},{name:'Wadenheben (stehend)',sets:4,reps:'20 Wdh',emoji:'👟',tip:'Volle Bewegung: ganz unten dehnen, ganz oben strecken. Oben 1 Sek halten.',weights:[0,20,30,40,50,60]}]},{name:'CORE FINISHER',color:'#22c55e',exercises:[{name:'Plank',sets:3,reps:'45–60 Sek',emoji:'⬛',tip:'Hüfte gerade, Gesäß anspannen. Kein Hohlkreuz.',weights:[]},{name:'Ab Rollout / Crunch Maschine',sets:3,reps:'15 Wdh',emoji:'🔄',tip:'Langsam ausrollen. Niemals ins Hohlkreuz!',weights:[0,10,20,30]},{name:'Russische Twists',sets:3,reps:'20 Wdh',emoji:'↩️',tip:'Füße leicht angehoben. Mit Gewicht links-rechts drehen.',weights:[4,6,8,10,12]},{name:'Hängendes Knieheben',sets:3,reps:'15 Wdh',emoji:'⬆️',tip:'Knie langsam zur Brust. Kein Schwingen.',weights:[]}]}]},
+  C:{name:'TAG 3',subtitle:'Reines Cardio',type:'HERZ-TAG ❤️',duration:'60–65 Min',sauna:true,saunaTemp:'85–95°C',timeHint:'❷+❸ Cardio-Stimulus',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Eier + Gemüse — heute weniger Carbs'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse — leichte Portion (Cardio-Tag)'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Nur Banane — leichter Magen für Cardio!'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein + Beeren — nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Großer Salat mit Feta oder Ruccola-Erdbeere'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'ZONE 2 — STEPPER oder LAUFBAND',color:'#3b82f6',exercises:[{name:'Stepper Zone 2',sets:1,reps:'35–40 Min',emoji:'🪜',tip:'130–145 bpm die GESAMTE Zeit. Gleichmäßig — das formt das Herz. Aufrecht, Gesäß aktivieren.',weights:[]},{name:'Laufband Incline (Alternative)',sets:1,reps:'35–40 Min',emoji:'🏔️',tip:'Steigung 8–12%, Tempo 5–6 km/h. Kein Festhalten! Arme schwingen lassen.',weights:[]}]},{name:'SKIERG — HIIT FINISH',color:'#f97316',exercises:[{name:'SkiErg 30/30 Intervalle',sets:8,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'VOLLGAS die 30 Sek. Hüftstoß + Armzug synchron. Dann wirklich pausieren!',weights:[]},{name:'Burpees oder Box Jumps',sets:4,reps:'10 Wdh',emoji:'⬆️',tip:'Explosiv! Burpees: Plank → Liegestütz → Sprung. Box Jumps: weich landen.',weights:[]}]},{name:'CORE CIRCUIT',color:'#22c55e',exercises:[{name:'Plank Varianten',sets:3,reps:'45 Sek',emoji:'⬛',tip:'Front → Side links → Side rechts. Je 45 Sek.',weights:[]},{name:'Ab Wheel Rollout',sets:3,reps:'12 Wdh',emoji:'🔄',tip:'Langsam ausrollen bis kurz vor Boden. Kontrolliert zurück.',weights:[]},{name:'Hollow Body Hold',sets:3,reps:'30 Sek',emoji:'🤸',tip:'Arme über Kopf, Beine gestreckt angehoben. Kreuz flach halten.',weights:[]},{name:'V-Ups oder Knieheben',sets:3,reps:'15 Wdh',emoji:'⬆️',tip:'V-Ups: gleichzeitig Arme und Beine zur Mitte.',weights:[]}]}]},
+  D:{name:'TAG 4',subtitle:'Ganzkörper + Zone 2',type:'OPTIONAL + CARDIO',duration:'80–90 Min',sauna:false,timeHint:'Optional · 4. Tag',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier + Obst'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Kräftig essen — großer Trainingstag!'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Vollkornbrot mit Quark'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein — direkt nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Wurst + Karottensalat oder Caprese'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier, Arme nach Hüfte. Locker einpendeln. 50% Intensität.',weights:[]},{name:'Mobility: Hüfte + Schulter + Thorax',sets:1,reps:'5 Min',emoji:'🔄',tip:'Hüftkreisen, Arm Circles, Thorax-Rotation. Alles lockern.',weights:[]}]},{name:'GANZKÖRPER COMPOUND',color:'#3b82f6',exercises:[{name:'Kreuzheben',sets:4,reps:'5 Wdh',emoji:'🏋️',tip:'Rücken GERADE, Stange über Mittelfuß. Gesäß rein, dann ziehen. 85% 1RM.',weights:[60,70,80,90,100,110,120,130,140]},{name:'Frontsquat',sets:3,reps:'8 Wdh',emoji:'🦵',superset:true,tip:'Stange auf Schultern vorne. Aufrechter Oberkörper. Technik > Gewicht!',weights:[30,40,50,60,70,80]},{name:'Push Press',sets:3,reps:'8 Wdh',emoji:'⬆️',superset:true,tip:'Kurz in die Knie, dann explosiv strecken. Power!',weights:[30,40,50,60,70]},{name:'Klimmzüge + Dips',sets:3,reps:'Max Wdh',emoji:'💪',superset:true,tip:'Klimmzüge bis Versagen, dann sofort Dips.',weights:[0]},{name:'Langhantelrudern',sets:3,reps:'10 Wdh',emoji:'🚣',superset:true,tip:'Enger Griff, Ellbogen eng. Stange zum Bauch, 2 Sek halten.',weights:[40,50,60,70,80]},{name:'Farmers Walk',sets:3,reps:'40 Meter',emoji:'🏃',tip:'Schwere Kurzhanteln, aufrecht, Schultern zurück.',weights:[16,18,20,22,24,26,28,30,32]},{name:'Kettlebell Swings',sets:4,reps:'20 Wdh',emoji:'⚡',tip:'HÜFTSTOSS — nicht Kniebeuge! Arme sind nur Seile.',weights:[12,16,20,24,28,32]}]},{name:'ZONE 2 — nach Kraft',color:'#22c55e',exercises:[{name:'Stepper Zone 2',sets:1,reps:'20 Min',emoji:'🪜',tip:'130–145 bpm. HF-Uhr checken, nicht Gefühl.',weights:[]},{name:'Laufband Incline',sets:1,reps:'20 Min',emoji:'🏔️',tip:'Steigung 10%, Tempo 5–6 km/h. Kein Festhalten!',weights:[]}]}]},
+  E:{name:'TAG 5',subtitle:'Cardio + Mobility',type:'BONUS CARDIO',duration:'50–60 Min',sauna:true,saunaTemp:'80–90°C',timeHint:'Flexibel · 5. Tag',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Leicht — Eier + Obst'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse nach Wahl'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Proteinreich + Gemüse'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — vor dem Schlafen'}],blocks:[{name:'ZONE 2 — STEPPER',color:'#3b82f6',exercises:[{name:'Stepper Zone 2',sets:1,reps:'30–35 Min',emoji:'🪜',tip:'130–145 bpm. Gleichmäßig — das formt das Herz.',weights:[]}]},{name:'SKIERG — HIIT',color:'#f97316',exercises:[{name:'SkiErg 30/30',sets:6,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'6 Runden maximal intensiv.',weights:[]}]},{name:'MOBILITÄT',color:'#22c55e',exercises:[{name:'Hüftbeuger + Pigeon Pose',sets:2,reps:'60 Sek je Seite',emoji:'🧘',tip:'Nach Stepper: Hüftbeuger stark verkürzt. Tief dehnen, atmen.',weights:[]},{name:'Thorax-Rotation + Schulter',sets:2,reps:'45 Sek je Seite',emoji:'🔄',tip:'Knie zur Seite, Oberkörper dreht gegenläufig. Schulter bleibt am Boden.',weights:[]}]}]}
 };
 
 const MAX_WEEKS = 12;
@@ -2161,9 +2161,185 @@ const SEG_FIELDS=[
 ];
 const ALL_FIELDS=[...STAT_FIELDS,...SEG_FIELDS];
 
+
+// ══════════════════════════════════════════════════════
+// HEALTH INTELLIGENCE SYSTEM
+// ══════════════════════════════════════════════════════
+
+// Normwerte nach Geschlecht + Alter (vereinfacht, evidenzbasiert)
+function getHealthNorms(sex, age){
+  const m = sex==='m';
+  const a = age||40;
+  // Returns {min, ok, good, elite, unit, lowerIsBetter}
+  return {
+    kg:    null, // depends on height — handled separately via BMI
+    bmi:   {ranges:[{max:18.4,label:'Untergewicht',color:'#f97316',icon:'⚠️'},{max:24.9,label:'Normalgewicht',color:'#00e87a',icon:'✅'},{max:29.9,label:'Übergewicht',color:'#f97316',icon:'⚠️'},{max:999,label:'Adipositas',color:'#ef4444',icon:'🔴'}], lowerIsBetter:false, unit:''},
+    fat:   m
+      ? {ranges:[{max:a<30?10:a<40?12:a<50?14:16,label:'Sehr fit',color:'#00e87a',icon:'🏆'},{max:a<30?18:a<40?21:a<50?23:25,label:'Fit',color:'#4ade80',icon:'✅'},{max:a<30?25:a<40?27:a<50?29:31,label:'OK',color:'#fbbf24',icon:'🟡'},{max:999,label:'Zu hoch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'%'}
+      : {ranges:[{max:a<30?20:a<40?22:a<50?24:26,label:'Sehr fit',color:'#00e87a',icon:'🏆'},{max:a<30?27:a<40?29:a<50?31:33,label:'Fit',color:'#4ade80',icon:'✅'},{max:a<30?34:a<40?36:a<50?38:40,label:'OK',color:'#fbbf24',icon:'🟡'},{max:999,label:'Zu hoch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'%'},
+    muscle:m
+      ? {ranges:[{max:a<40?38:36,label:'Niedrig',color:'#ef4444',icon:'🔴'},{max:a<40?44:42,label:'OK',color:'#fbbf24',icon:'🟡'},{max:a<40?50:48,label:'Gut',color:'#4ade80',icon:'✅'},{max:999,label:'Top',color:'#00e87a',icon:'🏆'}], lowerIsBetter:false, unit:'%'}
+      : {ranges:[{max:a<40?29:27,label:'Niedrig',color:'#ef4444',icon:'🔴'},{max:a<40?35:33,label:'OK',color:'#fbbf24',icon:'🟡'},{max:a<40?40:38,label:'Gut',color:'#4ade80',icon:'✅'},{max:999,label:'Top',color:'#00e87a',icon:'🏆'}], lowerIsBetter:false, unit:'%'},
+    pulse: {ranges:[{max:50,label:'Ausdauer-Athlet',color:'#00e87a',icon:'🏆'},{max:60,label:'Sehr gut',color:'#4ade80',icon:'✅'},{max:70,label:'Gut',color:'#4ade80',icon:'✅'},{max:80,label:'Normal',color:'#fbbf24',icon:'🟡'},{max:100,label:'Erhöht',color:'#f97316',icon:'⚠️'},{max:999,label:'Kritisch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'bpm', critical:100},
+    metage:{ranges:[{max:age-10,label:'Jünger als Alter',color:'#00e87a',icon:'🏆'},{max:age,label:'Altersgerecht',color:'#4ade80',icon:'✅'},{max:age+5,label:'Leicht erhöht',color:'#fbbf24',icon:'🟡'},{max:999,label:'Deutlich erhöht',color:'#f97316',icon:'⚠️'}], lowerIsBetter:true, unit:'J'},
+    visz:  {ranges:[{max:5,label:'Optimal',color:'#00e87a',icon:'✅'},{max:9,label:'Normal',color:'#4ade80',icon:'✅'},{max:13,label:'Erhöht',color:'#fbbf24',icon:'⚠️'},{max:999,label:'Kritisch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'', critical:14},
+    lbm:   null,
+    bmi_calc: null,
+  };
+}
+
+function evalMetric(key, value, sex, age){
+  const norms = getHealthNorms(sex, age);
+  const norm = norms[key];
+  if(!norm||value===null||value===undefined) return null;
+  for(const r of norm.ranges){
+    if(value <= r.max) return {...r, norm, critical: norm.critical && value >= norm.critical};
+  }
+  return null;
+}
+
+// Fitness Ranking based on combined score
+function calcFitnessRank(stats, sex, age){
+  const {fat, muscle, pulse, visz, bmi} = stats;
+  let score = 0, count = 0;
+  const s = sex||'m'; const a = age||40;
+
+  if(fat!==null){
+    const fatGood = s==='m' ? (a<40?18:21) : (a<40?27:29);
+    const fatElite = s==='m' ? (a<40?10:12) : (a<40?20:22);
+    if(fat<=fatElite) score+=100;
+    else if(fat<=fatGood) score+=70;
+    else if(fat<=fatGood+6) score+=40;
+    else score+=10;
+    count++;
+  }
+  if(pulse!==null){
+    if(pulse<=50) score+=100; else if(pulse<=60) score+=80;
+    else if(pulse<=70) score+=60; else if(pulse<=80) score+=40; else score+=15;
+    count++;
+  }
+  if(visz!==null){
+    if(visz<=4) score+=100; else if(visz<=7) score+=75;
+    else if(visz<=10) score+=45; else score+=10;
+    count++;
+  }
+  if(bmi!==null){
+    if(bmi>=18.5&&bmi<=22) score+=100; else if(bmi<25) score+=75;
+    else if(bmi<28) score+=45; else score+=15;
+    count++;
+  }
+  if(count===0) return null;
+  const avg = score/count;
+  if(avg>=90) return {rank:'ELITE ATHLET',icon:'👑',color:'#e8f000',desc:'Top 5% — Außergewöhnliche Fitness'};
+  if(avg>=75) return {rank:'PRO SPORTLER',icon:'🏆',color:'#00e87a',desc:'Top 15% — Exzellente Körperwerte'};
+  if(avg>=58) return {rank:'FIT & AKTIV',icon:'💪',color:'#4ade80',desc:'Top 35% — Überdurchschnittlich fit'};
+  if(avg>=40) return {rank:'IN TRAINING',icon:'🔥',color:'#fbbf24',desc:'Auf gutem Weg — bleib dran!'};
+  return {rank:'EINSTEIGER',icon:'🌱',color:'#f97316',desc:'Starte hier — großes Potenzial!'};
+}
+
+function hasCriticalValue(stats, sex, age){
+  const critical = [];
+  if(stats.pulse && stats.pulse >= 100) critical.push('Ruhepuls sehr hoch ('+stats.pulse+' bpm)');
+  if(stats.visz && stats.visz >= 14) critical.push('Viszeralfett kritisch erhöht ('+stats.visz+')');
+  if(stats.bmi && (stats.bmi < 17 || stats.bmi >= 35)) critical.push('BMI außerhalb des Normalbereichs ('+stats.bmi+')');
+  if(stats.fat){
+    const limit = sex==='m'?35:42;
+    if(stats.fat >= limit) critical.push('Körperfett sehr hoch ('+stats.fat+'%)');
+  }
+  return critical;
+}
+
 async function loadBodyStats(){
   const {data}=await sb.from('body_stats').select('*').eq('user_id',currentUser.id);
   return data||[];
+}
+
+
+// ══════════════════════════════════════════════════════
+// HEALTH INTELLIGENCE SYSTEM
+// ══════════════════════════════════════════════════════
+
+// Normwerte nach Geschlecht + Alter (vereinfacht, evidenzbasiert)
+function getHealthNorms(sex, age){
+  const m = sex==='m';
+  const a = age||40;
+  // Returns {min, ok, good, elite, unit, lowerIsBetter}
+  return {
+    kg:    null, // depends on height — handled separately via BMI
+    bmi:   {ranges:[{max:18.4,label:'Untergewicht',color:'#f97316',icon:'⚠️'},{max:24.9,label:'Normalgewicht',color:'#00e87a',icon:'✅'},{max:29.9,label:'Übergewicht',color:'#f97316',icon:'⚠️'},{max:999,label:'Adipositas',color:'#ef4444',icon:'🔴'}], lowerIsBetter:false, unit:''},
+    fat:   m
+      ? {ranges:[{max:a<30?10:a<40?12:a<50?14:16,label:'Sehr fit',color:'#00e87a',icon:'🏆'},{max:a<30?18:a<40?21:a<50?23:25,label:'Fit',color:'#4ade80',icon:'✅'},{max:a<30?25:a<40?27:a<50?29:31,label:'OK',color:'#fbbf24',icon:'🟡'},{max:999,label:'Zu hoch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'%'}
+      : {ranges:[{max:a<30?20:a<40?22:a<50?24:26,label:'Sehr fit',color:'#00e87a',icon:'🏆'},{max:a<30?27:a<40?29:a<50?31:33,label:'Fit',color:'#4ade80',icon:'✅'},{max:a<30?34:a<40?36:a<50?38:40,label:'OK',color:'#fbbf24',icon:'🟡'},{max:999,label:'Zu hoch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'%'},
+    muscle:m
+      ? {ranges:[{max:a<40?38:36,label:'Niedrig',color:'#ef4444',icon:'🔴'},{max:a<40?44:42,label:'OK',color:'#fbbf24',icon:'🟡'},{max:a<40?50:48,label:'Gut',color:'#4ade80',icon:'✅'},{max:999,label:'Top',color:'#00e87a',icon:'🏆'}], lowerIsBetter:false, unit:'%'}
+      : {ranges:[{max:a<40?29:27,label:'Niedrig',color:'#ef4444',icon:'🔴'},{max:a<40?35:33,label:'OK',color:'#fbbf24',icon:'🟡'},{max:a<40?40:38,label:'Gut',color:'#4ade80',icon:'✅'},{max:999,label:'Top',color:'#00e87a',icon:'🏆'}], lowerIsBetter:false, unit:'%'},
+    pulse: {ranges:[{max:50,label:'Ausdauer-Athlet',color:'#00e87a',icon:'🏆'},{max:60,label:'Sehr gut',color:'#4ade80',icon:'✅'},{max:70,label:'Gut',color:'#4ade80',icon:'✅'},{max:80,label:'Normal',color:'#fbbf24',icon:'🟡'},{max:100,label:'Erhöht',color:'#f97316',icon:'⚠️'},{max:999,label:'Kritisch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'bpm', critical:100},
+    metage:{ranges:[{max:age-10,label:'Jünger als Alter',color:'#00e87a',icon:'🏆'},{max:age,label:'Altersgerecht',color:'#4ade80',icon:'✅'},{max:age+5,label:'Leicht erhöht',color:'#fbbf24',icon:'🟡'},{max:999,label:'Deutlich erhöht',color:'#f97316',icon:'⚠️'}], lowerIsBetter:true, unit:'J'},
+    visz:  {ranges:[{max:5,label:'Optimal',color:'#00e87a',icon:'✅'},{max:9,label:'Normal',color:'#4ade80',icon:'✅'},{max:13,label:'Erhöht',color:'#fbbf24',icon:'⚠️'},{max:999,label:'Kritisch',color:'#ef4444',icon:'🔴'}], lowerIsBetter:true, unit:'', critical:14},
+    lbm:   null,
+    bmi_calc: null,
+  };
+}
+
+function evalMetric(key, value, sex, age){
+  const norms = getHealthNorms(sex, age);
+  const norm = norms[key];
+  if(!norm||value===null||value===undefined) return null;
+  for(const r of norm.ranges){
+    if(value <= r.max) return {...r, norm, critical: norm.critical && value >= norm.critical};
+  }
+  return null;
+}
+
+// Fitness Ranking based on combined score
+function calcFitnessRank(stats, sex, age){
+  const {fat, muscle, pulse, visz, bmi} = stats;
+  let score = 0, count = 0;
+  const s = sex||'m'; const a = age||40;
+
+  if(fat!==null){
+    const fatGood = s==='m' ? (a<40?18:21) : (a<40?27:29);
+    const fatElite = s==='m' ? (a<40?10:12) : (a<40?20:22);
+    if(fat<=fatElite) score+=100;
+    else if(fat<=fatGood) score+=70;
+    else if(fat<=fatGood+6) score+=40;
+    else score+=10;
+    count++;
+  }
+  if(pulse!==null){
+    if(pulse<=50) score+=100; else if(pulse<=60) score+=80;
+    else if(pulse<=70) score+=60; else if(pulse<=80) score+=40; else score+=15;
+    count++;
+  }
+  if(visz!==null){
+    if(visz<=4) score+=100; else if(visz<=7) score+=75;
+    else if(visz<=10) score+=45; else score+=10;
+    count++;
+  }
+  if(bmi!==null){
+    if(bmi>=18.5&&bmi<=22) score+=100; else if(bmi<25) score+=75;
+    else if(bmi<28) score+=45; else score+=15;
+    count++;
+  }
+  if(count===0) return null;
+  const avg = score/count;
+  if(avg>=90) return {rank:'ELITE ATHLET',icon:'👑',color:'#e8f000',desc:'Top 5% — Außergewöhnliche Fitness'};
+  if(avg>=75) return {rank:'PRO SPORTLER',icon:'🏆',color:'#00e87a',desc:'Top 15% — Exzellente Körperwerte'};
+  if(avg>=58) return {rank:'FIT & AKTIV',icon:'💪',color:'#4ade80',desc:'Top 35% — Überdurchschnittlich fit'};
+  if(avg>=40) return {rank:'IN TRAINING',icon:'🔥',color:'#fbbf24',desc:'Auf gutem Weg — bleib dran!'};
+  return {rank:'EINSTEIGER',icon:'🌱',color:'#f97316',desc:'Starte hier — großes Potenzial!'};
+}
+
+function hasCriticalValue(stats, sex, age){
+  const critical = [];
+  if(stats.pulse && stats.pulse >= 100) critical.push('Ruhepuls sehr hoch ('+stats.pulse+' bpm)');
+  if(stats.visz && stats.visz >= 14) critical.push('Viszeralfett kritisch erhöht ('+stats.visz+')');
+  if(stats.bmi && (stats.bmi < 17 || stats.bmi >= 35)) critical.push('BMI außerhalb des Normalbereichs ('+stats.bmi+')');
+  if(stats.fat){
+    const limit = sex==='m'?35:42;
+    if(stats.fat >= limit) critical.push('Körperfett sehr hoch ('+stats.fat+'%)');
+  }
+  return critical;
 }
 
 async function loadBodyStats(){
@@ -2261,34 +2437,82 @@ async function renderBody(){
 
   const name = currentProfile?.name||'Athlet';
 
-  let h=`<div class="stat-hero">
-    <div class="stat-hero-title">KÖRPER ANALYSE</div>
-    <div class="stat-hero-sub">${name} · Transformation</div>
+  // ── HEALTH INTEL: gather current values ──
+  const sex  = currentProfile?.sex||'m';
+  const age  = currentProfile?.age||40;
+  const curKg     = latestWeek ? (byWeekField[`${latestWeek}_kg`]||null) : null;
+  const startKg   = startWeek  ? (byWeekField[`${startWeek}_kg`]||null) : null;
+  const curFatPct = latestWeek ? (byWeekField[`${latestWeek}_fat`]??null) : null;
+  const curMusPct = latestWeek ? (byWeekField[`${latestWeek}_muscle_pct`]??null) : null;
+  const curPulse  = latestWeek ? (byWeekField[`${latestWeek}_pulse`]??null) : null;
+  const curVisz   = latestWeek ? (byWeekField[`${latestWeek}_visz`]??null) : null;
+  const curMetAge = latestWeek ? (byWeekField[`${latestWeek}_met_age`]??null) : null;
+  const curHeight = currentProfile?.height||178;
+  const curBMI    = curKg ? Math.round((curKg/(curHeight/100)**2)*10)/10 : null;
+  const hStats    = {fat:curFatPct,muscle:curMusPct,pulse:curPulse,visz:curVisz,bmi:curBMI};
+  const rank      = calcFitnessRank(hStats, sex, age);
+  const criticals = hasCriticalValue(hStats, sex, age);
+
+  // ── FITNESS RANKING HERO ──
+  let h=`<div class="stat-hero" style="position:relative;overflow:hidden;padding:20px 16px">
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,232,122,.04),transparent);pointer-events:none"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div>
+        <div class="stat-hero-title" style="font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:6px">KÖRPER ANALYSE</div>
+        <div style="font-family:var(--display);font-size:32px;letter-spacing:4px;color:${rank?rank.color:'var(--green)'};line-height:1;text-shadow:0 0 24px ${rank?rank.color+'44':'#00e87a44'}">
+          ${rank?rank.rank:'KEIN DATEN'}
+        </div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:5px">${rank?rank.desc:''}</div>
+      </div>
+      <div style="font-size:52px;line-height:1;flex-shrink:0">${rank?rank.icon:'📊'}</div>
+    </div>
+    ${criticals.length>0?`
+    <div style="margin-top:14px;padding:10px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px">
+      <div style="font-size:10px;font-weight:700;color:#ef4444;font-family:var(--mono);letter-spacing:2px;margin-bottom:5px">⚕️ ARZT-CHECK EMPFOHLEN</div>
+      ${criticals.map(cr=>`<div style="font-size:11px;color:var(--dim);margin-top:2px">• ${cr}</div>`).join('')}
+      <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:6px;line-height:1.5">Bitte sprich diese Werte mit einem Arzt ab.</div>
+    </div>`:''}
   </div>`;
 
   // ── ZIEL-FORTSCHRITT ──
-  const curKg = latestWeek ? (byWeekField[`${latestWeek}_kg`]||null) : null;
-  const startKg = startWeek ? (byWeekField[`${startWeek}_kg`]||null) : null;
-  const goalKg = 77; // Target from transformation program
-  if(curKg && startKg){
+  const goalKg = currentProfile?.goal_kg || null;
+  if(curKg && startKg && goalKg){
     const totalNeed = startKg - goalKg;
     const done = startKg - curKg;
-    const pct = Math.max(0,Math.min(100,Math.round((done/totalNeed)*100)));
+    const pct = totalNeed!==0 ? Math.max(0,Math.min(100,Math.round((done/totalNeed)*100))) : 100;
     const remaining = (curKg - goalKg).toFixed(1);
-    const trendColor = curKg <= goalKg ? '#00ff87' : done > 0 ? '#00ff87' : '#f97316';
+    const trendColor = curKg <= goalKg ? '#00e87a' : done > 0 ? '#00e87a' : '#f97316';
+    const goalFat = currentProfile?.goal_fat||null;
+    const fatDone = goalFat&&curFatPct ? Math.max(0,Math.min(100,Math.round(((startKg&&byWeekField[`${startWeek}_fat`]?byWeekField[`${startWeek}_fat`]:curFatPct)-curFatPct)/Math.max(0.1,(byWeekField[`${startWeek}_fat`]||curFatPct)-goalFat)*100))) : null;
     h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px">🎯 ZIEL-FORTSCHRITT</div>
-        <div style="font-size:11px;color:var(--muted)">Ziel: ${goalKg} kg</div>
+        <button onclick="showGoalsScreen(false)" style="font-size:9px;color:var(--green);background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);border-radius:5px;padding:3px 8px;cursor:pointer;font-family:var(--mono)">✏️ Ziel ändern</button>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:12px;color:${trendColor};font-weight:700">${done>=0?'-'+done.toFixed(1):'+'+Math.abs(done).toFixed(1)} kg seit Start</span>
-        <span style="font-size:12px;color:var(--muted)">${remaining > 0 ? 'noch '+remaining+' kg' : '🏆 Ziel erreicht!'}</span>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">⚖️ Gewicht</span>
+          <span style="font-size:11px;color:${trendColor};font-weight:700">${done>=0?'-'+done.toFixed(1):'+'+Math.abs(done).toFixed(1)} kg · ${parseFloat(remaining)>0?'noch '+remaining+' kg':'🏆 Erreicht!'}</span>
+        </div>
+        <div style="background:var(--surface);border-radius:4px;height:6px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,${trendColor},${trendColor}88);height:100%;width:${pct}%;border-radius:4px;transition:width .6s ease"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:2px;font-family:var(--mono)">${goalKg} kg Ziel · ${pct}%</div>
       </div>
-      <div style="background:var(--surface);border-radius:4px;height:8px;overflow:hidden">
-        <div style="background:linear-gradient(90deg,${trendColor},${trendColor}88);height:100%;width:${pct}%;border-radius:4px;transition:width .6s ease"></div>
-      </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:4px;text-align:right">${pct}% erreicht</div>
+      ${goalFat&&curFatPct?`<div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">🔥 Körperfett</span>
+          <span style="font-size:11px;color:var(--green);font-weight:700">${curFatPct}% → ${goalFat}% Ziel</span>
+        </div>
+        <div style="background:var(--surface);border-radius:4px;height:6px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,#f97316,#fbbf24);height:100%;width:${fatDone||0}%;border-radius:4px;transition:width .6s ease"></div>
+        </div>
+      </div>`:''}
+    </div>`;
+  } else if(curKg && !goalKg){
+    h+=`<div style="background:rgba(0,232,122,.04);border:1px dashed rgba(0,232,122,.2);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">Noch kein Ziel gesetzt</div>
+      <button onclick="showGoalsScreen(false)" style="font-size:10px;color:var(--green);background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);border-radius:6px;padding:5px 10px;cursor:pointer;font-family:var(--mono);font-weight:700">🎯 Ziel setzen</button>
     </div>`;
   }
 
@@ -2315,16 +2539,35 @@ async function renderBody(){
     const start = startWeek ? (byWeekField[`${startWeek}_${f.key}`]??null) : null;
     const diff = (cur!==null&&start!==null&&cur!==start) ? (cur-start) : null;
     const improved = diff!==null ? (f.lb ? diff<0 : diff>0) : null;
-    const deltaColor = diff===null?'var(--muted)':improved?'#00ff87':'#f97316';
+    const deltaColor = diff===null?'var(--muted)':improved?'#00e87a':'#f97316';
     const sign = diff!==null&&diff>0?'+':'';
     // Mini sparkline
     const sparkVals=[];
     for(let w=1;w<=MAX_WEEKS;w++){ const v=byWeekField[`${w}_${f.key}`]; if(v!==undefined)sparkVals.push(v); }
-    const spark = sparkVals.length>=2 ? makeMiniChart(sparkVals, '#00ff87', f.lb) : '';
+    const spark = sparkVals.length>=2 ? makeMiniChart(sparkVals, '#00e87a', f.lb) : '';
+    // Ampel rating
+    let ampelKey = f.key==='fat'?'fat':f.key==='pulse'?'pulse':f.key==='visz'?'visz':f.key==='met_age'?'metage':f.key==='muscle_pct'?'muscle':null;
+    // BMI: calculate on-the-fly for kg card
+    let ampelBadge = '';
+    if(cur!==null && ampelKey){
+      const ev = evalMetric(ampelKey, cur, sex, age);
+      if(ev) ampelBadge = `<div style="display:inline-flex;align-items:center;gap:4px;background:${ev.color}18;border:1px solid ${ev.color}44;border-radius:4px;padding:2px 7px;margin-top:5px">
+        <span style="font-size:9px">${ev.icon}</span>
+        <span style="font-size:9px;font-weight:700;color:${ev.color};font-family:var(--mono)">${ev.label}</span>
+      </div>`;
+    }
+    if(cur!==null && f.key==='kg' && curBMI){
+      const ev = evalMetric('bmi', curBMI, sex, age);
+      if(ev) ampelBadge = `<div style="display:inline-flex;align-items:center;gap:4px;background:${ev.color}18;border:1px solid ${ev.color}44;border-radius:4px;padding:2px 7px;margin-top:5px">
+        <span style="font-size:9px">${ev.icon}</span>
+        <span style="font-size:9px;font-weight:700;color:${ev.color};font-family:var(--mono)">BMI ${curBMI} · ${ev.label}</span>
+      </div>`;
+    }
     h+=`<div class="stat-card" style="position:relative;overflow:hidden">
       <div class="stat-label">${f.icon} ${f.label}</div>
       <div class="stat-val">${cur!==null?cur:'—'}<span class="stat-unit"> ${f.unit}</span></div>
       ${diff!==null?`<div style="font-size:10px;color:${deltaColor};font-family:var(--mono);margin-top:2px">${sign}${diff.toFixed(1)} seit Start</div>`:`<div style="font-size:10px;color:var(--muted);margin-top:2px">Kein Vergleich</div>`}
+      ${ampelBadge}
       ${spark?`<div style="margin-top:6px;opacity:0.7">${spark}</div>`:''}
     </div>`;
   });
@@ -2863,14 +3106,34 @@ async function renderSettings(){
   </div>`;
 
   // ── PROFIL ──
+  const pSex = currentProfile?.sex||'m';
+  const pHeight = currentProfile?.height||'';
+  const pAge = currentProfile?.age||'';
   h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;">
-    <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">PROFIL</div>
+    <div style="font-size:10px;font-weight:700;color:var(--dim);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">STAMMDATEN</div>
     <div class="auth-field"><label>ANZEIGENAME</label><input type="text" id="settingsName" value="${name}" placeholder="Dein Name"></div>
     <div class="auth-field" style="margin-top:10px">
-      <label>NICKNAME <span style="font-size:9px;color:var(--muted);font-weight:400">(sichtbar im Ranking · muss einzigartig sein)</span></label>
+      <label>NICKNAME <span style="font-size:9px;color:var(--muted);font-weight:400">(im Ranking sichtbar · einzigartig)</span></label>
       <input type="text" id="settingsNick" value="${currentProfile?.nickname||''}" placeholder="z.B. IronMike · max 20 Zeichen" maxlength="20">
     </div>
-    <button onclick="saveProfile()" style="width:100%;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px;">Name speichern</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px">
+      <div class="auth-field">
+        <label>GESCHLECHT</label>
+        <select id="settingsSex" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;outline:none">
+          <option value="m" ${pSex==='m'?'selected':''}>♂ Männlich</option>
+          <option value="f" ${pSex==='f'?'selected':''}>♀ Weiblich</option>
+        </select>
+      </div>
+      <div class="auth-field">
+        <label>GRÖSSE (cm)</label>
+        <input type="number" id="settingsHeight" value="${pHeight}" placeholder="178" min="140" max="220" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;outline:none;font-family:var(--mono)">
+      </div>
+      <div class="auth-field">
+        <label>ALTER</label>
+        <input type="number" id="settingsAge" value="${pAge}" placeholder="30" min="14" max="99" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;outline:none;font-family:var(--mono)">
+      </div>
+    </div>
+    <button onclick="saveProfile()" style="width:100%;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:12px;">💾 Stammdaten speichern</button>
     <div id="profileMsg" style="font-size:11px;text-align:center;margin-top:8px;font-family:var(--mono)"></div>
   </div>`;
 
@@ -2985,8 +3248,10 @@ async function saveProfile(){
   const name=document.getElementById('settingsName').value.trim();
   const nickEl=document.getElementById('settingsNick');
   const nick=nickEl?nickEl.value.trim():'';
+  const sex=document.getElementById('settingsSex')?.value||currentProfile?.sex||'m';
+  const height=document.getElementById('settingsHeight')?.value;
+  const age=document.getElementById('settingsAge')?.value;
   if(!name){document.getElementById('profileMsg').style.color='var(--red)';document.getElementById('profileMsg').textContent='Name darf nicht leer sein.';return;}
-  // Unique nickname check
   if(nick && nick !== (currentProfile?.nickname||'')){
     const {data:existing}=await sb.from('profiles').select('id').eq('nickname',nick).neq('id',currentUser.id);
     if(existing&&existing.length>0){
@@ -2996,14 +3261,18 @@ async function saveProfile(){
       return;
     }
   }
-  const updates={name};
+  const updates={name,sex};
   if(nick!==undefined) updates.nickname=nick||null;
+  if(height) updates.height=parseInt(height);
+  if(age) updates.age=parseInt(age);
   const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
   const msg=document.getElementById('profileMsg');
   if(error){msg.style.color='var(--red)';msg.textContent='Fehler: '+error.message;return;}
-  currentProfile={...currentProfile,name,nickname:nick||null};
+  currentProfile={...currentProfile,name,nickname:nick||null,sex,
+    height:height?parseInt(height):currentProfile?.height,
+    age:age?parseInt(age):currentProfile?.age};
   document.getElementById('userNamePill').textContent=nick||name;
-  msg.style.color='var(--green)'; msg.textContent='✓ Profil gespeichert!';
+  msg.style.color='var(--green)'; msg.textContent='✓ Stammdaten gespeichert!';
   setTimeout(()=>msg.textContent='',2000);
 }
 
