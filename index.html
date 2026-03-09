@@ -899,8 +899,21 @@ CREATE POLICY "Users manage own body stats" ON body_stats FOR ALL USING (auth.ui
 }
 
 async function loadProfile(){
-  const {data} = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  currentProfile = data;
+  const {data,error} = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if(error && error.code === 'PGRST116'){
+    // No profile found - create one from email
+    const name = currentUser.email.split('@')[0];
+    const {data:newP} = await sb.from('profiles').insert({
+      id: currentUser.id,
+      name: name,
+      avatar_icon: '💪',
+      avatar_color: '#00ff87',
+      created_at: new Date().toISOString()
+    }).select().single();
+    currentProfile = newP;
+  } else {
+    currentProfile = data;
+  }
 }
 
 function showAuth(){
@@ -909,33 +922,22 @@ function showAuth(){
 }
 
 function showApp(){
-  document.getElementById('authWrap').style.display = 'none';
-  document.getElementById('appWrap').style.display = 'block';
-  const name = currentProfile?.name || currentUser?.email?.split('@')[0] || 'User';
-  document.getElementById('userNamePill').textContent = name;
-  const av = document.getElementById('userAvatar');
-  if(currentProfile?.avatar_photo){
-    av.style.backgroundImage=`url(${currentProfile.avatar_photo})`;
-    av.style.backgroundSize='cover';
-    av.textContent='';
-    av.style.background='none';
-  } else {
-    av.textContent = currentProfile?.avatar_icon || name.charAt(0).toUpperCase();
-    av.style.backgroundImage='none';
-    av.style.background = currentProfile?.avatar_color || 'linear-gradient(135deg,var(--green),var(--blue))';
-  }
-  document.getElementById('celebSub').textContent = `Stark, ${name}! Sauna verdient! 💪`;
-  updateStreakPill();
+  // Returning user → skip onboarding, go straight to training
   checkOnboarding();
 }
 
 async function checkOnboarding(){
-  const {data} = await sb.from('body_stats').select('id').eq('user_id',currentUser.id).limit(1);
-  if(!data || data.length===0){
-    showOnboarding();
-  } else {
-    renderTraining();
+  // New user = no height/age in profile AND no body_stats
+  const hasProfile = currentProfile?.height && currentProfile?.age;
+  if(!hasProfile){
+    const {data} = await sb.from('body_stats').select('id').eq('user_id',currentUser.id).limit(1);
+    if(!data || data.length===0){
+      showOnboarding();
+      return;
+    }
   }
+  // Existing user → go straight to app
+  enterApp();
 }
 
 function showOnboarding(){
@@ -987,44 +989,158 @@ function showOnboarding(){
 async function saveOnboarding(){
   const kg=document.getElementById('ob_kg')?.value;
   const height=document.getElementById('ob_height')?.value;
-  if(!kg){document.getElementById('obErr').textContent='Mindestens Gewicht bitte eintragen.';return;}
+  const errEl=document.getElementById('obErr');
+  if(!kg){if(errEl)errEl.textContent='Mindestens Gewicht bitte eintragen.';return;}
   const btn=document.querySelector('#authWrap .auth-btn');
-  btn.disabled=true; btn.textContent='Speichern...';
+  if(btn){btn.disabled=true; btn.textContent='Speichern...';}
 
-  // Save height/age/sex to profile
   const age=document.getElementById('ob_age')?.value;
   const sex=document.getElementById('ob_sex')?.value;
-  if(height||age||sex){
-    await sb.from('profiles').update({
-      height:height?parseInt(height):null,
-      age:age?parseInt(age):null,
-      sex:sex||null
-    }).eq('id',currentUser.id);
-    if(height) currentProfile = {...(currentProfile||{}), height:parseInt(height)};
-  }
+  await sb.from('profiles').update({
+    height:height?parseInt(height):null,
+    age:age?parseInt(age):null,
+    sex:sex||null
+  }).eq('id',currentUser.id);
+  currentProfile = {...(currentProfile||{}), height:parseInt(height||0), age:parseInt(age||0), sex};
 
-  // Auto-calc BMI
   let bmi=null;
   if(kg&&height){ const h=parseInt(height)/100; bmi=parseFloat((parseFloat(kg)/(h*h)).toFixed(1)); }
 
   const fields={kg,fat:document.getElementById('ob_fat')?.value,muscle:document.getElementById('ob_muscle')?.value,
     pulse:document.getElementById('ob_pulse')?.value,metage:document.getElementById('ob_metage')?.value,
     visz:document.getElementById('ob_visz')?.value,lbm:document.getElementById('ob_lbm')?.value,
-    arm_l:document.getElementById('ob_arm_l')?.value,arm_r:document.getElementById('ob_arm_r')?.value,
-    leg_l:document.getElementById('ob_leg_l')?.value,leg_r:document.getElementById('ob_leg_r')?.value,
-    trunk:document.getElementById('ob_trunk')?.value,bmi:bmi?String(bmi):null};
+    arm_l_fat:document.getElementById('ob_arm_l')?.value,arm_r_fat:document.getElementById('ob_arm_r')?.value,
+    leg_l_fat:document.getElementById('ob_leg_l')?.value,leg_r_fat:document.getElementById('ob_leg_r')?.value,
+    trunk_fat:document.getElementById('ob_trunk')?.value,bmi:bmi?String(bmi):null};
 
   for(const [field,value] of Object.entries(fields)){
     if(value){ await sb.from('body_stats').upsert({user_id:currentUser.id,week:1,field,value:parseFloat(value),updated_at:new Date().toISOString()},{onConflict:'user_id,week,field'}); }
   }
-  btn.disabled=false;
-  skipOnboarding();
+  if(btn){btn.disabled=false;}
+  // → Ziele-Screen
+  showGoalsScreen();
+}
+
+function showGoalsScreen(){
+  const name = currentProfile?.name || 'Athlet';
+  document.getElementById('authWrap').style.display='flex';
+  document.getElementById('appWrap').style.display='none';
+  document.getElementById('authWrap').innerHTML=`
+    <div class="auth-box" style="max-width:420px">
+      <div class="auth-logo">DEINE ZIELE</div>
+      <div class="auth-sub">WAS WILLST DU ERREICHEN?</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:20px;text-align:center;line-height:1.6">
+        ${name}, definiere deine Transformation. Das hilft uns deinen Plan zu optimieren.
+      </div>
+
+      <div class="auth-field" style="margin-bottom:12px">
+        <label>PRIMÄRES ZIEL</label>
+        <select id="goal_primary" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
+          <option value="fat_loss">🔥 Fettabbau & Definition</option>
+          <option value="muscle">💪 Muskelaufbau</option>
+          <option value="both">⚡ Beides (Rekomposition)</option>
+          <option value="endurance">🏃 Ausdauer & Fitness</option>
+          <option value="health">❤️ Gesundheit & Wohlbefinden</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="auth-field">
+          <label>ZIELGEWICHT (kg)</label>
+          <input type="number" step="0.5" id="goal_kg" placeholder="z.B. 77">
+        </div>
+        <div class="auth-field">
+          <label>ZIEL KF% </label>
+          <input type="number" step="0.5" id="goal_fat" placeholder="z.B. 13">
+        </div>
+      </div>
+
+      <div class="auth-field" style="margin-bottom:12px">
+        <label>VERFÜGBARE TRAININGSTAGE / WOCHE</label>
+        <select id="goal_days" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
+          <option value="3">3 Tage</option>
+          <option value="4">4 Tage</option>
+          <option value="5" selected>5 Tage</option>
+          <option value="6">6 Tage</option>
+        </select>
+      </div>
+
+      <div class="auth-field" style="margin-bottom:12px">
+        <label>ERFAHRUNGSLEVEL</label>
+        <select id="goal_level" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
+          <option value="beginner">🌱 Anfänger (< 1 Jahr)</option>
+          <option value="intermediate" selected>🔥 Fortgeschritten (1-3 Jahre)</option>
+          <option value="advanced">⚡ Profi (3+ Jahre)</option>
+        </select>
+      </div>
+
+      <div class="auth-field" style="margin-bottom:16px">
+        <label>VERFÜGBARES EQUIPMENT</label>
+        <select id="goal_equipment" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
+          <option value="gym_full">🏋️ Fitnessstudio (voll ausgestattet)</option>
+          <option value="gym_basic">💪 Gym (Grundausstattung)</option>
+          <option value="home_equipment">🏠 Zuhause mit Equipment</option>
+          <option value="home_bodyweight">🤸 Zuhause ohne Equipment</option>
+        </select>
+      </div>
+
+      <div id="goalErr" style="color:var(--red);font-size:11px;margin-bottom:10px;font-family:var(--mono)"></div>
+      <button class="auth-btn" onclick="saveGoals()" style="margin-bottom:12px">🚀 Plan erstellen lassen!</button>
+      <div style="text-align:center">
+        <a href="#" onclick="skipGoals()" style="font-size:11px;color:var(--muted);text-decoration:none">Überspringen →</a>
+      </div>
+    </div>`;
+}
+
+async function saveGoals(){
+  const btn=document.querySelector('#authWrap .auth-btn');
+  if(btn){btn.disabled=true;btn.textContent='Speichern...';}
+  const goals={
+    primary: document.getElementById('goal_primary')?.value,
+    kg: document.getElementById('goal_kg')?.value,
+    fat: document.getElementById('goal_fat')?.value,
+    days: document.getElementById('goal_days')?.value,
+    level: document.getElementById('goal_level')?.value,
+    equipment: document.getElementById('goal_equipment')?.value,
+  };
+  // Save goals to profile
+  await sb.from('profiles').update({
+    goal_primary: goals.primary,
+    goal_kg: goals.kg ? parseFloat(goals.kg) : null,
+    goal_fat: goals.fat ? parseFloat(goals.fat) : null,
+    goal_days: goals.days ? parseInt(goals.days) : 5,
+    goal_level: goals.level,
+    goal_equipment: goals.equipment,
+  }).eq('id',currentUser.id);
+  currentProfile = {...(currentProfile||{}), ...goals};
+  if(btn){btn.disabled=false;}
+  enterApp();
+}
+
+function skipGoals(){
+  enterApp();
+}
+
+function enterApp(){
+  document.getElementById('authWrap').style.display='none';
+  document.getElementById('appWrap').style.display='block';
+  const name = currentProfile?.name || currentUser?.email?.split('@')[0] || 'User';
+  document.getElementById('userNamePill').textContent = currentProfile?.nickname||name;
+  const av = document.getElementById('userAvatar');
+  if(currentProfile?.avatar_photo){
+    av.style.backgroundImage=`url(${currentProfile.avatar_photo})`;
+    av.style.backgroundSize='cover';
+    av.textContent='';
+  } else {
+    av.textContent = currentProfile?.avatar_icon || name.charAt(0).toUpperCase();
+    av.style.background = currentProfile?.avatar_color || 'linear-gradient(135deg,var(--green),var(--blue))';
+  }
+  updateStreakPill();
+  renderTraining();
 }
 
 function skipOnboarding(){
-  document.getElementById('authWrap').style.display='none';
-  document.getElementById('appWrap').style.display='block';
-  renderTraining();
+  enterApp();
 }
 
 function switchAuthTab(tab){
@@ -1184,21 +1300,21 @@ function getCached(week, day, key){
 const PTS = {set:2, meal:1, water:0.5, sauna:5, body:10, day_complete:20, streak3:30, streak7:50};
 
 const TROPHIES = [
-  {id:'first_day',  icon:'🌅', name:'Erster Schritt',   desc:'Erstes Training abgehakt'},
-  {id:'week1',      icon:'🗓️', name:'Erste Woche',      desc:'7 Sessions abgeschlossen'},
-  {id:'streak3',    icon:'🔥', name:'On Fire',           desc:'3 Tage Streak'},
-  {id:'streak7',    icon:'⚡', name:'Unstoppable',       desc:'7 Tage Streak'},
-  {id:'hydro',      icon:'💧', name:'Hydration Hero',    desc:'8 Gläser an einem Tag'},
-  {id:'sauna5',     icon:'🧖', name:'Sauna Profi',       desc:'5 Sauna-Sessions'},
-  {id:'sauna20',    icon:'🔥', name:'Sauna Meister',     desc:'20 Sauna-Sessions'},
-  {id:'supps',      icon:'💊', name:'Supplement Stack',  desc:'Alle Supplements an einem Tag'},
-  {id:'pts500',     icon:'🏅', name:'500 Punkte',        desc:'500 Gesamtpunkte'},
-  {id:'pts2000',    icon:'🥇', name:'2000 Punkte',       desc:'2000 Gesamtpunkte'},
-  {id:'bodytrack',  icon:'📊', name:'Datenpflege',       desc:'Körperwerte 3x eingetragen'},
-  {id:'perfect',    icon:'💪', name:'Vollgas',           desc:'Einen Tag 100% abgeschlossen'},
-  {id:'week4',      icon:'🏆', name:'Monat Krieger',     desc:'4 Wochen Training'},
-  {id:'week12',     icon:'👑', name:'Transformation',    desc:'12 Wochen abgeschlossen'},
-  {id:'early',      icon:'🌄', name:'Early Adopter',     desc:'Unter den ersten 10 Usern'},
+  {id:'first_day',  icon:'🌅', name:'Erster Schritt',   desc:'Erstes Training abgehakt',      condition:s=>s.totalDays>=1},
+  {id:'week1',      icon:'🗓️', name:'Erste Woche',      desc:'7 Sessions abgeschlossen',      condition:s=>s.totalDays>=7},
+  {id:'streak3',    icon:'🔥', name:'On Fire',           desc:'3 Tage Streak',                 condition:s=>s.maxStreak>=3},
+  {id:'streak7',    icon:'⚡', name:'Unstoppable',       desc:'7 Tage Streak',                 condition:s=>s.maxStreak>=7},
+  {id:'hydro',      icon:'💧', name:'Hydration Hero',    desc:'8 Gläser an einem Tag',         condition:s=>s.perfectWaterDays>=1},
+  {id:'sauna5',     icon:'🧖', name:'Sauna Profi',       desc:'5 Sauna-Sessions',              condition:s=>s.totalSauna>=5},
+  {id:'sauna20',    icon:'🔥', name:'Sauna Meister',     desc:'20 Sauna-Sessions',             condition:s=>s.totalSauna>=20},
+  {id:'supps',      icon:'💊', name:'Supplement Stack',  desc:'Alle Supplements an einem Tag', condition:s=>s.perfectSupplementDays>=1},
+  {id:'pts500',     icon:'🏅', name:'500 Punkte',        desc:'500 Gesamtpunkte',              condition:s=>s.totalPoints>=500},
+  {id:'pts2000',    icon:'🥇', name:'2000 Punkte',       desc:'2000 Gesamtpunkte',             condition:s=>s.totalPoints>=2000},
+  {id:'bodytrack',  icon:'📊', name:'Datenpflege',       desc:'Körperwerte 3x eingetragen',    condition:s=>s.bodyEntries>=3},
+  {id:'perfect',    icon:'💪', name:'Vollgas',           desc:'Einen Tag 100% abgeschlossen',  condition:s=>s.perfectDays>=1},
+  {id:'week4',      icon:'🏆', name:'Monat Krieger',     desc:'4 Wochen Training',             condition:s=>s.totalDays>=20},
+  {id:'week12',     icon:'👑', name:'Transformation',    desc:'12 Wochen abgeschlossen',       condition:s=>s.totalDays>=60},
+  {id:'early',      icon:'🌄', name:'Early Adopter',     desc:'Unter den ersten 10 Usern',     condition:s=>s.earlyUser},
 ];
 
 function calcDayPoints(week, day){
