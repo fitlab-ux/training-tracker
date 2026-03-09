@@ -1159,6 +1159,22 @@ async function saveOnboarding(){
   showGoalsScreen();
 }
 
+// ── HELPER: get latest body stats ──
+async function getLatestBodyStats(){
+  const result = {};
+  try {
+    const {data} = await sb.from('body_stats')
+      .select('field,value,week')
+      .eq('user_id', currentUser.id)
+      .order('week', {ascending:false});
+    if(data){
+      // Take most recent value per field
+      data.forEach(r=>{ if(result[r.field]===undefined) result[r.field]=r.value; });
+    }
+  } catch(e){}
+  return result;
+}
+
 // ── UNIFIED KI-PLAN FLOW ──
 // Called from: onboarding completion OR ⊕ KI-PLAN button in tab bar
 function showGoalsScreen(fromOnboarding=false){
@@ -1166,10 +1182,13 @@ function showGoalsScreen(fromOnboarding=false){
   const p = currentProfile || {};
 
   // Build profile context string for KI
-  const curKg   = p.current_kg   || '?';
-  const curFat  = p.current_fat  || '?';
-  const curAge  = p.age          || '?';
-  const curSex  = p.sex==='m'?'männlich':'weiblich';
+  // Pull latest body stats for KI context
+  const latestBS = await getLatestBodyStats();
+  const curKg   = latestBS.kg   || p.goal_kg   || '?';
+  const curFat  = latestBS.fat  || '?';
+  const curAge  = p.age         || '?';
+  const curHeight = p.height    || '?';
+  const curSex  = (p.sex||'m')==='m'?'männlich':'weiblich';
 
   const overlay = document.createElement('div');
   overlay.id = 'kiPlanOverlay';
@@ -1187,7 +1206,7 @@ function showGoalsScreen(fromOnboarding=false){
 
       <!-- Context pill -->
       <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:11px;color:var(--muted);font-family:var(--mono);line-height:1.8">
-        👤 ${name} · ${curAge} J · ${curSex}<br>
+        👤 ${name} · ${curAge} J · ${curSex} · ${curHeight !== '?' ? curHeight+' cm' : 'Größe: –'}<br>
         ⚖️ Aktuell: ${curKg} kg · KF: ${curFat}%<br>
         <span style="color:rgba(0,232,122,.5);font-size:9px">Die KI nutzt deine Körperwerte automatisch</span>
       </div>
@@ -1334,6 +1353,8 @@ async function generateKIPlan(fromOnboarding=false){
   out.innerHTML='<div class="loading"><div class="spinner"></div><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">KI erstellt deinen Plan...</span></div>';
 
   const p=currentProfile||{};
+  // Get freshest body stats for the prompt
+  const freshBS = await getLatestBodyStats();
   const goalMap={fat_loss:'Fettabbau & Definition',muscle:'Muskelaufbau',both:'Körperrekomposition (Fett ↓ + Muskeln ↑)',health:'Gesundheit & Wohlbefinden'};
   const equipMap={gym_full:'vollausgestattetes Fitnessstudio',home_equipment:'Heimtraining mit Equipment',home_bodyweight:'nur Körpergewicht'};
   const levelMap={beginner:'Anfänger',intermediate:'Fortgeschritten',advanced:'Profi'};
@@ -1342,8 +1363,8 @@ async function generateKIPlan(fromOnboarding=false){
   const prompt=`Du bist Elite-Personal-Trainer und Ernährungsberater. Erstelle einen vollständigen personalisierten Plan auf Deutsch.
 
 PROFIL:
-- Name: ${p.name||'Athlet'} · Alter: ${p.age||'?'} · Geschlecht: ${p.sex==='m'?'männlich':'weiblich'}
-- Körpergewicht: ${p.current_kg||'?'} kg · Körperfett: ${p.current_fat||'?'}% · Grundumsatz: ~${p.bmr||1800} kcal
+- Name: ${p.name||'Athlet'} · Alter: ${p.age||'?'} · Geschlecht: ${(p.sex||'m')==='m'?'männlich':'weiblich'} · Größe: ${p.height||'?'} cm
+- Körpergewicht: ${freshBS.kg||'?'} kg · Körperfett: ${freshBS.fat||'?'}% · Grundumsatz: ~${freshBS.bmr||p.bmr||1800} kcal
 - Level: ${levelMap[kpState.level]} · Equipment: ${equipMap[kpState.equip]}
 - Trainingstage/Woche: ${kpState.days}
 
@@ -1570,6 +1591,8 @@ async function doRegister(){
 }
 
 async function doLogout(){
+  const fab=document.getElementById('reportFab');
+  if(fab) fab.style.display='none';
   await sb.auth.signOut();
   currentUser=null; currentProfile=null;
   currentWeek=1; currentDay='A'; LC={};
@@ -1600,49 +1623,119 @@ function closePlanMenu(){ document.getElementById('planMenu').style.display='non
 
 // ── LANGUAGE SYSTEM ──
 let currentLang = localStorage.getItem('fitlab_lang')||'de';
+
 const LANG = {
   de: {
+    // Nav
     training:'TRAINING', body:'KÖRPER', ranking:'RANKING', progress:'VERLAUF', settings:'EINSTELLUNGEN',
-    week:'WOCHE', logout:'Ausloggen', settingsLabel:'Einstellungen', language:'SPRACHE',
-    save:'Speichern', edit:'Bearbeiten', cancel:'Abbrechen',
+    // Common
+    week:'WOCHE', save:'Speichern', edit:'Bearbeiten', cancel:'Abbrechen', close:'Schließen',
+    loading:'Laden...', error:'Fehler', saved:'Gespeichert',
+    // Auth
+    logout:'Ausloggen', settingsLabel:'Einstellungen', language:'SPRACHE',
+    // Training
+    newGoal:'🎯 NEUES ZIEL', warmup:'WARM-UP', training_sec:'TRAINING', nutrition:'ERNÄHRUNG',
+    sauna:'Sauna', techTip:'Technik-Tipp', sets:'Sätze', allSets:'Alle Sätze',
+    addDay:'Tag hinzufügen', weekOf:'WOCHE',
+    celebrate:'Tag abschließen', celebrated:'Abgeschlossen!',
+    water:'Wasser', supplements:'Supplements',
+    // Body
+    bodyAnalysis:'KÖRPER ANALYSE', currentValues:'AKTUELLE WERTE', goalProgress:'ZIEL-FORTSCHRITT',
+    setGoal:'🎯 Ziel setzen', changeGoal:'✏️ Ziel ändern', noGoal:'Noch kein Ziel gesetzt',
+    segments:'KÖRPERSEGMENTE', achieved:'Ziel erreicht!',
+    // KI Plan
+    kiPlanTitle:'KI-PLAN', kiGoals:'ZIELE · TRAINING · ERNÄHRUNG',
+    createPlan:'🎯 PLAN ERSTELLEN', generating:'Denkt nach...',
+    yourPlan:'DEIN PERSÖNLICHER PLAN', startTraining:'TRAINING STARTEN →', regenerate:'↺ NEU GENERIEREN',
+    // Settings
+    masterData:'STAMMDATEN', displayName:'ANZEIGENAME', nickname:'NICKNAME',
+    sex:'GESCHLECHT', male:'♂ Männlich', female:'♀ Weiblich',
+    height:'GRÖSSE (cm)', age:'ALTER', changePassword:'Passwort ändern',
     newPlan:'Neuer Plan / Ziel ändern',
+    // Rankings
+    rankingTitle:'BESTENLISTE', thisWeek:'DIESE WOCHE', thisMonth:'DIESEN MONAT', allTime:'GESAMT',
+    exercises:'ÜBUNGEN', food:'ERNÄHRUNG', overall:'GESAMT',
+    // Progress
+    progressTitle:'MEIN VERLAUF',
+    // Shop
+    buyNow:'JETZT KAUFEN', comingSoon:'DEMNÄCHST', notifyLaunch:'🔔 BEIM LAUNCH BENACHRICHTIGEN',
+    // Report
+    reportName:'BODY INTELLIGENCE REPORT', reportSub:'ZIELE · TRAINING · ERNÄHRUNG',
+    reportCta:'🎁 KOSTENLOS STARTEN', firstFree:'1. BERICHT KOSTENLOS',
+    // Health
+    doctorAdvice:'ARZT-CHECK EMPFOHLEN',
   },
   en: {
+    // Nav
     training:'TRAINING', body:'BODY', ranking:'RANKING', progress:'PROGRESS', settings:'SETTINGS',
-    week:'WEEK', logout:'Log out', settingsLabel:'Settings', language:'LANGUAGE',
-    save:'Save', edit:'Edit', cancel:'Cancel',
+    // Common
+    week:'WEEK', save:'Save', edit:'Edit', cancel:'Cancel', close:'Close',
+    loading:'Loading...', error:'Error', saved:'Saved',
+    // Auth
+    logout:'Log out', settingsLabel:'Settings', language:'LANGUAGE',
+    // Training
+    newGoal:'🎯 NEW GOAL', warmup:'WARM-UP', training_sec:'TRAINING', nutrition:'NUTRITION',
+    sauna:'Sauna', techTip:'Technique Tip', sets:'Sets', allSets:'All Sets',
+    addDay:'Add Day', weekOf:'WEEK',
+    celebrate:'Complete Day', celebrated:'Completed!',
+    water:'Water', supplements:'Supplements',
+    // Body
+    bodyAnalysis:'BODY ANALYSIS', currentValues:'CURRENT VALUES', goalProgress:'GOAL PROGRESS',
+    setGoal:'🎯 Set Goal', changeGoal:'✏️ Change Goal', noGoal:'No goal set yet',
+    segments:'BODY SEGMENTS', achieved:'Goal reached!',
+    // KI Plan
+    kiPlanTitle:'AI-PLAN', kiGoals:'GOALS · TRAINING · NUTRITION',
+    createPlan:'🎯 CREATE PLAN', generating:'Thinking...',
+    yourPlan:'YOUR PERSONAL PLAN', startTraining:'START TRAINING →', regenerate:'↺ REGENERATE',
+    // Settings
+    masterData:'PROFILE DATA', displayName:'DISPLAY NAME', nickname:'NICKNAME',
+    sex:'GENDER', male:'♂ Male', female:'♀ Female',
+    height:'HEIGHT (cm)', age:'AGE', changePassword:'Change password',
     newPlan:'New Plan / Change Goal',
+    // Rankings
+    rankingTitle:'LEADERBOARD', thisWeek:'THIS WEEK', thisMonth:'THIS MONTH', allTime:'ALL TIME',
+    exercises:'EXERCISES', food:'NUTRITION', overall:'OVERALL',
+    // Progress
+    progressTitle:'MY PROGRESS',
+    // Shop
+    buyNow:'BUY NOW', comingSoon:'COMING SOON', notifyLaunch:'🔔 NOTIFY ME AT LAUNCH',
+    // Report
+    reportName:'BODY INTELLIGENCE REPORT', reportSub:'GOALS · TRAINING · NUTRITION',
+    reportCta:'🎁 START FOR FREE', firstFree:'FIRST REPORT FREE',
+    // Health
+    doctorAdvice:'MEDICAL CHECK ADVISED',
   }
 };
-function t(key){ return (LANG[currentLang]||LANG.de)[key]||key; }
+
+function t(key){ return (LANG[currentLang]||LANG.de)[key]||LANG.de[key]||key; }
+
 function setLang(lang){
   currentLang=lang;
   localStorage.setItem('fitlab_lang',lang);
+  // Update toggle buttons
+  const dDE=document.getElementById('langDE'),dEN=document.getElementById('langEN');
+  if(dDE){dDE.style.borderColor=lang==='de'?'var(--green)':'var(--border)';dDE.style.background=lang==='de'?'rgba(0,232,122,.1)':'transparent';dDE.style.color=lang==='de'?'var(--green)':'var(--muted)';}
+  if(dEN){dEN.style.borderColor=lang==='en'?'var(--green)':'var(--border)';dEN.style.background=lang==='en'?'rgba(0,232,122,.1)':'transparent';dEN.style.color=lang==='en'?'var(--green)':'var(--muted)';}
   applyLang();
-  // Update buttons
-  document.getElementById('langDE').style.borderColor=lang==='de'?'var(--green)':'var(--border)';
-  document.getElementById('langDE').style.background=lang==='de'?'rgba(0,232,122,.1)':'transparent';
-  document.getElementById('langDE').style.color=lang==='de'?'var(--green)':'var(--muted)';
-  document.getElementById('langEN').style.borderColor=lang==='en'?'var(--green)':'var(--border)';
-  document.getElementById('langEN').style.background=lang==='en'?'rgba(0,232,122,.1)':'transparent';
-  document.getElementById('langEN').style.color=lang==='en'?'var(--green)':'var(--muted)';
-  // Re-render current view
-  const active=document.querySelector('.bnav-btn.active');
-  if(active) active.click();
+  // Full re-render of current view
+  switchView(currentView||'training');
 }
+
 function applyLang(){
   // Nav labels
-  const navMap={training:'training',body:'body',ranking:'ranking',progress:'progress',settings:'settings'};
-  Object.entries(navMap).forEach(([view,key])=>{
+  [['training','🏋️'],['body','⚖️'],['leaderboard','🏆'],['progress','📈'],['settings','⚙️']].forEach(([view,icon])=>{
     const btn=document.getElementById('nav-'+view);
-    if(btn){ const icon=btn.querySelector('.bnav-icon');
-      if(icon){ btn.innerHTML=icon.outerHTML+(t(key)); }
-    }
+    if(btn) btn.innerHTML=`<span class="bnav-icon">${icon}</span>${t(view)}`;
   });
-  document.getElementById('ddLogout').textContent=t('logout');
-  document.getElementById('ddSettings').textContent=t('settingsLabel');
+  // Dropdown
+  const ddL=document.getElementById('ddLogout'); if(ddL) ddL.textContent=t('logout');
+  const ddS=document.getElementById('ddSettings'); if(ddS) ddS.textContent=t('settingsLabel');
+  // Week label
   const wl=document.getElementById('weekLabel');
-  if(wl){ const num=wl.textContent.replace(/[^0-9]/g,''); wl.textContent=t('week')+' '+num; }
+  if(wl){ const num=wl.textContent.replace(/[^0-9]/g,''); wl.textContent=t('weekOf')+' '+num; }
+  // KI-Plan button in tab bar
+  const kpBtn=document.querySelector('[onclick="showGoalsScreen(false)"]');
+  if(kpBtn) kpBtn.textContent=t('newGoal');
 }
 
 // ══════════════════════════════════════════════════════
@@ -1958,16 +2051,18 @@ function renderTabs(){
   const days=getUnlockedDays();
   const allIds=['A','B','C','D','E','F','G'];
   const next=allIds.find(id=>!days.includes(id));
-  let h=days.map(id=>{
-    const t=DAY_TEMPLATES[id]||DAY_TEMPLATES.E;
+  // Map each day slot to sequential number label (TAG 1, TAG 2, ...)
+  let h=days.map((id,idx)=>{
+    const tmpl=DAY_TEMPLATES[id]||DAY_TEMPLATES.E;
+    const label = currentLang==='en' ? `DAY ${idx+1}` : `TAG ${idx+1}`;
     const done=getCached(currentWeek,id,'cele');
     return `<button class="tab ${id===currentDay?'active':''} ${done?'done-tab':''}" onclick="switchDay('${id}')">
-      ${t.name}${done?'<span class="tdot"></span>':''}
+      ${label}${done?'<span class="tdot"></span>':''}
     </button>`;
   }).join('');
   if(next&&days.length<7) h+=`<button class="tab-add" onclick="addDay('${next}')" title="Tag hinzufügen">+</button>`;
   document.getElementById('dayTabs').innerHTML=h;
-  document.getElementById('weekLabel').textContent=`WOCHE ${currentWeek}`;
+  document.getElementById('weekLabel').textContent=(currentLang==='en'?'WEEK':'WOCHE')+` ${currentWeek}`;
 }
 
 async function switchDay(id){
@@ -2078,7 +2173,7 @@ async function renderTraining(){
   </div>`;
 
   // Meals
-  h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">ERNÄHRUNG</div><div class="sec-line"></div></div>`;
+  h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("nutrition")}</div><div class="sec-line"></div></div>`;
   const SUPP_KEYWORDS = ['kreatin','d3','k2','magnesium','omega','protein shake','whey','vitamin','zink','ashwagandha','kollagen','pre-workout','bcaa','eaa','l-carnitin','supplement','tropfen'];
   day.meals.forEach((m,i)=>{
     const done=getCached(currentWeek,currentDay,`m_${i}`);
@@ -2091,9 +2186,9 @@ async function renderTraining(){
         <div class="meal-info"><div class="meal-name">${m.name}</div><div class="meal-desc">${m.desc}</div></div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
           ${isSupp?`<button onclick="event.stopPropagation();openShop('${m.name.replace(/'/g,"\'")}')"
-            style="font-size:9px;font-family:var(--mono);letter-spacing:1px;font-weight:700;padding:4px 8px;border-radius:5px;border:1px solid rgba(232,240,0,.3);background:rgba(232,240,0,.07);color:#e8f000;cursor:pointer;white-space:nowrap;transition:all .2s"
-            onmouseover="this.style.background='rgba(232,240,0,.15)'" onmouseout="this.style.background='rgba(232,240,0,.07)'"
-            title="Im Shop kaufen">🛒</button>`:''}
+            style="font-size:9px;font-family:var(--display);letter-spacing:2px;font-weight:700;padding:5px 9px;border-radius:5px;border:1px solid rgba(232,240,0,.4);background:rgba(232,240,0,.1);color:#e8f000;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0"
+            onmouseover="this.style.background='rgba(232,240,0,.22)';this.style.borderColor='#e8f000'" onmouseout="this.style.background='rgba(232,240,0,.1)';this.style.borderColor='rgba(232,240,0,.4)'"
+            >KAUFEN</button>`:''}
           <div class="mcheck">${done?'✓':''}</div>
         </div>
       </div>
@@ -2102,7 +2197,7 @@ async function renderTraining(){
   h+='</div>';
 
   // Exercises
-  h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">TRAINING</div><div class="sec-line"></div></div>`;
+  h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("training_sec")}</div><div class="sec-line"></div></div>`;
   day.blocks.forEach(block=>{
     h+=`<div class="block-label" style="color:${block.color}">${block.name}</div>`;
     block.exercises.forEach((ex,ei)=>{ h+=renderExc(ex,block.name,ei,block.color); });
@@ -3490,7 +3585,8 @@ async function saveProfile(){
       return;
     }
   }
-  const updates={name,sex};
+  const updates={name};
+  if(sex) updates.sex=sex;
   if(nick!==undefined) updates.nickname=nick||null;
   if(height) updates.height=parseInt(height);
   if(age) updates.age=parseInt(age);
@@ -3980,7 +4076,7 @@ initSupabase();
     ">
       <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#f97316);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🤖</div>
       <div style="text-align:left">
-        <div style="font-family:var(--display);font-size:13px;letter-spacing:2px;background:linear-gradient(135deg,#c084fc,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2">KI MONATS-REPORT</div>
+        <div style="font-family:var(--display);font-size:13px;letter-spacing:2px;background:linear-gradient(135deg,#c084fc,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2">BODY INTELLIGENCE REPORT</div>
         <div style="font-size:9px;color:rgba(255,255,255,.4);font-family:var(--mono);letter-spacing:1px">1. BERICHT KOSTENLOS</div>
       </div>
       <div style="width:8px;height:8px;border-radius:50%;background:#00e87a;flex-shrink:0;animation:pulse 1.5s ease-in-out infinite"></div>
@@ -3996,7 +4092,7 @@ initSupabase();
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
           <div>
             <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(124,58,237,.8);margin-bottom:6px">FITLAB PREMIUM</div>
-            <div style="font-family:var(--display);font-size:28px;letter-spacing:3px;background:linear-gradient(135deg,#c084fc,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1">KI MONATS-REPORT</div>
+            <div style="font-family:var(--display);font-size:28px;letter-spacing:3px;background:linear-gradient(135deg,#c084fc,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1">BODY INTELLIGENCE REPORT</div>
           </div>
           <button onclick="document.getElementById('reportModal').style.display='none'" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0">✕</button>
         </div>
