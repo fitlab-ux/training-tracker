@@ -4057,26 +4057,11 @@ function stopConfetti(){
 // INIT
 // ══════════════════════════════════════════════════════
 // ── AUTH SLIDESHOW ──
-let slideIdx=0;
-const SLIDE_INTERVAL=4500;
-function goSlide(n){
-  const slides=document.querySelectorAll('.auth-slide');
-  const dots=document.querySelectorAll('.slide-dot');
-  if(!slides.length) return;
-  slides[slideIdx].classList.remove('active');
-  dots[slideIdx]?.classList.remove('active');
-  slideIdx=n%slides.length;
-  slides[slideIdx].classList.add('active');
-  dots[slideIdx]?.classList.add('active');
-}
-function startSlideshow(){
-  if(document.querySelectorAll('.auth-slide').length>1)
-    setInterval(()=>goSlide(slideIdx+1), SLIDE_INTERVAL);
-}
-startSlideshow();
 
-
-
+// ── APP INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  initSupabase();
+});
 
 // ── REPORT FAB ──
 function showReportFab(){
