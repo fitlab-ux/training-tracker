@@ -1177,7 +1177,7 @@ async function getLatestBodyStats(){
 
 // ── UNIFIED KI-PLAN FLOW ──
 // Called from: onboarding completion OR ⊕ KI-PLAN button in tab bar
-function showGoalsScreen(fromOnboarding=false){
+async function showGoalsScreen(fromOnboarding=false){
   const name = currentProfile?.name || 'Athlet';
   const p = currentProfile || {};
 
