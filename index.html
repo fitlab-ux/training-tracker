@@ -4071,6 +4071,33 @@ function startSlideshow(){
 startSlideshow();
 
 
+
+
+// ── REPORT FAB ──
+function showReportFab(){
+  const fab = document.getElementById('reportFab');
+  if(fab) fab.style.display='block';
+}
+
+function openReportModal(){
+  document.getElementById('reportModal').style.display='block';
+}
+
+function claimFreeReport(){
+  const btn = document.getElementById('reportCtaBtn');
+  btn.textContent = '⏳ Bericht wird vorbereitet...';
+  btn.disabled = true;
+  // Future: trigger actual KI report generation
+  setTimeout(()=>{
+    btn.textContent = '✅ Du wirst benachrichtigt!';
+    btn.style.background = 'rgba(200,255,0,.15)';
+    btn.style.border = '1px solid var(--neon)';
+    btn.style.color = 'var(--neon)';
+    btn.style.fontFamily = 'var(--mono)';
+    btn.style.fontSize = '12px';
+  }, 1500);
+}
+
 </script>
   <!-- ══ FLOATING KI-REPORT CTA ══ -->
   <div id="reportFab" style="display:none;position:fixed;bottom:80px;right:16px;z-index:8000">
@@ -4146,33 +4173,6 @@ startSlideshow();
       </div>
     </div>
   </div>
-
-<script>
-// ── REPORT FAB ──
-function showReportFab(){
-  const fab = document.getElementById('reportFab');
-  if(fab) fab.style.display='block';
-}
-
-function openReportModal(){
-  document.getElementById('reportModal').style.display='block';
-}
-
-function claimFreeReport(){
-  const btn = document.getElementById('reportCtaBtn');
-  btn.textContent = '⏳ Bericht wird vorbereitet...';
-  btn.disabled = true;
-  // Future: trigger actual KI report generation
-  setTimeout(()=>{
-    btn.textContent = '✅ Du wirst benachrichtigt!';
-    btn.style.background = 'rgba(200,255,0,.15)';
-    btn.style.border = '1px solid var(--neon)';
-    btn.style.color = 'var(--neon)';
-    btn.style.fontFamily = 'var(--mono)';
-    btn.style.fontSize = '12px';
-  }, 1500);
-}
-</script>
 
 </body>
 </html>
