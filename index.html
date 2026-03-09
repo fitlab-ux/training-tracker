@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#080808">
 <title>FITLAB</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
@@ -19,30 +20,33 @@
 
 :root{
   /* Core palette */
-  --bg:#080808;
-  --bg2:#0d0d0d;
-  --surface:#111111;
-  --card:#161616;
-  --card2:#1c1c1c;
-  --border:#242424;
-  --border2:#1e1e1e;
+  --bg:#0A0A0A;
+  --bg2:#0f0f0f;
+  --black:#0A0A0A;
+  --surface:#111;
+  --card:#1a1a1a;
+  --card2:#1e1e1e;
+  --border:#2a2a2a;
+  --border2:#222;
 
-  /* Neon accents */
-  --green:#00ff87;
-  --green-d:rgba(0,255,135,.08);
-  --green-glow:rgba(0,255,135,.25);
+  /* FITLAB CI #3 — Neon Lime + Fire Orange */
+  --neon:#C8FF00;
+  --green:#C8FF00;
+  --green-d:rgba(200,255,0,.08);
+  --green-glow:rgba(200,255,0,.25);
+  --fire:#FF4D1C;
+  --orange:#FF4D1C;
+  --orange-l:#ff6b42;
+  --orange-d:rgba(255,77,28,.12);
   --blue:#3d7fff;
   --blue-l:#6699ff;
   --blue-d:rgba(61,127,255,.12);
-  --orange:#ff6b00;
-  --orange-l:#ff8c38;
-  --orange-d:rgba(255,107,0,.12);
-  --purple:#9f6bff;
-  --red:#ff3b3b;
-  --yellow:#ffd60a;
+  --red:#FF4D1C;
+  --yellow:#C8FF00;
+  --purple:#FF4D1C;
 
   /* Typography */
-  --text:#f0f0f0;
+  --text:#F5F5F0;
   --muted:#555555;
   --dim:#888888;
 
@@ -52,9 +56,10 @@
   --rl:20px;
 
   /* Fonts */
-  --font:'Space Grotesk',sans-serif;
-  --mono:'Space Mono',monospace;
-  --display:'Space Grotesk',sans-serif;
+  --font:'Bebas Neue',sans-serif;
+  --mono:'DM Mono',monospace;
+  --display:'Bebas Neue',sans-serif;
+  --body:'Barlow',sans-serif;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
