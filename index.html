@@ -2126,11 +2126,7 @@ async function saveExPref(name, idx){
 
 function getExPref(name){ return exPrefs[exKey(name)] || 0; }
 
-function showExAltPickerByKey(key, btnEl){
-  const allOptions = (window._exAltsMap||{})[key];
-  if(!allOptions || allOptions.length===0) return;
-  showExAltPicker(allOptions[0], allOptions.slice(1), btnEl);
-}
+
 
 function showExAltPicker(name, alts, btnEl){
   // Remove any existing picker
@@ -2550,7 +2546,9 @@ function renderExc(ex,blockName,ei,blockColor){
   const altIdx = getExPref(ex.name);
   const allOpts = [ex.name, ...(ex.alts||[])];
   const dispName = altIdx>0 && altIdx<allOpts.length ? allOpts[altIdx] : ex.name;
-  const hasAlts = ex.alts && ex.alts.length > 0;
+  const hasAlts = !!(ex.alts && ex.alts.length > 0);
+  // DEBUG: log to console
+  if(typeof console !== 'undefined') console.log('renderExc:', ex.name, 'hasAlts:', hasAlts, 'alts:', ex.alts);
   // Register alts in global map (avoids inline JSON escaping issues)
   const exKey_safe = ex.name.replace(/[^a-zA-Z0-9äöüÄÖÜß]/g,'_');
   if(hasAlts) window._exAltsMap = window._exAltsMap||{};
