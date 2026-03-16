@@ -2365,28 +2365,10 @@ async function updateStreakPill(){
 }
 
 function updateProgress(){
-  const tmplKey = getTemplateForDay(currentDay);
-  // ── REST DAY ──
-  if(!tmplKey){
-    const dayLabels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
-    document.getElementById('trainingContent').innerHTML=`
-      <div style="text-align:center;padding:60px 24px">
-        <div style="font-size:64px;margin-bottom:16px">😴</div>
-        <div style="font-family:var(--display);font-size:32px;letter-spacing:4px;color:var(--text);margin-bottom:8px">RUHETAG</div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:24px">${dayLabels[currentDay]} — Regeneration ist Training</div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;max-width:320px;margin:0 auto">
-          <div style="font-size:10px;color:var(--neon);font-family:var(--mono);letter-spacing:2px;margin-bottom:10px">HEUTE EMPFOHLEN</div>
-          ${['💧 2–3 Liter Wasser trinken','🥩 Proteinreich essen (2g/kg)','🧘 Spaziergang 20–30 Min','😴 8h Schlaf — Muskeln wachsen in der Nacht','🧴 Magnesium vor dem Schlafen'].map(t=>`<div style="font-size:12px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--border)">${t}</div>`).join('')}
-        </div>
-        <button onclick="showWeekPlanner()" style="margin-top:20px;padding:12px 24px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">⚙️ WOCHENPLAN ÄNDERN</button>
-      </div>`;
-    renderTabs();
-    return;
-  }
-  const day=DAY_TEMPLATES[tmplKey]||DAY_TEMPLATES.A;
+
   let total=0,done=0;
   day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
-    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,currentDay,`s_${b.name}_${i}_${s}`))done++;}
+    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`))done++;}
   }));
   day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
   const pct=total>0?Math.round(done/total*100):0;
@@ -2395,7 +2377,7 @@ function updateProgress(){
   document.getElementById('progText').textContent=`${done} von ${total} · ⚡${pts} Pts`;
   document.getElementById('progPct').textContent=pct+'%';
   if(pct===100&&total>0&&!getCached(currentWeek,String(currentDay),'cele')){
-    dbSet(currentWeek,currentDay,'cele',true);
+    dbSet(currentWeek,String(currentDay),'cele',true);
     LC[`${currentWeek}_${currentDay}_cele`]=true;
     setTimeout(()=>{document.getElementById('celebrate').classList.add('show'); launchConfetti();},600);
     updateStreakPill();
@@ -2407,7 +2389,24 @@ function updateProgress(){
 // ══════════════════════════════════════════════════════
 async function renderTraining(){
   renderTabs();
-  const day=DAY_TEMPLATES[currentDay]||DAY_TEMPLATES.A;
+  // ── Get template for current weekday ──
+  const tmplKey = getTemplateForDay(currentDay);
+  if(!tmplKey){
+    const dayLabels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+    document.getElementById('trainingContent').innerHTML=`
+      <div style="text-align:center;padding:60px 24px">
+        <div style="font-size:64px;margin-bottom:16px">😴</div>
+        <div style="font-family:var(--display);font-size:32px;letter-spacing:4px;color:var(--text);margin-bottom:8px">RUHETAG</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:24px">${dayLabels[currentDay]} — Regeneration ist Training</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;max-width:320px;margin:0 auto 20px">
+          <div style="font-size:10px;color:var(--neon);font-family:var(--mono);letter-spacing:2px;margin-bottom:10px">HEUTE EMPFOHLEN</div>
+          ${['💧 2–3 Liter Wasser trinken','🥩 Proteinreich essen (2g/kg Körpergewicht)','🚶 Spaziergang 20–30 Min (aktive Erholung)','😴 8h Schlaf — Muskeln wachsen in der Nacht','🧴 Magnesium vor dem Schlafen'].map(tip=>`<div style="font-size:12px;color:var(--dim);padding:6px 0;border-bottom:1px solid var(--border)">${tip}</div>`).join('')}
+        </div>
+        <button onclick="showWeekPlanner()" style="padding:12px 24px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">⚙️ WOCHENPLAN ÄNDERN</button>
+      </div>`;
+    return;
+  }
+  const day = DAY_TEMPLATES[tmplKey] || DAY_TEMPLATES.A;
   let h='';
 
   h+=`<div class="hero">
@@ -2421,11 +2420,11 @@ async function renderTraining(){
   </div>`;
 
   // Water
-  const wc=[0,1,2,3,4,5,6,7].filter(i=>getCached(currentWeek,currentDay,`water_${i}`)).length;
+  const wc=[0,1,2,3,4,5,6,7].filter(i=>getCached(currentWeek,String(currentDay),`water_${i}`)).length;
   h+=`<div class="water-card">
     <div class="water-hdr"><div class="water-ttl">💧 Wasser</div><div class="water-count">${wc} / 8 Gläser</div></div>
     <div class="glasses">
-      ${[0,1,2,3,4,5,6,7].map(i=>{const on=getCached(currentWeek,currentDay,`water_${i}`);
+      ${[0,1,2,3,4,5,6,7].map(i=>{const on=getCached(currentWeek,String(currentDay),`water_${i}`);
         return `<div class="glass ${on?'on':''}" onclick="togItem('water_${i}')">${on?'💧':i+1}</div>`;
       }).join('')}
     </div>
@@ -2499,7 +2498,7 @@ function renderExc(ex,blockName,ei,blockColor){
     const done=getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`);
     const wtKey=`wt_${blockName}_${ei}_${s}`;
     const lastW=getLastWeight(blockName,ei,s);
-    const currW=getCached(currentWeek,currentDay,wtKey)!==null?getCached(currentWeek,currentDay,wtKey):(lastW?lastW.kg:null);
+    const currW=getCached(currentWeek,String(currentDay),wtKey)!==null?getCached(currentWeek,String(currentDay),wtKey):(lastW?lastW.kg:null);
     const wLabel=currW!==null?(currW===0?'KGW':currW+'kg'):'';
 
     let wRow='';
@@ -2581,7 +2580,7 @@ async function togItem(key){
   const nv=!cur;
   LC[`${currentWeek}_${currentDay}_${key}`]=nv;
   renderTraining();
-  await dbSet(currentWeek,currentDay,key,nv);
+  await dbSet(currentWeek,String(currentDay),key,nv);
 }
 
 async function setWt(key,val){
@@ -2590,7 +2589,7 @@ async function setWt(key,val){
   LC[`${currentWeek}_${currentDay}_${key}`]=v;
   // Only update chip highlights, no full re-render (prevents scroll jump)
   updateWtChips(key,v);
-  await dbSet(currentWeek,currentDay,key,v);
+  await dbSet(currentWeek,String(currentDay),key,v);
 }
 
 function updateWtChips(key,v){
@@ -2605,7 +2604,7 @@ async function toggleAllSets(blockName,ei,num){
   const allOn=Array.from({length:num},(_,s)=>getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`)).every(Boolean);
   for(let s=0;s<num;s++){
     LC[`${currentWeek}_${currentDay}_s_${blockName}_${ei}_${s}`]=!allOn;
-    await dbSet(currentWeek,currentDay,`s_${blockName}_${ei}_${s}`,!allOn);
+    await dbSet(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`,!allOn);
   }
   renderTraining();
 }
@@ -3936,12 +3935,12 @@ async function showShareCard(){
   const name=currentProfile?.name||'Athlet';
   const pts=calcDayPoints(currentWeek,String(currentDay));
   const streak=await calcStreak();
-  const day=DAY_TEMPLATES[currentDay]||DAY_TEMPLATES.A;
+  const day=DAY_TEMPLATES[getTemplateForDay(currentDay)]||DAY_TEMPLATES.A;
 
   // Count completions for progress
   let total=0,done=0;
   day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
-    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,currentDay,`s_${b.name}_${i}_${s}`))done++;}
+    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`))done++;}
   }));
   day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
   const pct=total>0?Math.round(done/total*100):0;
