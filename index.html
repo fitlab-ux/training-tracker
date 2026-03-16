@@ -2155,6 +2155,13 @@ function getExPref(name){ return exPrefs[exKey(name)] || 0; }
 
 
 
+// ── ALT PICKER ENTRY (index-based, no escaping) ──
+function _showAlt(idx, btnEl){
+  const entry = (window._exR||[])[idx];
+  if(!entry){ console.warn('No alt entry at index',idx); return; }
+  showExAltPicker(entry.n, entry.o.slice(1), btnEl);
+}
+
 function showExAltPicker(name, alts, btnEl){
   // Remove any existing picker
   document.querySelectorAll('.ex-alt-picker').forEach(el=>el.remove());
@@ -2432,6 +2439,7 @@ function updateProgress(){
 // TRAINING RENDER
 // ══════════════════════════════════════════════════════
 async function renderTraining(){
+  window._exR = [];
   renderTabs();
   // ── Get template for current weekday ──
   const tmplKey = getTemplateForDay(currentDay);
@@ -2656,13 +2664,11 @@ function renderExc(ex,blockName,ei,blockColor){
   const allOpts = [ex.name, ...(ex.alts||[])];
   const dispName = altIdx>0 && altIdx<allOpts.length ? allOpts[altIdx] : ex.name;
   const hasAlts = !!(ex.alts && ex.alts.length > 0);
-  // DEBUG: log to console
-  if(typeof console !== 'undefined') console.log('renderExc:', ex.name, 'hasAlts:', hasAlts, 'alts:', ex.alts);
   // Register alts in global map (avoids inline JSON escaping issues)
-  const exKey_safe = ex.name.replace(/[^a-zA-Z0-9äöüÄÖÜß]/g,'_');
-  if(hasAlts) window._exAltsMap = window._exAltsMap||{};
-  if(hasAlts) window._exAltsMap[exKey_safe] = allOpts;
-
+  // Index-based registry — no string escaping needed
+  window._exR = window._exR||[];
+  const _ri = window._exR.length;
+  window._exR.push({n:ex.name, o:allOpts});
   return `<div class="exc ${allOn?'done':''}">
     <div class="exc-hdr">
       <div class="exc-icon">${ex.emoji}</div>
@@ -2671,7 +2677,7 @@ function renderExc(ex,blockName,ei,blockColor){
         <div class="exc-meta">${ex.sets} Sätze · ${ex.reps}${altIdx>0?` <span style="font-size:9px;color:var(--neon);font-family:var(--mono)">· ALT</span>`:''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        ${hasAlts?`<button onclick="showExAltPickerByKey('${exKey_safe}',this)"
+        ${hasAlts?`<button onclick="_showAlt(${_ri},this)"
           style="width:24px;height:24px;border-radius:6px;border:1px solid ${altIdx>0?'var(--neon)':'var(--border)'};background:${altIdx>0?'rgba(200,255,0,.08)':'var(--surface)'};color:${altIdx>0?'var(--neon)':'var(--muted)'};font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Übung wechseln">⇄</button>`:''}
         <div class="exc-chk" onclick="toggleAllSets('${blockName}',${ei},${ex.sets})">${allOn?'✓':''}</div>
       </div>
