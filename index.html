@@ -261,6 +261,8 @@ body::before{
   color:#000;
   box-shadow:0 0 16px rgba(0,255,135,.3);
 }
+.tab.rest-tab{opacity:.4;font-style:normal;}
+.tab.rest-tab .tdot{display:none}
 .tab.done-tab{border-color:rgba(0,255,135,.3);color:var(--neon);}
 .tab .tdot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--neon);margin-left:4px;vertical-align:middle;}
 .tab-add{
@@ -1474,7 +1476,7 @@ async function enterApp(){
   } catch(e){}
   // Preload current day
   LC = {};
-  await preloadDay(currentWeek, currentDay);
+  await preloadDay(currentWeek, String(currentDay));
   document.getElementById('celebSub').textContent = `Stark, ${name}! Sauna verdient! 💪`;
   applyLang();
   // Sync lang buttons
@@ -1611,7 +1613,7 @@ async function doLogout(){
   if(fab) fab.style.display='none';
   await sb.auth.signOut();
   currentUser=null; currentProfile=null;
-  currentWeek=1; currentDay='A'; LC={};
+  currentWeek=1; currentDay=new Date().getDay()===0?6:new Date().getDay()-1; LC={};
   document.getElementById('appWrap').style.display='none';
   showAuth();
 }
@@ -1894,11 +1896,163 @@ async function fetchLeaderboard(period){
 // TRAINING DATA
 // ══════════════════════════════════════════════════════
 const DAY_TEMPLATES = {
-  A:{name:'TAG 1',subtitle:'Oberkörper + Zone 2',type:'KRAFT + CARDIO',duration:'80–90 Min',sauna:false,timeHint:'❶ Cardio-Stimulus',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier oder Vollkornbrot'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse + Kohlenhydrate nach Wahle'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + kleiner Snack'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein + Wasser — sofort nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Kohlenhydratarm: Salat + Proteinquelle'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',alts:['🚴 Fahrrad — locker 5 Min','🏃 Laufband — locker 5 Min','🚣 Rudergerät — locker 5 Min'],sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier: Oberkörper vorklappen, Arme ziehen NACH der Hüfte. Schultern locker. 50% Intensität.',weights:[]},{name:'Arm Circles + Schulter Mobil.',alts:['🔄 Band Pull-Aparts 2×15','💆 Schulter-Pendel + Kreisen','🧘 Doorway Stretch + Rotation'],sets:2,reps:'30 Sek je Richtung',emoji:'🔄',tip:'Arme weit kreisen, erst vorwärts dann rückwärts. Schulterblätter zusammenziehen.',weights:[]},{name:'Band Pull-Aparts',alts:['↔️ Facepulls am Kabelzug','🎯 Rear Delt Fly Maschine','🤸 Widerstandsband Rotation'],sets:2,reps:'15 Wdh',emoji:'↔️',tip:'Band auf Brusthöhe, Arme gestreckt auseinanderziehen. Hintere Schulter aktivieren.',weights:[]}]},{name:'BLOCK 1 — BRUST & RÜCKEN',color:'#3b82f6',exercises:[{name:'Bankdrücken (Langhantel)',alts:['🏋️ Kurzhantel Bankdrücken','🤸 Liegestütz gewichtet','🏗️ Smith Machine Bankdrücken'],sets:4,reps:'6–8 Wdh',emoji:'🏋️',superset:true,tip:'Schulterblätter zusammen, Brust raus. Stange kontrolliert senken, explosiv drücken. 85% 1RM.',weights:[40,50,60,70,80,90,100]},{name:'Langhantelrudern',alts:['🚣 Kurzhantel Rudern einarmig','🔗 Kabelzug Rudern sitzend','🏗️ T-Bar Rudern'],sets:4,reps:'8–10 Wdh',emoji:'💪',superset:true,tip:'Oberkörper 45° vorgebeugt. Stange zum Bauchnabel ziehen, Ellbogen eng.',weights:[30,40,50,60,70,80]},{name:'Schrägbank Kurzhantel',alts:['📐 Schrägbank Langhantel','🔗 Kabelzug Flyes Schräg','🏗️ Smith Machine Schrägbank'],sets:3,reps:'10–12 Wdh',emoji:'📐',superset:true,tip:'Volle Dehnung unten. Langsam senken, kontrolliert drücken.',weights:[16,18,20,22,24,26,28,30]},{name:'Klimmzüge / Latzug',alts:['🔝 Latzug weit Griff','🤸 Assisted Klimmzüge','🔗 Kabelzug Pulldown enges Griff'],sets:3,reps:'Max / 10 Wdh',emoji:'🔝',superset:true,tip:'Schulterblätter zuerst nach unten, dann Ellbogen ziehen. Letzter Satz bis Versagen!',weights:[0,40,50,60,70]}]},{name:'BLOCK 2 — SCHULTERN & ARME',color:'#1976D2',exercises:[{name:'Militärpress (sitzend)',alts:['⬆️ Militärpress stehend','🔗 Kabelzug Schulterdrücken','🏗️ Smith Machine Schulterdrücken'],sets:3,reps:'8–10 Wdh',emoji:'⬆️',superset:true,tip:'Rücken gerade, Kern angespannt. Nicht ins Hohlkreuz fallen.',weights:[30,40,50,60,70]},{name:'Seitheben',alts:['🔗 Kabelzug Seitheben','🏗️ Maschinen-Seitheben','↕️ Upright Row Kurzhantel'],sets:3,reps:'12–15 Wdh',emoji:'✈️',superset:true,tip:'Kein Schwung! Arme nur bis Schulterhöhe. Kleiner Finger leicht oben.',weights:[6,8,10,12,14,16]},{name:'Bizeps-Curls (Kurzhantel)',alts:['🔗 Kabelzug Curls','🏋️ Langhantel Curls','💺 Concentration Curl sitzend'],sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Ellbogen am Körper fixiert. 3 Sek runter, 1 Sek hoch.',weights:[10,12,14,16,18,20]},{name:'Trizeps-Dips / Pushdown',alts:['🔗 Seilzug Pushdown am Turm','💺 Trizeps-Dips Bench','🏋️ Skull Crushers Langhantel'],sets:3,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'Voll strecken oben, 90° unten. Bei Dips Oberkörper leicht nach vorne.',weights:[0,15,20,25,30]}]},{name:'ZONE 2 CARDIO — nach Kraft',color:'#22c55e',exercises:[{name:'Stepper — Zone 2',alts:['🚴 Fahrrad Zone 2 20 Min','🏃 Laufband Incline Zone 2','🚣 Rudergerät Zone 2 20 Min'],sets:1,reps:'20 Min',emoji:'🪜',tip:'Ziel-HF: 130–145 bpm. Aufrecht stehen, Gesäß aktivieren. Kein Hohlkreuz!',weights:[]},{name:'SkiErg — Finish-Intervalle',alts:['🚴 Bike Sprint 5×30s','🏃 Laufband Sprints 5×30s','🚣 Ruder-Intervalle 5×30s'],sets:5,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'5 Intervalle als Abschluss. Maximale Zugkraft die 30 Sek.',weights:[]}]}]},
-  B:{name:'TAG 2',subtitle:'Beine + Core',type:'FETTVERBRENNER',duration:'65–75 Min',sauna:true,saunaTemp:'90–100°C',timeHint:'Stärkster Trainingstag!',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier — heute mehr Carbs!'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse + Kartoffeln oder Reis — heute mehr Carbs'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Joghurt oder Vollkornbrot'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein — sofort nach der Sauna'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Mozzarella + Tomaten oder Wurst + Salat'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier-Bewegung. Locker einpendeln, Atemfrequenz normalisieren.',weights:[]},{name:'Hip Circles + Leg Swings + Goblet Squat',alts:['🦵 Lunge + Rotation 10×','🏋️ Goblet Squat tief 2×10','🧘 90/90 Hip Stretch 2×30s'],sets:2,reps:'10 Wdh je',emoji:'🔄',tip:'Hüfte locker kreisen, Beine schwingen, tief in Kniebeuge. Keine Eile.',weights:[]}]},{name:'BLOCK 1 — QUADRIZEPS & GESÄSS',color:'#3b82f6',exercises:[{name:'Kniebeugen (Langhantel)',alts:['🏗️ Smith Machine Kniebeugen','🦵 Beinpresse (Ersatz)','🥇 Hack Squat Maschine'],sets:5,reps:'5–6 Wdh',emoji:'🏋️',tip:'KÖNIG DER ÜBUNGEN! Brust raus, Knie über Zehen, tief bis parallel. 90% 1RM.',weights:[40,50,60,70,80,90,100,110,120]},{name:'Beinpresse',alts:['🦵 Hack Squat','🏋️ Goblet Squat schwer','🦵 Step-Ups mit Gewicht'],sets:4,reps:'10–12 Wdh',emoji:'🦵',tip:'Füße schulterbreit, tief bis 90°. Knie nicht nach innen.',weights:[60,80,100,120,140,160,180]},{name:'Bulgarische Split Squat',alts:['🦵 Ausfallschritte (Langhantel)','🏗️ Einbeinige Beinpresse','🤸 Pistol Squat assisted'],sets:3,reps:'10 je Bein',emoji:'📐',tip:'Hinterer Fuß auf Bank. Vorderes Knie über dem Fuß.',weights:[0,10,12,14,16,18,20]},{name:'Beinstrecker (Maschine)',alts:['🦵 Sissy Squat','🏗️ Leg Extension Cable','💥 Wall Sit 3×60s'],sets:3,reps:'15 Wdh',emoji:'🔥',tip:'Langsam strecken, oben 1 Sek halten. Brennt — ist gut!',weights:[30,40,50,60,70,80]}]},{name:'BLOCK 2 — HINTERE KETTE & WADEN',color:'#1976D2',exercises:[{name:'Rumänisches Kreuzheben',alts:['🏋️ Einbeiniges RDL Kurzhantel','🔗 Kabelzug Hip Hinge','🦵 Good Mornings Langhantel'],sets:4,reps:'8–10 Wdh',emoji:'⬇️',superset:true,tip:'Stange körpernah, Rücken gerade. Langsam kippen bis Dehnung spürbar.',weights:[40,50,60,70,80,90]},{name:'Beinbeuger liegend',alts:['🔗 Kabelzug Beinbeuger stehend','🤸 Nordic Curl','🦵 Swiss Ball Leg Curl'],sets:4,reps:'12 Wdh',emoji:'🦵',superset:true,tip:'3 Sek runter, schnell ziehen. Hüfte bleibt auf der Bank.',weights:[30,40,50,60,70]},{name:'Wadenheben (stehend)',alts:['💺 Wadenheben sitzend','🦵 Einbeiniges Wadenheben','🚶 Zehenstand-Gehen 3×20m'],sets:4,reps:'20 Wdh',emoji:'👟',tip:'Volle Bewegung: ganz unten dehnen, ganz oben strecken. Oben 1 Sek halten.',weights:[0,20,30,40,50,60]}]},{name:'CORE FINISHER',color:'#22c55e',exercises:[{name:'Plank',alts:['⬛ RKC Plank (intensiver)','🤸 Pallof Press','💪 Ab Wheel Rollout'],sets:3,reps:'45–60 Sek',emoji:'⬛',tip:'Hüfte gerade, Gesäß anspannen. Kein Hohlkreuz.',weights:[]},{name:'Ab Rollout / Crunch Maschine',alts:['🔄 Kabelzug Crunch','🏋️ Decline Crunch mit Gewicht','🤸 Dragon Flag progressiv'],sets:3,reps:'15 Wdh',emoji:'🔄',tip:'Langsam ausrollen. Niemals ins Hohlkreuz!',weights:[0,10,20,30]},{name:'Russische Twists',alts:['🔗 Kabelzug Rotation stehend','🤸 Medicine Ball Slam','↩️ Woodchopper am Kabelzug'],sets:3,reps:'20 Wdh',emoji:'↩️',tip:'Füße leicht angehoben. Mit Gewicht links-rechts drehen.',weights:[4,6,8,10,12]},{name:'Hängendes Knieheben',alts:['⬆️ Hängendes Beinheben gestreckt','🏗️ Maschine Knieheben','🔗 Kabelzug Knieheben stehend'],sets:3,reps:'15 Wdh',emoji:'⬆️',tip:'Knie langsam zur Brust. Kein Schwingen.',weights:[]}]}]},
-  C:{name:'TAG 3',subtitle:'Reines Cardio',type:'HERZ-TAG ❤️',duration:'60–65 Min',sauna:true,saunaTemp:'85–95°C',timeHint:'❷+❸ Cardio-Stimulus',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Eier + Gemüse — heute weniger Carbs'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse — leichte Portion (Cardio-Tag)'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Nur Banane — leichter Magen für Cardio!'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein + Beeren — nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Großer Salat mit Feta oder Ruccola-Erdbeere'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'ZONE 2 — STEPPER oder LAUFBAND',color:'#3b82f6',exercises:[{name:'Stepper Zone 2',alts:['🚴 Fahrrad Zone 2','🏃 Laufband Incline Walk','🚣 Rudergerät gleichmäßig'],sets:1,reps:'35–40 Min',emoji:'🪜',tip:'130–145 bpm die GESAMTE Zeit. Gleichmäßig — das formt das Herz. Aufrecht, Gesäß aktivieren.',weights:[]},{name:'Laufband Incline (Alternative)',alts:['🚴 Stationäres Fahrrad','🚣 Rudergerät moderat','⛷️ SkiErg locker'],sets:1,reps:'35–40 Min',emoji:'🏔️',tip:'Steigung 8–12%, Tempo 5–6 km/h. Kein Festhalten! Arme schwingen lassen.',weights:[]}]},{name:'SKIERG — HIIT FINISH',color:'#FF4D1C',exercises:[{name:'SkiErg 30/30 Intervalle',alts:['🚴 Bike Sprints 8×30s/30s','🏃 Laufband Sprints 8×30s/30s','🚣 Ruder-Intervalle 8×30s/30s'],sets:8,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'VOLLGAS die 30 Sek. Hüftstoß + Armzug synchron. Dann wirklich pausieren!',weights:[]},{name:'Burpees oder Box Jumps',alts:['💥 Jumping Jacks + Squat Jump','⬆️ Step-Ups schnell 4×10','🏃 Treppensteigen 4×Läufe'],sets:4,reps:'10 Wdh',emoji:'⬆️',tip:'Explosiv! Burpees: Plank → Liegestütz → Sprung. Box Jumps: weich landen.',weights:[]}]},{name:'CORE CIRCUIT',color:'#22c55e',exercises:[{name:'Plank Varianten',alts:['⬛ Side Plank + Reach','🤸 Plank-Shoulder Tap','💪 Plank + Beinheben'],sets:3,reps:'45 Sek',emoji:'⬛',tip:'Front → Side links → Side rechts. Je 45 Sek.',weights:[]},{name:'Ab Wheel Rollout',alts:['🔗 Kabelzug Knieheben','🔄 Bauchpresse Maschine','🤸 Hanging Knee Raise'],sets:3,reps:'12 Wdh',emoji:'🔄',tip:'Langsam ausrollen bis kurz vor Boden. Kontrolliert zurück.',weights:[]},{name:'Hollow Body Hold',alts:['⬛ Dead Bug','🤸 L-Sit Progressionen','💪 Tuck Hold am Reck'],sets:3,reps:'30 Sek',emoji:'🤸',tip:'Arme über Kopf, Beine gestreckt angehoben. Kreuz flach halten.',weights:[]},{name:'V-Ups oder Knieheben',alts:['🤸 Bicycle Crunches','⬆️ Toe Touches liegend','🏗️ Reverse Crunch'],sets:3,reps:'15 Wdh',emoji:'⬆️',tip:'V-Ups: gleichzeitig Arme und Beine zur Mitte.',weights:[]}]}]},
-  D:{name:'TAG 4',subtitle:'Ganzkörper + Zone 2',type:'OPTIONAL + CARDIO',duration:'80–90 Min',sauna:false,timeHint:'Optional · 4. Tag',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken + Eier + Obst'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver ins Wasser oder Shake'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Kräftig essen — großer Trainingstag!'},{time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Vollkornbrot mit Quark'},{time:'Post',icon:'🥤',name:'Protein Shake',desc:'30g Whey-Protein — direkt nach dem Training'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Wurst + Karottensalat oder Caprese'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — direkt vor dem Schlafen'}],blocks:[{name:'WARM-UP — SKIERG',color:'#64748b',exercises:[{name:'SkiErg — locker',sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier, Arme nach Hüfte. Locker einpendeln. 50% Intensität.',weights:[]},{name:'Mobility: Hüfte + Schulter + Thorax',alts:['🧘 Yoga Flow 5 Min','🔄 Foam Roller Ganzkörper','🤸 Animal Flow Warm-Up'],sets:1,reps:'5 Min',emoji:'🔄',tip:'Hüftkreisen, Arm Circles, Thorax-Rotation. Alles lockern.',weights:[]}]},{name:'GANZKÖRPER COMPOUND',color:'#3b82f6',exercises:[{name:'Kreuzheben',alts:['🏗️ Trap Bar Deadlift','🦵 Sumo Kreuzheben','🤸 Kettlebell Deadlift'],sets:4,reps:'5 Wdh',emoji:'🏋️',tip:'Rücken GERADE, Stange über Mittelfuß. Gesäß rein, dann ziehen. 85% 1RM.',weights:[60,70,80,90,100,110,120,130,140]},{name:'Frontsquat',alts:['🦵 Goblet Squat schwer','🏗️ Zercher Squat','💪 Safety Bar Squat'],sets:3,reps:'8 Wdh',emoji:'🦵',superset:true,tip:'Stange auf Schultern vorne. Aufrechter Oberkörper. Technik > Gewicht!',weights:[30,40,50,60,70,80]},{name:'Push Press',alts:['⬆️ Bradford Press','🔗 Kabelzug Schulterdrücken','🏗️ Arnold Press'],sets:3,reps:'8 Wdh',emoji:'⬆️',superset:true,tip:'Kurz in die Knie, dann explosiv strecken. Power!',weights:[30,40,50,60,70]},{name:'Klimmzüge + Dips',alts:['🔝 Weighted Klimmzüge','💪 Ring Dips','🤸 Muscle-Up Progression'],sets:3,reps:'Max Wdh',emoji:'💪',superset:true,tip:'Klimmzüge bis Versagen, dann sofort Dips.',weights:[0]},{name:'Langhantelrudern',sets:3,reps:'10 Wdh',emoji:'🚣',superset:true,tip:'Enger Griff, Ellbogen eng. Stange zum Bauch, 2 Sek halten.',weights:[40,50,60,70,80]},{name:'Farmers Walk',alts:['🏋️ Suitcase Carry einarmig','🔗 Trap Bar Carry','🤸 Overhead Carry'],sets:3,reps:'40 Meter',emoji:'🏃',tip:'Schwere Kurzhanteln, aufrecht, Schultern zurück.',weights:[16,18,20,22,24,26,28,30,32]},{name:'Kettlebell Swings',alts:['⚡ Kettlebell Snatch','💥 Medizinball Slam','🏃 Sprints 8×20m'],sets:4,reps:'20 Wdh',emoji:'⚡',tip:'HÜFTSTOSS — nicht Kniebeuge! Arme sind nur Seile.',weights:[12,16,20,24,28,32]}]},{name:'ZONE 2 — nach Kraft',color:'#22c55e',exercises:[{name:'Stepper Zone 2',sets:1,reps:'20 Min',emoji:'🪜',tip:'130–145 bpm. HF-Uhr checken, nicht Gefühl.',weights:[]},{name:'Laufband Incline',alts:['🚴 Fahrrad Zone 2 20 Min','🚣 Rudergerät Zone 2 20 Min','🪜 Stepper Zone 2 20 Min'],sets:1,reps:'20 Min',emoji:'🏔️',tip:'Steigung 10%, Tempo 5–6 km/h. Kein Festhalten!',weights:[]}]}]},
-  E:{name:'TAG 5',subtitle:'Cardio + Mobility',type:'BONUS CARDIO',duration:'50–60 Min',sauna:true,saunaTemp:'80–90°C',timeHint:'Flexibel · 5. Tag',meals:[{time:'Früh',icon:'🥣',name:'Frühstück',desc:'Leicht — Eier + Obst'},{time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich'},{time:'Früh',icon:'⚗️',name:'Kreatin',desc:'3–5g Pulver'},{time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Protein + Gemüse nach Wahl'},{time:'Abend',icon:'🥗',name:'Abendessen',desc:'Proteinreich + Gemüse'},{time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium — vor dem Schlafen'}],blocks:[{name:'ZONE 2 — STEPPER',color:'#3b82f6',exercises:[{name:'Stepper Zone 2',sets:1,reps:'30–35 Min',emoji:'🪜',tip:'130–145 bpm. Gleichmäßig — das formt das Herz.',weights:[]}]},{name:'SKIERG — HIIT',color:'#FF4D1C',exercises:[{name:'SkiErg 30/30',alts:['🚴 Bike Sprint 6×30s','🏃 Sprints 6×30s','🚣 Ruder-Intervalle 6×30s'],sets:6,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'⛷️',tip:'6 Runden maximal intensiv.',weights:[]}]},{name:'MOBILITÄT',color:'#22c55e',exercises:[{name:'Hüftbeuger + Pigeon Pose',alts:['🧘 90/90 Stretch 2×60s','🤸 Couch Stretch 2×60s','🧘 Yin Yoga Hüfte 5 Min'],sets:2,reps:'60 Sek je Seite',emoji:'🧘',tip:'Nach Stepper: Hüftbeuger stark verkürzt. Tief dehnen, atmen.',weights:[]},{name:'Thorax-Rotation + Schulter',alts:['🔄 Thread the Needle 2×45s','🤸 Open Book Rotation','🧘 Foam Roller Thorax 2 Min'],sets:2,reps:'45 Sek je Seite',emoji:'🔄',tip:'Knie zur Seite, Oberkörper dreht gegenläufig. Schulter bleibt am Boden.',weights:[]}]}]}
+  A:{name:'TAG 1',subtitle:'Upper A — Brust & Rücken + Zone 2',type:'KRAFT + ZONE 2',duration:'85–95 Min',sauna:false,timeHint:'Brust · Rücken · Schulter — 1. Reiz',
+  meals:[
+    {time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken 80g + 3 Eier + Beeren — hohe Carbs, Trainingstag!'},
+    {time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},
+    {time:'Früh',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat — ins Wasser oder Shake'},
+    {time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + 20g Whey — 45 Min vor Training'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey + Banane — sofort nach Training'},
+    {time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'200g Hähnchen + Reis + Brokkoli'},
+    {time:'Abend',icon:'🥗',name:'Abendessen',desc:'Lachs + Salat + Avocado — proteinreich, kohlenhydratarm'},
+    {time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium Glycinat — direkt vor dem Schlafen'}
+  ],
+  blocks:[
+    {name:'WARM-UP',color:'#64748b',exercises:[
+      {name:'Rudergerät — locker',alts:['⛷️ SkiErg locker 5 Min','🚴 Bike locker 5 Min','🏃 Laufband Incline locker 5 Min'],sets:1,reps:'5 Min',emoji:'🚣',tip:'Hintere Kette und Schultern aufwärmen. 50% Intensität, gleichmäßiger Rhythmus.',weights:[]},
+      {name:'Band Pull-Aparts + Schulter Circles',alts:['↔️ Facepulls Kabelzug 2×15','🔄 Arm Circles + Thorax-Rotation 2×10','🤸 Doorway Pec Stretch 2×30s'],sets:2,reps:'15 Wdh',emoji:'🔄',tip:'Hintere Schulter aktivieren, Schulterblätter zusammenziehen. Schultergelenk schmieren.',weights:[]}
+    ]},
+    {name:'BLOCK 1 — BRUST',color:'#3b82f6',exercises:[
+      {name:'Bankdrücken (Langhantel)',alts:['🏋️ Kurzhantel Bankdrücken','🔗 Kabelzug Flyes schräg','🤸 Gewichtete Liegestütze'],sets:4,reps:'6–8 Wdh',emoji:'🏋️',superset:true,tip:'Schulterblätter zusammen, Brust raus. Kontrolliert senken, explosiv drücken. 85% 1RM.',weights:[40,50,60,70,80,90,100]},
+      {name:'Schrägbank Kurzhantel Drücken',alts:['📐 Schrägbank Langhantel','🔗 Kabelzug Schrägbank Flyes','🏗️ Schrägbank Smith Machine'],sets:3,reps:'10–12 Wdh',emoji:'📐',superset:true,tip:'30° Schrägbank. Volle Dehnung unten, oben nicht einrasten — konstante Spannung!',weights:[16,18,20,22,24,26,28,30]},
+      {name:'Kabelzug Crossover / Flyes',alts:['🏋️ Kurzhantel Flyes flach','🤸 TRX Flyes','🏗️ Pec Deck Maschine'],sets:3,reps:'12–15 Wdh',emoji:'🔗',superset:true,tip:'Ellbogen leicht gebeugt — wie ein Baum umarmen. Fokus auf Innenrotation, Brust zusammenpressen.',weights:[]}
+    ]},
+    {name:'BLOCK 2 — RÜCKEN',color:'#1976D2',exercises:[
+      {name:'Klimmzüge',alts:['🔝 Latzug weit (Maschine)','🔗 Kabelzug Pulldown','🤸 Assisted Klimmzüge'],sets:4,reps:'6–10 Wdh',emoji:'🔝',superset:true,tip:'Schulterblätter ZUERST nach unten einziehen, dann Ellbogen ziehen. Letzter Satz bis Versagen!',weights:[0,5,10,15,20]},
+      {name:'Langhantelrudern',alts:['🚣 Kurzhantel einarmig','🔗 Kabelzug Low Row sitzend','🏗️ T-Bar Rudern'],sets:4,reps:'8–10 Wdh',emoji:'💪',superset:true,tip:'45° vorgebeugt, Stange zum Bauchnabel. Ellbogen eng. 2 Sek halten oben.',weights:[40,50,60,70,80,90]},
+      {name:'Facepulls Kabelzug',alts:['↔️ Band Pull-Aparts 3×20','🏗️ Rear Delt Fly Maschine','🤸 TRX Y-T-W'],sets:3,reps:'15–20 Wdh',emoji:'↔️',superset:true,tip:'Schultergesundheit! Ellbogen hoch, Hände zu den Ohren ziehen. Externe Rotation maximal.',weights:[15,20,25,30,35]}
+    ]},
+    {name:'BLOCK 3 — SCHULTERN',color:'#7c3aed',exercises:[
+      {name:'Schulterdrücken sitzend (Kurzhantel)',alts:['⬆️ Langhantel Militärpress','🔗 Kabelzug Overhead Press','🏗️ Schulterdrücken Maschine'],sets:3,reps:'8–10 Wdh',emoji:'⬆️',superset:true,tip:'Rücken angelehnt, Kern angespannt. Kurzhanteln: freier Weg, mehr Stabilisatoren.',weights:[16,18,20,22,24,26]},
+      {name:'Seitheben (Kurzhantel)',alts:['🔗 Kabelzug Seitheben von unten','🏗️ Maschinen-Seitheben','↕️ Upright Row Kurzhantel'],sets:3,reps:'12–15 Wdh',emoji:'✈️',superset:true,tip:'Kein Schwung! Arme bis Schulterhöhe. Daumen leicht nach unten. Supraspinatus schützen.',weights:[8,10,12,14,16,18]}
+    ]},
+    {name:'ZONE 2 CARDIO',color:'#22c55e',exercises:[
+      {name:'Rudergerät Zone 2',alts:['🪜 Stepper Zone 2 25 Min','🚴 Bike Zone 2 25 Min','🏃 Laufband Incline Zone 2 25 Min'],sets:1,reps:'25 Min',emoji:'🚣',tip:'130–145 bpm die GESAMTE Zeit. Gleichmäßiges Tempo. Kein Übersteigen der Zone!',weights:[]}
+    ]}
+  ]},
+
+  B:{name:'TAG 2',subtitle:'Lower A — Quad & Glutes + HIIT',type:'KRAFT + HIIT',duration:'90–100 Min',sauna:true,saunaTemp:'90–100°C',timeHint:'Quad · Glutes · Core — HIIT Finisher',
+  meals:[
+    {time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken 100g + 4 Eier + Banane — maximale Carbs, Bein-Tag!'},
+    {time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},
+    {time:'Früh',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat — ins Wasser oder Shake'},
+    {time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Vollkornbrot mit Quark — 60 Min vorher'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey sofort — dann Sauna!'},
+    {time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'300g Rind + Kartoffeln + Gemüse'},
+    {time:'Abend',icon:'🥗',name:'Abendessen',desc:'Mozzarella + Tomaten + Rucola oder Fisch + Salat'},
+    {time:'Nacht',icon:'🧴',name:'Magnesium',desc:'400mg Magnesium Glycinat — Beinmuskel-Recovery!'}
+  ],
+  blocks:[
+    {name:'WARM-UP — HIP ACTIVATION',color:'#64748b',exercises:[
+      {name:'Bike locker + Glute Bridge',alts:['🚴 Rudergerät locker 5 Min','⛷️ SkiErg locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'🚴',tip:'Heute: härteste Muskelgruppe. Glutes VOR dem Squatten aktivieren — verhindert Knie-Valgus.',weights:[]},
+      {name:'Banded Clams + Leg Swings + Goblet Squat',alts:['🦵 Abduktor Maschine Warm-Up 2×15','🧘 90/90 Hip Stretch 2×30s','🔄 Tiefe Kniebeuge Körpergewicht 2×10'],sets:2,reps:'15 Wdh je',emoji:'🦵',tip:'Band um Knie: Abduktoren aktivieren. Dann 10 tiefe Kniebeugen ohne Gewicht — Bewegungsmuster einschleifen.',weights:[]}
+    ]},
+    {name:'BLOCK 1 — KNIEBEUGE',color:'#3b82f6',exercises:[
+      {name:'Kniebeugen (Langhantel)',alts:['🏗️ Hack Squat Maschine','🦵 Beinpresse 45°','🏗️ Smith Machine Kniebeugen'],sets:5,reps:'5–6 Wdh',emoji:'🏋️',tip:'KÖNIG DER ÜBUNGEN! Brust raus, Knie über Zehen, tief bis parallel. 90% 1RM. Ab Satz 3 Belt.',weights:[60,70,80,90,100,110,120]},
+      {name:'Beinpresse',alts:['🦵 Hack Squat','🤸 Bulgarsiche Split Squat','🏋️ Goblet Squat schwer'],sets:4,reps:'10–12 Wdh',emoji:'🦵',tip:'Füße schulterbreit, Mitte der Platte. Tief bis 90° — Knie nicht einwärts!',weights:[80,100,120,140,160,180,200]},
+      {name:'Bulgarische Split Squat',alts:['🦵 Ausfallschritte Langhantel','🤸 TRX Split Squat','🔗 Kabelzug Split Squat'],sets:3,reps:'10 Wdh je Bein',emoji:'📐',tip:'Hinterer Fuß auf Bank. Vorderes Knie über dem Fuß. Rumpf gerade.',weights:[0,10,12,14,16,18,20]},
+      {name:'Beinstrecker (Maschine)',alts:['🦵 Sissy Squat','💥 Wall Sit 3×60s','🔗 Kabelzug Leg Extension stehend'],sets:3,reps:'15 Wdh',emoji:'🔥',tip:'Langsam strecken, oben 2 Sek halten. Exzentrisch kontrollieren. Brennt — ist gut!',weights:[30,40,50,60,70,80]}
+    ]},
+    {name:'BLOCK 2 — GLUTES & CORE',color:'#1976D2',exercises:[
+      {name:'Hip Thrust (Langhantel)',alts:['🍑 Kurzhantel Hip Thrust','🔗 Kabelzug Hip Extension','🤸 Einbeiniger Hip Thrust'],sets:4,reps:'12 Wdh',emoji:'🍑',superset:true,tip:'Schultern auf Bank, Stange auf Hüftknochen (Pad!). Glutes oben 2 Sek pressen. Stärkste Glute-Übung!',weights:[40,60,80,100,120,140]},
+      {name:'Plank + Ab Wheel Rollout',alts:['⬛ RKC Plank 3×40s','🔗 Kabelzug Crunch','🏗️ Ab Crunch Maschine'],sets:3,reps:'45 Sek / 12 Wdh',emoji:'⬛',superset:true,tip:'Plank: Gesäß anspannen, Hüfte gerade. Ab Wheel: NIEMALS ins Hohlkreuz — Kern zieht!',weights:[0,5,10]},
+      {name:'Hängendes Knieheben',alts:['⬆️ Captain Chair Knieheben','🔗 Kabelzug Knieheben stehend','🤸 TRX Pike'],sets:3,reps:'15 Wdh',emoji:'⬆️',superset:true,tip:'Knie kontrolliert zur Brust. Kein Schwingen. Langsam ablassen.',weights:[]}
+    ]},
+    {name:'HIIT FINISHER',color:'#FF4D1C',exercises:[
+      {name:'SkiErg Intervalle — 40/20',alts:['🚴 Bike Sprints 10×40s/20s','🚣 Ruder-Intervalle 10×40s/20s','🏃 Laufband Sprints 10×30s/30s'],sets:10,reps:'40 Sek Vollgas / 20 Sek Pause',emoji:'⛷️',tip:'10 Runden maximale Intensität. Puls >85% HFmax. Hüftstoß + Armzug synchron. VOLLGAS!',weights:[]},
+      {name:'Kettlebell Swings',alts:['💥 Medizinball Slam 4×15','🤸 Burpees 4×10','🏃 Box Jumps 4×10'],sets:4,reps:'20 Wdh',emoji:'⚡',tip:'HÜFTSTOSS — nicht Kniebeuge! Arme sind nur Seile. Explosiv nach vorne schnellen.',weights:[16,20,24,28,32]}
+    ]}
+  ]},
+
+  C:{name:'TAG 3',subtitle:'Upper B — Rücken & Arme + Zone 2',type:'KRAFT + ZONE 2',duration:'85–95 Min',sauna:false,timeHint:'Rücken · Schulter · Arme — 2. Reiz',
+  meals:[
+    {time:'Früh',icon:'🥣',name:'Frühstück',desc:'4 Eier + Vollkornbrot + Avocado — moderate Carbs'},
+    {time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},
+    {time:'Früh',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat — ins Wasser oder Shake'},
+    {time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + 20g Whey — 45 Min vor Training'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey + Beeren — Recovery nach Rücken-Training'},
+    {time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Lachs 200g + Quinoa + Salat — Omega-3 für Gelenke'},
+    {time:'Abend',icon:'🥗',name:'Abendessen',desc:'Hüttenkäse + Gemüse oder Hähnchen + Brokkoli'},
+    {time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium Glycinat — direkt vor dem Schlafen'}
+  ],
+  blocks:[
+    {name:'WARM-UP',color:'#64748b',exercises:[
+      {name:'SkiErg locker',alts:['🚣 Rudergerät locker 5 Min','🚴 Bike locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'⛷️',tip:'Hüftscharnier, Schultern locker. Rücken-Tag: Thorax-Mobilität ist entscheidend.',weights:[]},
+      {name:'Thorax-Rotation + Foam Roller Rücken',alts:['🔄 Cat-Cow 2×10','🧘 Thread the Needle 2×10 je Seite','↔️ Facepulls Warm-Up 2×15'],sets:2,reps:'10 je Seite',emoji:'🔄',tip:'Brustwirbelsäule mobilisieren — Schlüssel für Schultergesundheit und saubere Zug-Übungen.',weights:[]}
+    ]},
+    {name:'BLOCK 1 — RÜCKEN (2. Reiz)',color:'#3b82f6',exercises:[
+      {name:'Weighted Klimmzüge',alts:['🔝 Latzug enges Griff (Maschine)','🔗 Kabelzug Straight-Arm Pulldown','🤸 TRX Rudern schräg'],sets:4,reps:'6–10 Wdh',emoji:'🔝',superset:true,tip:'2. Rücken-Reiz: mehr Volumen, etwas weniger Intensität als Tag 1. Volle Bewegungsamplitude!',weights:[0,5,10,15,20]},
+      {name:'Sitzrudern (Maschine/Kabelzug)',alts:['🚣 Kurzhantel einarmig Rudern','🏋️ Chest-Supported Row','🤸 TRX Rudern 45°'],sets:4,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Brust an Pad. Ellbogen eng, Schulterblatt maximal zurück. 2 Sek halten — dann kontrolliert senken.',weights:[40,50,60,70,80,90]},
+      {name:'Facepulls + Rear Delt Flyes',alts:['↔️ Band Pull-Aparts 3×20','🏗️ Hintere Schulter Maschine','🤸 TRX Y-T-W'],sets:3,reps:'15–20 Wdh',emoji:'↔️',superset:true,tip:'Rotatorenmanschette stärken! Ellbogen hoch, Hände zu Ohren. 2× pro Woche = keine Schulterschmerzen.',weights:[15,20,25,30,35]}
+    ]},
+    {name:'BLOCK 2 — SCHULTERN (2. Reiz)',color:'#7c3aed',exercises:[
+      {name:'Arnold Press (Kurzhantel)',alts:['⬆️ Langhantel Militärpress stehend','🔗 Kabelzug Overhead alternierend','🏗️ Schultermaschine'],sets:3,reps:'10–12 Wdh',emoji:'⬆️',superset:true,tip:'Rotation im Ablauf: Vorder- UND Seitendelt. Mehr Volumen als Tag 1, weniger Gewicht.',weights:[14,16,18,20,22,24]},
+      {name:'Kabelzug Seitheben (von unten)',alts:['✈️ Kurzhantel Seitheben','🏗️ Maschinen-Seitheben','↕️ Upright Row Kurzhantel'],sets:3,reps:'15 Wdh',emoji:'✈️',superset:true,tip:'Kabelzug: konstante Spannung über ganzen Weg. 2× pro Woche Seitendelts = sichtbar breitere Schultern.',weights:[8,10,12,15,17,20]}
+    ]},
+    {name:'BLOCK 3 — ARME',color:'#059669',exercises:[
+      {name:'Bizeps Curls (Kurzhantel)',alts:['🔗 Kabelzug Curl','🏋️ Langhantel Curl','💺 Concentration Curl sitzend'],sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Ellbogen FEST am Körper. 3 Sek exzentrisch (runter), 1 Sek konzentrisch (hoch). Kein Schwung!',weights:[12,14,16,18,20,22]},
+      {name:'Trizeps Pushdown Kabelzug',alts:['⬇️ Skull Crushers Langhantel','🔗 Overhead Trizeps Extension','💺 Trizeps Dips Bank'],sets:3,reps:'12–15 Wdh',emoji:'⬇️',superset:true,tip:'Ellbogen FEST. Voll strecken unten, 1 Sek halten. Seil oder gerades Kabelzug-Aufsatz.',weights:[20,25,30,35,40,45]},
+      {name:'Hammercurls + Trizeps Overhead',alts:['💪 Cable Hammer Curl','⬆️ Kurzhantel Overhead Extension','🔗 Kabelzug Bizeps-Trizeps Supersatz'],sets:3,reps:'12 Wdh je',emoji:'🔨',superset:true,tip:'Supersatz: Hammercurl → sofort Overhead Extension. Maximale Arm-Erschöpfung, effiziente Zeit.',weights:[12,14,16,18,20]}
+    ]},
+    {name:'ZONE 2 CARDIO',color:'#22c55e',exercises:[
+      {name:'Stepper Zone 2',alts:['🚴 Bike Zone 2 25 Min','🚣 Rudergerät Zone 2 25 Min','🏃 Laufband Incline Zone 2 25 Min'],sets:1,reps:'25 Min',emoji:'🪜',tip:'130–145 bpm. Aufrecht stehen, Gesäß aktivieren. Gleichmäßig — das formt das Herz.',weights:[]}
+    ]}
+  ]},
+
+  D:{name:'TAG 4',subtitle:'Lower B — Posterior Chain + HIIT + Zone 2',type:'KRAFT + HIIT + ZONE 2',duration:'100–110 Min',sauna:true,saunaTemp:'90–100°C',timeHint:'Hamstrings · Glutes · Core — härtester Tag!',
+  meals:[
+    {time:'Früh',icon:'🥣',name:'Frühstück',desc:'Haferflocken 100g + 4 Eier + Banane + Walnüsse — maximale Energie!'},
+    {time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich — zum Frühstück mit etwas Fett'},
+    {time:'Früh',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat ins Wasser'},
+    {time:'Pre',icon:'🍌',name:'Pre-Workout',desc:'Banane + Vollkornbrot — 60 Min vorher. HÄRTESTER TAG!'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey + Maltodextrin — sofort. Dann Sauna!'},
+    {time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'400g Rind + Kartoffeln + Gemüse — maximales Anabolik-Fenster'},
+    {time:'Abend',icon:'🥗',name:'Abendessen',desc:'Leicht: Hüttenkäse + Gemüse + Mandeln'},
+    {time:'Nacht',icon:'🧴',name:'Magnesium',desc:'400mg Magnesium + ZMA — optimale Regeneration'}
+  ],
+  blocks:[
+    {name:'WARM-UP — POSTERIOR CHAIN',color:'#64748b',exercises:[
+      {name:'Rudergerät + Glute Activation',alts:['🚴 Bike locker 5 Min','⛷️ SkiErg locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'🚣',tip:'Härtester Tag — gründliches Aufwärmen ist PFLICHT. Hintere Kette systematisch aktivieren.',weights:[]},
+      {name:'Glute Bridge + Good Mornings + Leg Swings',alts:['🦵 Beinbeuger Maschine Warm-Up 2×10','🧘 90/90 Hip Stretch 2×30s','🔄 Romanian Deadlift Körpergewicht 2×10'],sets:2,reps:'15 Wdh je',emoji:'🍑',tip:'Hintere Kette MUSS voraktiviert sein vor Kreuzheben. Hamstrings und Glutes fühlen.',weights:[]}
+    ]},
+    {name:'BLOCK 1 — KREUZHEBEN',color:'#3b82f6',exercises:[
+      {name:'Kreuzheben (Langhantel)',alts:['🏗️ Trap Bar Deadlift','🦵 Sumo Kreuzheben','🤸 Rumänisches Kreuzheben einbeinig'],sets:4,reps:'5–6 Wdh',emoji:'🏋️',tip:'Rücken GERADE, Stange über Mittelfuß. Hüfte zur Stange schieben, nicht hochreißen. 87% 1RM.',weights:[80,90,100,110,120,130,140]},
+      {name:'Rumänisches Kreuzheben (RDL)',alts:['🔗 Kabelzug RDL','🦵 Kurzhantel RDL einbeinig','🏗️ GHD Glute Ham Developer'],sets:4,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'Hinging-Bewegung: Hüfte zurück, Rücken gerade. Dehnung in Hamstrings spüren — bis Mitte Schienbein.',weights:[50,60,70,80,90,100]},
+      {name:'Beinbeuger liegend (Maschine)',alts:['🔗 Kabelzug Beinbeuger stehend','🤸 Nordic Hamstring Curl','🦵 Swiss Ball Leg Curl'],sets:4,reps:'12 Wdh',emoji:'🦵',superset:true,tip:'3 Sek exzentrisch (strecken) — 1 Sek konzentrisch (beugen). Hüfte bleibt auf der Bank!',weights:[30,40,50,60,70,80]}
+    ]},
+    {name:'BLOCK 2 — WADEN & CORE',color:'#1976D2',exercises:[
+      {name:'Wadenheben stehend (Maschine/Freie)',alts:['💺 Wadenheben sitzend','🦵 Einbeiniges Wadenheben','🚶 Zehenstand-Gehen 3×20m'],sets:5,reps:'20 Wdh',emoji:'👟',superset:true,tip:'Volle Bewegung: ganz unten dehnen 2 Sek, ganz oben strecken 2 Sek. Waden brauchen Volumen!',weights:[0,20,30,40,50,60]},
+      {name:'Hängendes Beinheben',alts:['⬆️ Captain Chair Beinheben','🔗 Kabelzug Knieheben stehend','🤸 TRX Jackknife'],sets:3,reps:'15 Wdh',emoji:'⬆️',superset:true,tip:'Gestreckte Beine = schwerer. Kein Schwingen — jede Wiederholung kontrolliert.',weights:[]},
+      {name:'Russische Twists + Plank',alts:['↩️ Kabelzug Woodchopper','🔄 Medizinball Slam','⬛ Ab Wheel Rollout'],sets:3,reps:'20 Wdh / 45 Sek',emoji:'↩️',superset:true,tip:'Russische Twists mit Gewicht — Füße leicht angehoben. Direkt danach Plank ohne Pause.',weights:[6,8,10,12,14]}
+    ]},
+    {name:'HIIT FINISHER',color:'#FF4D1C',exercises:[
+      {name:'Rudergerät Kraft-Intervalle',alts:['⛷️ SkiErg Intervalle 8×30s/30s','🚴 Bike Sprints 8×30s/30s','🏃 Laufband Sprints 8×30s/30s'],sets:8,reps:'30 Sek Vollgas / 30 Sek Pause',emoji:'🚣',tip:'8 Runden VOLLGAS. Maximale Zugleistung. Puls >90% HFmax. Dann wirklich pausieren!',weights:[]},
+      {name:'Burpees oder Box Jumps',alts:['💥 Kettlebell Swings 3×15','🏃 Treppensprints 4×Läufe','⬆️ Jump Squats 3×15'],sets:4,reps:'10 Wdh',emoji:'💥',tip:'Explosiv! Letzter Kraftakt nach dem Kraft-Training. Körper ist müde — trotzdem Power!',weights:[]}
+    ]},
+    {name:'ZONE 2 COOL-DOWN',color:'#22c55e',exercises:[
+      {name:'Bike Zone 2 — Cool-Down',alts:['🚣 Rudergerät locker 20 Min','🪜 Stepper locker 20 Min','🏃 Laufband locker 20 Min'],sets:1,reps:'20 Min',emoji:'🚴',tip:'Nach HIIT: 20 Min echtes Zone 2 (130–140 bpm). Laktat abbauen, Fettverbrennung weiterläuft!',weights:[]}
+    ]}
+  ]},
+
+  E:{name:'TAG 5',subtitle:'Aktive Regeneration + Mobility',type:'OPTIONAL · RECOVERY',duration:'45–60 Min',sauna:true,saunaTemp:'80–90°C',timeHint:'Nur wenn erholt — kein Pflicht-Tag',
+  meals:[
+    {time:'Früh',icon:'🥣',name:'Frühstück',desc:'Leicht — 2 Eier + Obst + griechischer Joghurt'},
+    {time:'Früh',icon:'💊',name:'D3+K2 Tropfen',desc:'2–3 Tropfen täglich'},
+    {time:'Früh',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat'},
+    {time:'Mittag',icon:'🥩',name:'Mittagessen',desc:'Proteinreich, leicht: Hähnchen + Salat'},
+    {time:'Abend',icon:'🥗',name:'Abendessen',desc:'Fisch + Gemüse oder Hüttenkäse + Beeren'},
+    {time:'Nacht',icon:'🧴',name:'Magnesium',desc:'300mg Magnesium Glycinat'}
+  ],
+  blocks:[
+    {name:'ZONE 2 — LEICHTES CARDIO',color:'#3b82f6',exercises:[
+      {name:'Bike locker Zone 2',alts:['🚣 Rudergerät locker 30 Min','🪜 Stepper locker 30 Min','🏃 Laufband locker Incline 30 Min'],sets:1,reps:'30 Min',emoji:'🚴',tip:'130–140 bpm MAX. Recovery-Cardio: fördert Durchblutung, beschleunigt Regeneration. Kein Druck!',weights:[]}
+    ]},
+    {name:'MOBILITY & STRETCHING',color:'#22c55e',exercises:[
+      {name:'Hüftbeuger + Hamstring Dehnung',alts:['🧘 Pigeon Pose 2×60s je Seite','🤸 Couch Stretch 2×60s','🦵 90/90 Hip Stretch 2×60s'],sets:2,reps:'60 Sek je Seite',emoji:'🧘',tip:'Hüftbeuger nach Kraft-Woche stark verkürzt. Tief dehnen, atmen, loslassen.',weights:[]},
+      {name:'Thorax + Schulter Mobilisation',alts:['🔄 Thread the Needle 2×10 je','🤸 Open Book Rotation 2×10','🧘 Foam Roller Thorax 3 Min'],sets:2,reps:'10 je Seite',emoji:'🔄',tip:'Brustwirbelsäule locker halten — Grundlage für schultergesundes Training nächste Woche.',weights:[]},
+      {name:'Foam Roller Ganzkörper',alts:['🧘 Yin Yoga Flow 15 Min','🤸 PNF Stretching Ganzkörper','🪢 Resistance Band Mobility Flow'],sets:1,reps:'10 Min',emoji:'🔵',tip:'Quads, Hamstrings, IT-Band, Rücken, Schultern. 30 Sek pro Bereich — langsam über den Spot rollen.',weights:[]}
+    ]}
+  ]}
 };
 
 const MAX_WEEKS = 12;
@@ -2024,17 +2178,22 @@ let currentDay = 'A';
 let lbPeriod = 'week';
 let isLoading = false;
 
-function getUnlockedDays(){
-  const key = `unlocked_w${currentWeek}`;
+function getWeekPlan(){
+  const key = `weekplan_w${currentWeek}`;
   const v = LC[`${currentWeek}_META_${key}`];
   if(v) return JSON.parse(v);
-  return [...BASE_DAYS];
+  return {...DEFAULT_WEEK_PLAN};
 }
 
-async function setUnlockedDays(days){
-  const key = `unlocked_w${currentWeek}`;
-  LC[`${currentWeek}_META_${key}`] = JSON.stringify(days);
-  await dbSet(currentWeek, 'META', key, JSON.stringify(days));
+async function setWeekPlan(plan){
+  const key = `weekplan_w${currentWeek}`;
+  LC[`${currentWeek}_META_${key}`] = JSON.stringify(plan);
+  await dbSet(currentWeek, 'META', key, JSON.stringify(plan));
+}
+
+function getTemplateForDay(dayIdx){
+  const plan = getWeekPlan();
+  return plan[dayIdx] || null; // null = Ruhetag
 }
 
 // ══════════════════════════════════════════════════════
@@ -2064,39 +2223,105 @@ function changeWeek(d){
 // TABS
 // ══════════════════════════════════════════════════════
 function renderTabs(){
-  const days=getUnlockedDays();
-  const allIds=['A','B','C','D','E','F','G'];
-  const next=allIds.find(id=>!days.includes(id));
-  // Map each day slot to sequential number label (TAG 1, TAG 2, ...)
-  let h=days.map((id,idx)=>{
-    const tmpl=DAY_TEMPLATES[id]||DAY_TEMPLATES.E;
-    const label = currentLang==='en' ? `DAY ${idx+1}` : `TAG ${idx+1}`;
-    const done=getCached(currentWeek,id,'cele');
-    return `<button class="tab ${id===currentDay?'active':''} ${done?'done-tab':''}" onclick="switchDay('${id}')">
-      ${label}${done?'<span class="tdot"></span>':''}
+  const plan = getWeekPlan();
+  const today = new Date().getDay()===0?6:new Date().getDay()-1;
+  const labels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+
+  let h = labels.map((label, idx) => {
+    const tmplKey = plan[idx];
+    const tmpl = tmplKey ? DAY_TEMPLATES[tmplKey] : null;
+    const done = tmplKey ? getCached(currentWeek, String(idx), 'cele') : false;
+    const isToday = idx === today;
+    const isActive = idx === currentDay;
+    const isRest = !tmplKey;
+
+    // Type badge color
+    const typeColor = !tmplKey ? '#444' :
+      tmpl?.type?.includes('HIIT') ? 'var(--fire)' :
+      tmpl?.type?.includes('ZONE') ? 'var(--neon)' : 'var(--blue)';
+
+    return `<button class="tab ${isActive?'active':''} ${done?'done-tab':''} ${isRest?'rest-tab':''}"
+      onclick="switchDay(${idx})"
+      style="position:relative;min-width:44px;${isToday&&!isActive?'border-color:rgba(200,255,0,.3);':''}"
+    >
+      ${isToday?`<span style="position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--neon)"></span>`:''}
+      <span style="display:block;font-size:11px;font-weight:700">${label}</span>
+      <span style="display:block;font-size:8px;color:${typeColor};font-family:var(--mono);letter-spacing:.5px;margin-top:1px">
+        ${isRest ? '—' : (tmpl?.type?.includes('HIIT') ? 'HIIT' : tmpl?.type?.includes('ZONE 2')&&!tmpl?.type?.includes('KRAFT') ? 'CARDIO' : 'KRAFT')}
+      </span>
+      ${done?'<span class="tdot"></span>':''}
     </button>`;
   }).join('');
-  if(next&&days.length<7) h+=`<button class="tab-add" onclick="addDay('${next}')" title="Tag hinzufügen">+</button>`;
+
+  // Plan-Edit button
+  h += `<button class="tab-add" onclick="showWeekPlanner()" title="Wochenplan bearbeiten" style="font-size:14px">⚙️</button>`;
+
   document.getElementById('dayTabs').innerHTML=h;
   document.getElementById('weekLabel').textContent=(currentLang==='en'?'WEEK':'WOCHE')+` ${currentWeek}`;
 }
 
-async function switchDay(id){
-  currentDay=id;
+async function switchDay(dayIdx){
+  currentDay = dayIdx;
+  const tmplKey = getTemplateForDay(dayIdx);
+  if(!tmplKey){
+    renderTraining(); // will show rest day screen
+    window.scrollTo(0,0);
+    return;
+  }
   isLoading=true;
   document.getElementById('trainingContent').innerHTML='<div class="loading"><div class="spinner"></div>Laden...</div>';
-  await preloadDay(currentWeek, id);
+  await preloadDay(currentWeek, String(dayIdx));
   isLoading=false;
   renderTraining();
   window.scrollTo(0,0);
 }
 
-async function addDay(id){
-  const days=getUnlockedDays();
-  if(!days.includes(id)) days.push(id);
-  await setUnlockedDays(days);
-  currentDay=id;
-  await preloadDay(currentWeek,id);
+function showWeekPlanner(){
+  const plan = getWeekPlan();
+  const typeOptions = [
+    {key:null, label:'— Ruhetag'},
+    {key:'A', label:'Upper A (Brust/Rücken)'},
+    {key:'B', label:'Lower A (Quad/Glutes + HIIT)'},
+    {key:'C', label:'Upper B (Rücken/Arme)'},
+    {key:'D', label:'Lower B (Posterior + HIIT)'},
+    {key:'E', label:'Zone 2 / Recovery'},
+  ];
+  const dayLabels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+  let rows = dayLabels.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--display);font-size:16px;letter-spacing:2px;color:var(--text);width:32px">${d}</div>
+      <select id="wp_${i}" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:1px">
+        ${typeOptions.map(o=>`<option value="${o.key||''}" ${(plan[i]||null)===(o.key||null)?'selected':''}>${o.label}</option>`).join('')}
+      </select>
+    </div>`).join('');
+
+  const modal = document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.95);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
+  modal.innerHTML=`
+    <div style="width:100%;max-width:480px;background:#111;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;padding:24px 20px 40px;animation:slideUp .25s ease">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:4px">WOCHENPLAN · WOCHE ${currentWeek}</div>
+          <div style="font-family:var(--display);font-size:22px;letter-spacing:3px;color:var(--neon)">TRAININGSPLAN</div>
+        </div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer">✕</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Weise jedem Wochentag ein Training zu oder setze Ruhetage:</div>
+      ${rows}
+      <button onclick="saveWeekPlan(this)" style="width:100%;margin-top:16px;padding:14px;background:var(--neon);border:none;border-radius:10px;color:#0A0A0A;font-family:var(--display);font-size:18px;letter-spacing:3px;cursor:pointer">SPEICHERN</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{ if(e.target===modal) modal.remove(); });
+}
+
+async function saveWeekPlan(btn){
+  const plan = {};
+  [0,1,2,3,4,5,6].forEach(i=>{
+    const val = document.getElementById(`wp_${i}`)?.value;
+    plan[i] = val || null;
+  });
+  await setWeekPlan(plan);
+  btn.closest('div[style*=fixed]').remove();
   renderTraining();
 }
 
@@ -2140,18 +2365,36 @@ async function updateStreakPill(){
 }
 
 function updateProgress(){
-  const day=DAY_TEMPLATES[currentDay]||DAY_TEMPLATES.A;
+  const tmplKey = getTemplateForDay(currentDay);
+  // ── REST DAY ──
+  if(!tmplKey){
+    const dayLabels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+    document.getElementById('trainingContent').innerHTML=`
+      <div style="text-align:center;padding:60px 24px">
+        <div style="font-size:64px;margin-bottom:16px">😴</div>
+        <div style="font-family:var(--display);font-size:32px;letter-spacing:4px;color:var(--text);margin-bottom:8px">RUHETAG</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:24px">${dayLabels[currentDay]} — Regeneration ist Training</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;max-width:320px;margin:0 auto">
+          <div style="font-size:10px;color:var(--neon);font-family:var(--mono);letter-spacing:2px;margin-bottom:10px">HEUTE EMPFOHLEN</div>
+          ${['💧 2–3 Liter Wasser trinken','🥩 Proteinreich essen (2g/kg)','🧘 Spaziergang 20–30 Min','😴 8h Schlaf — Muskeln wachsen in der Nacht','🧴 Magnesium vor dem Schlafen'].map(t=>`<div style="font-size:12px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--border)">${t}</div>`).join('')}
+        </div>
+        <button onclick="showWeekPlanner()" style="margin-top:20px;padding:12px 24px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">⚙️ WOCHENPLAN ÄNDERN</button>
+      </div>`;
+    renderTabs();
+    return;
+  }
+  const day=DAY_TEMPLATES[tmplKey]||DAY_TEMPLATES.A;
   let total=0,done=0;
   day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
     for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,currentDay,`s_${b.name}_${i}_${s}`))done++;}
   }));
-  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,currentDay,`m_${i}`))done++;});
+  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
   const pct=total>0?Math.round(done/total*100):0;
-  const pts=calcDayPoints(currentWeek,currentDay);
+  const pts=calcDayPoints(currentWeek,String(currentDay));
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progText').textContent=`${done} von ${total} · ⚡${pts} Pts`;
   document.getElementById('progPct').textContent=pct+'%';
-  if(pct===100&&total>0&&!getCached(currentWeek,currentDay,'cele')){
+  if(pct===100&&total>0&&!getCached(currentWeek,String(currentDay),'cele')){
     dbSet(currentWeek,currentDay,'cele',true);
     LC[`${currentWeek}_${currentDay}_cele`]=true;
     setTimeout(()=>{document.getElementById('celebrate').classList.add('show'); launchConfetti();},600);
@@ -2192,7 +2435,7 @@ async function renderTraining(){
   h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("nutrition")}</div><div class="sec-line"></div></div>`;
   const SUPP_KEYWORDS = ['kreatin','d3','k2','magnesium','omega','protein shake','whey','vitamin','zink','ashwagandha','kollagen','pre-workout','bcaa','eaa','l-carnitin','supplement','tropfen'];
   day.meals.forEach((m,i)=>{
-    const done=getCached(currentWeek,currentDay,`m_${i}`);
+    const done=getCached(currentWeek,String(currentDay),`m_${i}`);
     const nameL = m.name.toLowerCase();
     const isSupp = m.icon==='💊' || m.icon==='⚗️' || SUPP_KEYWORDS.some(k=>nameL.includes(k));
     h+=`<div class="meal ${done?'done':''}">
@@ -2221,14 +2464,14 @@ async function renderTraining(){
   h+='</div>';
 
   // Sauna
-  if(day.sauna){
+  if(true){ // Sauna always optional
     h+=`<div class="sauna-card">
       <div class="sauna-hdr">
-        <div class="sauna-ttl">🧖 Sauna</div>
-        <div class="sauna-temp">${day.saunaTemp}</div>
+        <div class="sauna-ttl">🧖 Sauna <span style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:1px">OPTIONAL</span></div>
+        <div class="sauna-temp" style="font-size:10px;color:var(--muted)">80–100°C · nach Training</div>
       </div>
       <div class="sauna-rounds">
-        ${[1,2,3].map(r=>{const on=getCached(currentWeek,currentDay,`sauna_${r}`);
+        ${[1,2,3].map(r=>{const on=getCached(currentWeek,String(currentDay),`sauna_${r}`);
           return `<div class="sround ${on?'on':''}" onclick="togItem('sauna_${r}')">
             ${on?'<div style="font-size:20px">✅</div>':`<div class="sround-n">${r}</div>`}
             <div class="sround-l">Runde ${r}</div>
@@ -2248,12 +2491,12 @@ async function renderTraining(){
 }
 
 function renderExc(ex,blockName,ei,blockColor){
-  const allOn=Array.from({length:ex.sets},(_,s)=>getCached(currentWeek,currentDay,`s_${blockName}_${ei}_${s}`)).every(Boolean);
-  const tipOpen=getCached(currentWeek,currentDay,`tip_${blockName}_${ei}`);
+  const allOn=Array.from({length:ex.sets},(_,s)=>getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`)).every(Boolean);
+  const tipOpen=getCached(currentWeek,String(currentDay),`tip_${blockName}_${ei}`);
   const hasW=ex.weights&&ex.weights.length>0;
 
   const setsHtml=Array.from({length:ex.sets},(_,s)=>{
-    const done=getCached(currentWeek,currentDay,`s_${blockName}_${ei}_${s}`);
+    const done=getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`);
     const wtKey=`wt_${blockName}_${ei}_${s}`;
     const lastW=getLastWeight(blockName,ei,s);
     const currW=getCached(currentWeek,currentDay,wtKey)!==null?getCached(currentWeek,currentDay,wtKey):(lastW?lastW.kg:null);
@@ -2334,7 +2577,7 @@ function getLastWeight(blockName,ei,s){
 }
 
 async function togItem(key){
-  const cur=getCached(currentWeek,currentDay,key);
+  const cur=getCached(currentWeek,String(currentDay),key);
   const nv=!cur;
   LC[`${currentWeek}_${currentDay}_${key}`]=nv;
   renderTraining();
@@ -2359,7 +2602,7 @@ function updateWtChips(key,v){
 }
 
 async function toggleAllSets(blockName,ei,num){
-  const allOn=Array.from({length:num},(_,s)=>getCached(currentWeek,currentDay,`s_${blockName}_${ei}_${s}`)).every(Boolean);
+  const allOn=Array.from({length:num},(_,s)=>getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`)).every(Boolean);
   for(let s=0;s<num;s++){
     LC[`${currentWeek}_${currentDay}_s_${blockName}_${ei}_${s}`]=!allOn;
     await dbSet(currentWeek,currentDay,`s_${blockName}_${ei}_${s}`,!allOn);
@@ -3691,7 +3934,7 @@ const _origFetchLB = fetchLeaderboard;
 // ══════════════════════════════════════════════════════
 async function showShareCard(){
   const name=currentProfile?.name||'Athlet';
-  const pts=calcDayPoints(currentWeek,currentDay);
+  const pts=calcDayPoints(currentWeek,String(currentDay));
   const streak=await calcStreak();
   const day=DAY_TEMPLATES[currentDay]||DAY_TEMPLATES.A;
 
@@ -3700,7 +3943,7 @@ async function showShareCard(){
   day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
     for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,currentDay,`s_${b.name}_${i}_${s}`))done++;}
   }));
-  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,currentDay,`m_${i}`))done++;});
+  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
   const pct=total>0?Math.round(done/total*100):0;
 
   // Build canvas share card
