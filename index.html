@@ -1553,7 +1553,10 @@ async function doResetPassword(){
   btn.disabled=false; btn.textContent='Passwort speichern';
   if(error){document.getElementById('resetErr').textContent=error.message;return;}
   document.getElementById('resetOk').textContent='✓ Passwort geändert! Einloggen...';
-  setTimeout(()=>{ window.history.replaceState({},'',window.location.pathname); // ── AUTH SLIDESHOW ──
+  setTimeout(()=>{ window.history.replaceState({},'',window.location.pathname); showAuth(); },1500);
+}
+
+// ── AUTH SLIDESHOW ──
 let slideIdx=0;
 const SLIDE_INTERVAL=4500;
 function goSlide(n){
@@ -1571,10 +1574,6 @@ function startSlideshow(){
     setInterval(()=>goSlide(slideIdx+1), SLIDE_INTERVAL);
 }
 startSlideshow();
-
-initSupabase(); },1500);
-}
-
 
 async function doLogin(){
   const email = document.getElementById('loginEmail').value.trim();
