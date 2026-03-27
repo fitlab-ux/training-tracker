@@ -930,6 +930,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 let sb, currentUser, currentProfile;
 let currentDay = (()=>{ const d=new Date().getDay(); return d===0?6:d-1; })();
+// Force German if no explicit language choice stored
+if(!localStorage.getItem('fitlab_lang')) localStorage.setItem('fitlab_lang','de');
 let currentWeek = 1;
 let currentDayTemplate = null;
 let isLoading = false;
@@ -1955,6 +1957,8 @@ function applyLang(){
   // Dropdown
   const ddL=document.getElementById('ddLogout'); if(ddL) ddL.textContent=t('logout');
   const ddS=document.getElementById('ddSettings'); if(ddS) ddS.textContent=t('settingsLabel');
+  // New Goal button
+  const ngBtn=document.getElementById('newGoalBtn'); if(ngBtn) ngBtn.innerHTML=`🎯 ${t('newGoal')}`;
   // Week label
   const wl=document.getElementById('weekLabel');
   if(wl){ const num=wl.textContent.replace(/[^0-9]/g,''); wl.textContent=t('weekOf')+' '+num; }
@@ -2104,7 +2108,7 @@ async function fetchLeaderboard(period){
 // ══════════════════════════════════════════════════════
 const DAY_TEMPLATES = {
 
-  A:{name:'KRAFT',subtitle:'Ganzkörper — je Übung zwischen A und B wechseln',type:'KRAFT',duration:'75–85 Min',sauna:false,
+  A:{name:'KRAFT',subtitle:'Ganzkörper · Varianten frei wählbar',type:'KRAFT',duration:'75–85 Min',sauna:false,
   timeHint:'Beine · Brust · Rücken · Schulter · Arme · Core · Waden',
   meals:[
     {time:'08:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 60g + 4 Eier + Beeren — ~520 kcal · 38g P'},
