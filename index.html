@@ -1186,6 +1186,28 @@ async function saveOnboarding(){
 
 // ── HELPER: get latest body stats ──
 // ── KI DAILY NUTRITION GENERATOR ──
+function renderSupplements(){
+  const supps = [
+    {icon:'⚗️',name:'Kreatin',desc:'5g morgens',time:'08:00'},
+    {icon:'💊',name:'D3+K2 + Omega-3',desc:'Tropfen + 2g Omega-3 zum Frühstück',time:'08:00'},
+    {icon:'🧴',name:'Magnesium',desc:'300mg — 1h vor Schlaf',time:'22:00'},
+  ];
+  return supps.map((s,i)=>{
+    const done=getCached(currentWeek,String(currentDay),`supp_${i}`);
+    return `<div class="meal ${done?'done':''}" style="margin-bottom:5px">
+      <div class="meal-row" onclick="togItem('supp_${i}')">
+        <div class="meal-time" style="font-size:9px;min-width:36px">${s.time}</div>
+        <div class="meal-icon">${s.icon}</div>
+        <div class="meal-info"><div class="meal-name">${s.name}</div><div class="meal-desc">${s.desc}</div></div>
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+          <button onclick="event.stopPropagation();openShop('${s.name}')" style="font-size:9px;font-family:var(--display);letter-spacing:1px;padding:3px 7px;border-radius:4px;border:1px solid rgba(200,255,0,.35);background:rgba(200,255,0,.07);color:var(--neon);cursor:pointer">KAUFEN</button>
+          <div class="mcheck">${done?'✓':''}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderSavedNutrition(data){
   try {
     const plan = typeof data === 'string' ? JSON.parse(data) : data;
@@ -2274,9 +2296,9 @@ function getExPref(name){ return exPrefs[exKey(name)] || 0; }
 
 
 // ── ALT PICKER ENTRY (index-based, no escaping) ──
-function _showAlt(idx, btnEl){
-  const entry = (window._exR||[])[idx];
-  if(!entry){ console.warn('No alt entry at index',idx); return; }
+function _showAlt(key, btnEl){
+  const entry = (window._exR||{})[key];
+  if(!entry){ console.warn('No alt entry for key',key); return; }
   showExAltPicker(entry.n, entry.o.slice(1), btnEl);
 }
 
@@ -2332,8 +2354,13 @@ let currentWeek = 1;
 const WEEKDAYS    = ['Mo','Di','Mi','Do','Fr','Sa','So'];
 const WEEKDAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DEFAULT_WEEK_PLAN = {
-  '0':'A', '1':'B', '2':null,
-  '3':'C', '4':'D', '5':'E', '6':null
+  '0':'A',   // Mo → Kraft
+  '1':'C',   // Di → Cardio
+  '2':null,  // Mi → Ruhetag
+  '3':'A',   // Do → Kraft
+  '4':'C',   // Fr → Cardio
+  '5':null,  // Sa → frei
+  '6':null   // So → frei
 };
 
 // Start on today's weekday (JS: Sun=0 → our Mo=0 system)
@@ -2472,7 +2499,7 @@ function showDayPicker(dayIdx){
   const currentChoice = getTemplateForDay(dayIdx);
 
   const options = [
-    {key:'A', emoji:'💪', label:'KRAFT', sub:'Ganzkörper · Variante A/B je Block frei wählbar'},
+    {key:'A', emoji:'💪', label:'KRAFT', sub:'Ganzkörper · je Übung zwischen 2 Optionen wechseln'},
     {key:'C', emoji:'🏃', label:'CARDIO', sub:'HIIT Zone 4/5 oder Zone 2 Dauermethode (30+ Min)'},
     {key:null, emoji:'😴', label:'RUHETAG', sub:'Aktive Regeneration · Dehnung · Schlaf-Protokoll'},
   ];
@@ -2752,29 +2779,7 @@ async function renderTraining(){
     </div>
   </div>`;
 
-  // Meals
-  h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("nutrition")}</div><div class="sec-line"></div></div>`;
-  const SUPP_KEYWORDS = ['kreatin','d3','k2','magnesium','omega','protein shake','whey','vitamin','zink','ashwagandha','kollagen','pre-workout','bcaa','eaa','l-carnitin','supplement','tropfen'];
-  day.meals.forEach((m,i)=>{
-    const done=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`m_${i}`);
-    const nameL = m.name.toLowerCase();
-    const isSupp = m.icon==='💊' || m.icon==='⚗️' || SUPP_KEYWORDS.some(k=>nameL.includes(k));
-    h+=`<div class="meal ${done?'done':''}">
-      <div class="meal-row" onclick="togItem('m_${i}')">
-        <div class="meal-time">${m.time}</div>
-        <div class="meal-icon">${m.icon}</div>
-        <div class="meal-info"><div class="meal-name">${m.name}</div><div class="meal-desc">${m.desc}</div></div>
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-          ${isSupp?`<button onclick="event.stopPropagation();openShop('${m.name.replace(/'/g,"\'")}')"
-            style="font-size:9px;font-family:var(--display);letter-spacing:2px;font-weight:700;padding:5px 9px;border-radius:5px;border:1px solid rgba(200,255,0,.4);background:rgba(200,255,0,.08);color:#C8FF00;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0"
-            onmouseover="this.style.background='rgba(200,255,0,.22)';this.style.borderColor='#C8FF00'" onmouseout="this.style.background='rgba(200,255,0,.08)';this.style.borderColor='rgba(200,255,0,.4)'"
-            >KAUFEN</button>`:''}
-          <div class="mcheck">${done?'✓':''}</div>
-        </div>
-      </div>
-    </div>`;
-  });
-  h+='</div>';
+  
 
   // Exercises
   h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("training_sec")}</div><div class="sec-line"></div></div>`;
@@ -2789,8 +2794,8 @@ async function renderTraining(){
       exercises = listA.map((exA, i) => {
         const exB = listB[i];
         if(!exB) return exA;
-        // Merge: exA is primary, exB becomes first alt (inserted at position 0)
-        const mergedAlts = [exB.name, ...(exA.alts||[])].slice(0,3);
+        // Merge: exA is primary, exB becomes first alt (position 0) — keep up to 4
+        const mergedAlts = [exB.name, ...(exA.alts||[])].slice(0,4);
         return {...exA, alts: mergedAlts, _hasVariant: true};
       });
       // Add any extra B exercises not paired with A
@@ -2947,7 +2952,7 @@ function renderExc(ex,blockName,ei,blockColor){
         <div class="exc-meta">${ex.sets} Sätze · ${ex.reps}${ex.pause?` · ⏱ ${ex.pause} Pause`:''}${altIdx>0?` <span style="font-size:9px;color:var(--neon);font-family:var(--mono)">· ALT</span>`:''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        ${hasAlts?`<button onclick="_showAlt(${_ri},this)"
+        ${hasAlts?`<button onclick="_showAlt('${_rk}',this)"
           style="width:24px;height:24px;border-radius:6px;border:1px solid ${altIdx>0?'var(--neon)':'var(--border)'};background:${altIdx>0?'rgba(200,255,0,.08)':'var(--surface)'};color:${altIdx>0?'var(--neon)':'var(--muted)'};font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Übung wechseln">⇄</button>`:''}
         <div class="exc-chk" onclick="toggleAllSets('${blockName}',${ei},${ex.sets})">${allOn?'✓':''}</div>
       </div>
