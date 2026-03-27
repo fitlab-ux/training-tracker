@@ -3019,6 +3019,21 @@ function launchConfetti(){
 // ══════════════════════════════════════════════════════
 // MISC HELPERS
 // ══════════════════════════════════════════════════════
+const VIDEO_DB = {
+  'Kniebeuge Langhantel': 'https://www.youtube.com/watch?v=bEv6CCg2BC8',
+  'Einbeiniges Kreuzheben': 'https://www.youtube.com/watch?v=y6mVoNVMEIs',
+  'Bankdrücken / Brustpresse': 'https://www.youtube.com/watch?v=rT7DgCr-3pg',
+  'Enges Rudern Kabelzug': 'https://www.youtube.com/watch?v=GZbfZ033f74',
+  'Schulterdrücken KH / Kabelzug': 'https://www.youtube.com/watch?v=qEwKCR5JCog',
+  'Breiter Latzug Kabelzug': 'https://www.youtube.com/watch?v=CAwf7n6Luuc',
+  'Bizeps Curl KH / EZ-Bar': 'https://www.youtube.com/watch?v=ykJmrZ5v0Oo',
+  'Trizeps Pushdown Kabelzug': 'https://www.youtube.com/watch?v=2-LAMcpzODU',
+  'Wadenheben stehend': 'https://www.youtube.com/watch?v=gwLzBJYoWlI',
+  'Plank / Hollow Body Hold': 'https://www.youtube.com/watch?v=pSHjTRCQxIw',
+  'Crunches kontrolliert': 'https://www.youtube.com/watch?v=MKmrqcoCZ-M',
+  'Seitneigung mit Gewicht': 'https://www.youtube.com/watch?v=cn4PEpI0IFM',
+};
+
 function openVideo(exName, event){
   if(event) event.stopPropagation();
   const url = (VIDEO_DB&&VIDEO_DB[exName]) ? VIDEO_DB[exName] : 'https://www.youtube.com/results?search_query='+encodeURIComponent(exName+' Übung Technik Tutorial Deutsch');
