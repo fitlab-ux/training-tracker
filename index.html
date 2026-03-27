@@ -2637,144 +2637,152 @@ function updateProgress(){
 // TRAINING RENDER
 // ══════════════════════════════════════════════════════
 async function renderTraining(){
-  window._exR = [];
-  renderTabs();
-  // ── Get template for current weekday ──
-  const tmplKey = getTemplateForDay(currentDay);
-  if(!tmplKey){
-    renderRestDay();
-    return;
-  }
-
-  // ── Render training day ──
-  const day = DAY_TEMPLATES[getTemplateForDay(currentDay)] || DAY_TEMPLATES.A;
-  let h='';
-
-  // Count progression opportunities for today
-  const progSummary = (()=>{
-    let total=0,improving=0,plateau=0;
-    day.blocks.forEach(b=>{const exList=b.exercises||(b.variantA||[]);exList.forEach((ex,ei)=>{
-      if(!ex.weights||ex.weights.length===0) return;
-      for(let s=0;s<ex.sets;s++){
-        const p=calcProgression(b.name,ei,s,ex);
-        if(p){ total++;
-          if(p.label.includes('STEIGERN')||p.label.includes('ZIEL')) improving++;
-          if(p.label.includes('PLATEAU')) plateau++;
-        }
-      }
-    });
-    });  // end blocks.forEach
-    return {total,improving,plateau};
-  })();
-
-  h+=`<div class="hero">
-    <div class="hero-badge">⚡ ${day.type}</div>
-    <div class="hero-title">${day.name} — ${day.subtitle}</div>
-    <div class="hero-meta">
-      <span class="hero-chip">⏱ ${day.duration}</span>
-      <span class="hero-chip">📍 ${day.timeHint}</span>
-      ${progSummary.total>0?`<span class="hero-chip" style="background:rgba(200,255,0,.1);border-color:var(--neon);color:var(--neon)">📈 ${progSummary.improving}× Steigerung möglich</span>`:''}
-      ${progSummary.plateau>0?`<span class="hero-chip" style="background:rgba(255,77,28,.1);border-color:var(--fire);color:var(--fire)">⚠️ ${progSummary.plateau}× Plateau</span>`:''}
-    </div>
-  </div>`;
-
-  // Water
-  const wc=[0,1,2,3,4,5,6,7].filter(i=>getCached(currentWeek,String(currentDay),`water_${i}`)).length;
-  h+=`<div class="water-card">
-    <div class="water-hdr"><div class="water-ttl">💧 Wasser</div><div class="water-count">${wc} / 8 Gläser</div></div>
-    <div class="glasses">
-      ${[0,1,2,3,4,5,6,7].map(i=>{const on=getCached(currentWeek,String(currentDay),`water_${i}`);
-        return `<div class="glass ${on?'on':''}" onclick="togItem('water_${i}')">${on?'💧':i+1}</div>`;
-      }).join('')}
-    </div>
-  </div>`;
-
-  
-
-  // ── ERNÄHRUNG ──
-  const savedNutrition = getCached(currentWeek, String(currentDay), 'ki_nutrition');
-  const _isHiit2 = day.type&&(day.type.includes('HIIT')||day.type.includes('CARDIO'));
-  const _isKraft2 = day.type&&day.type.includes('KRAFT');
-  const _kcal = _isHiit2?2500:_isKraft2?2400:1900;
-  const _carbs = _isHiit2?240:_isKraft2?220:140;
-  h+=`<div class="sec">
-    <div class="sec-hdr"><div class="sec-title">ERNÄHRUNG</div><div class="sec-line"></div></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
-      ${[['🔥','Kcal',_kcal,''],['🥩','Protein','180+','g'],['🍚','Carbs',_carbs,'g'],['🥑','Fett','80','g']]
-        .map(([ic,lbl,val,unit])=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center">
-          <div style="font-size:13px">${ic}</div>
-          <div style="font-family:var(--display);font-size:15px;color:var(--neon)">${val}${unit}</div>
-          <div style="font-size:8px;color:var(--muted);font-family:var(--mono)">${lbl}</div>
-        </div>`).join('')}
-    </div>
-    <div id="kiNutritionArea">
-      ${savedNutrition ? renderSavedNutrition(savedNutrition) :
-        `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
-          <div>
-            <div style="font-size:12px;font-weight:600;color:var(--text)">KI-Tagesplan</div>
-            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${_kcal} kcal · 180g+ Protein · max. 10 Min</div>
-          </div>
-          <button onclick="generateDailyNutrition()" id="kiNutritionBtn" style="padding:9px 14px;background:var(--neon);border:none;border-radius:8px;color:#0A0A0A;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer">ERSTELLEN</button>
-        </div>`}
-    </div>
-    <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px">
-      <div style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px">SUPPLEMENTS</div>
-      ${renderSupplements()}
-    </div>
-  </div>`;
-
-  // Exercises
-  h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("training_sec")}</div><div class="sec-line"></div></div>`;
-  day.blocks.forEach(block=>{
-    // Merge variantA + variantB into single exercise list
-    // Each variantB exercise is flagged so ⇄ shows it as pre-selected alt
-    let exercises = block.exercises || [];
-    if(block.variantA || block.variantB){
-      // Zip A and B together: show primary (A) with B as first alt option
-      const listA = block.variantA || [];
-      const listB = block.variantB || [];
-      exercises = listA.map((exA, i) => {
-        const exB = listB[i];
-        if(!exB) return exA;
-        // Merge: exA is primary, exB becomes first alt (position 0) — keep up to 4
-        const mergedAlts = [exB.name, ...(exA.alts||[])].slice(0,4);
-        return {...exA, alts: mergedAlts, _hasVariant: true};
-      });
-      // Add any extra B exercises not paired with A
-      if(listB.length > listA.length){
-        exercises = exercises.concat(listB.slice(listA.length));
-      }
+  try {
+    window._exR = [];
+    renderTabs();
+    // ── Get template for current weekday ──
+    const tmplKey = getTemplateForDay(currentDay);
+    if(!tmplKey){
+      renderRestDay();
+      return;
     }
-    h+=`<div class="block-label" style="color:${block.color}">${block.name}</div>`;
-    exercises.forEach((ex,ei)=>{ h+=renderExc(ex,block.name,ei,block.color); });
-  });
-  h+='</div>';
-
-  // Sauna
-  if(true){ // Sauna always optional
-    h+=`<div class="sauna-card">
-      <div class="sauna-hdr">
-        <div class="sauna-ttl">🧖 Sauna <span style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:1px">OPTIONAL</span></div>
-        <div class="sauna-temp" style="font-size:10px;color:var(--muted)">80–100°C · nach Training</div>
+  
+    // ── Render training day ──
+    const day = DAY_TEMPLATES[getTemplateForDay(currentDay)] || DAY_TEMPLATES.A;
+    let h='';
+  
+    // Count progression opportunities for today
+    const progSummary = (()=>{
+      let total=0,improving=0,plateau=0;
+      day.blocks.forEach(b=>{const exList=b.exercises||(b.variantA||[]);exList.forEach((ex,ei)=>{
+        if(!ex.weights||ex.weights.length===0) return;
+        for(let s=0;s<ex.sets;s++){
+          const p=calcProgression(b.name,ei,s,ex);
+          if(p){ total++;
+            if(p.label.includes('STEIGERN')||p.label.includes('ZIEL')) improving++;
+            if(p.label.includes('PLATEAU')) plateau++;
+          }
+        }
+      });
+      });  // end blocks.forEach
+      return {total,improving,plateau};
+    })();
+  
+    h+=`<div class="hero">
+      <div class="hero-badge">⚡ ${day.type}</div>
+      <div class="hero-title">${day.name} — ${day.subtitle}</div>
+      <div class="hero-meta">
+        <span class="hero-chip">⏱ ${day.duration}</span>
+        <span class="hero-chip">📍 ${day.timeHint}</span>
+        ${progSummary.total>0?`<span class="hero-chip" style="background:rgba(200,255,0,.1);border-color:var(--neon);color:var(--neon)">📈 ${progSummary.improving}× Steigerung möglich</span>`:''}
+        ${progSummary.plateau>0?`<span class="hero-chip" style="background:rgba(255,77,28,.1);border-color:var(--fire);color:var(--fire)">⚠️ ${progSummary.plateau}× Plateau</span>`:''}
       </div>
-      <div class="sauna-rounds">
-        ${[1,2,3].map(r=>{const on=getCached(currentWeek,String(currentDay),`sauna_${r}`);
-          return `<div class="sround ${on?'on':''}" onclick="togItem('sauna_${r}')">
-            ${on?'<div style="font-size:20px">✅</div>':`<div class="sround-n">${r}</div>`}
-            <div class="sround-l">Runde ${r}</div>
-          </div>`;
+    </div>`;
+  
+    // Water
+    const wc=[0,1,2,3,4,5,6,7].filter(i=>getCached(currentWeek,String(currentDay),`water_${i}`)).length;
+    h+=`<div class="water-card">
+      <div class="water-hdr"><div class="water-ttl">💧 Wasser</div><div class="water-count">${wc} / 8 Gläser</div></div>
+      <div class="glasses">
+        ${[0,1,2,3,4,5,6,7].map(i=>{const on=getCached(currentWeek,String(currentDay),`water_${i}`);
+          return `<div class="glass ${on?'on':''}" onclick="togItem('water_${i}')">${on?'💧':i+1}</div>`;
         }).join('')}
       </div>
-      <div class="sauna-info">🧊 Kalt duschen zwischen Runden · 💧 0,5L vor + 1L nach Sauna</div>
+    </div>`;
+  
+    
+  
+    // ── ERNÄHRUNG ──
+    const savedNutrition = getCached(currentWeek, String(currentDay), 'ki_nutrition');
+    const _isHiit2 = day.type&&(day.type.includes('HIIT')||day.type.includes('CARDIO'));
+    const _isKraft2 = day.type&&day.type.includes('KRAFT');
+    const _kcal = _isHiit2?2500:_isKraft2?2400:1900;
+    const _carbs = _isHiit2?240:_isKraft2?220:140;
+    h+=`<div class="sec">
+      <div class="sec-hdr"><div class="sec-title">ERNÄHRUNG</div><div class="sec-line"></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+        ${[['🔥','Kcal',_kcal,''],['🥩','Protein','180+','g'],['🍚','Carbs',_carbs,'g'],['🥑','Fett','80','g']]
+          .map(([ic,lbl,val,unit])=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center">
+            <div style="font-size:13px">${ic}</div>
+            <div style="font-family:var(--display);font-size:15px;color:var(--neon)">${val}${unit}</div>
+            <div style="font-size:8px;color:var(--muted);font-family:var(--mono)">${lbl}</div>
+          </div>`).join('')}
+      </div>
+      <div id="kiNutritionArea">
+        ${savedNutrition ? renderSavedNutrition(savedNutrition) :
+          `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text)">KI-Tagesplan</div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${_kcal} kcal · 180g+ Protein · max. 10 Min</div>
+            </div>
+            <button onclick="generateDailyNutrition()" id="kiNutritionBtn" style="padding:9px 14px;background:var(--neon);border:none;border-radius:8px;color:#0A0A0A;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer">ERSTELLEN</button>
+          </div>`}
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px">
+        <div style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px">SUPPLEMENTS</div>
+        ${renderSupplements()}
+      </div>
+    </div>`;
+  
+    // Exercises
+    h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("training_sec")}</div><div class="sec-line"></div></div>`;
+    day.blocks.forEach(block=>{
+      // Merge variantA + variantB into single exercise list
+      // Each variantB exercise is flagged so ⇄ shows it as pre-selected alt
+      let exercises = block.exercises || [];
+      if(block.variantA || block.variantB){
+        // Zip A and B together: show primary (A) with B as first alt option
+        const listA = block.variantA || [];
+        const listB = block.variantB || [];
+        exercises = listA.map((exA, i) => {
+          const exB = listB[i];
+          if(!exB) return exA;
+          // Merge: exA is primary, exB becomes first alt (position 0) — keep up to 4
+          const mergedAlts = [exB.name, ...(exA.alts||[])].slice(0,4);
+          return {...exA, alts: mergedAlts, _hasVariant: true};
+        });
+        // Add any extra B exercises not paired with A
+        if(listB.length > listA.length){
+          exercises = exercises.concat(listB.slice(listA.length));
+        }
+      }
+      h+=`<div class="block-label" style="color:${block.color}">${block.name}</div>`;
+      exercises.forEach((ex,ei)=>{ h+=renderExc(ex,block.name,ei,block.color); });
+    });
+    h+='</div>';
+  
+    // Sauna
+    if(true){ // Sauna always optional
+      h+=`<div class="sauna-card">
+        <div class="sauna-hdr">
+          <div class="sauna-ttl">🧖 Sauna <span style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:1px">OPTIONAL</span></div>
+          <div class="sauna-temp" style="font-size:10px;color:var(--muted)">80–100°C · nach Training</div>
+        </div>
+        <div class="sauna-rounds">
+          ${[1,2,3].map(r=>{const on=getCached(currentWeek,String(currentDay),`sauna_${r}`);
+            return `<div class="sround ${on?'on':''}" onclick="togItem('sauna_${r}')">
+              ${on?'<div style="font-size:20px">✅</div>':`<div class="sround-n">${r}</div>`}
+              <div class="sround-l">Runde ${r}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="sauna-info">🧊 Kalt duschen zwischen Runden · 💧 0,5L vor + 1L nach Sauna</div>
+      </div>`;
+    }
+  
+    h+=`<div style="display:flex;gap:8px;margin:8px 0 20px;">
+      <button class="reset-btn" style="flex:1" onclick="resetDay()">↺ Zurücksetzen</button>
+      <button onclick="showShareCard()" style="padding:10px 16px;background:linear-gradient(135deg,#FF4D1C,#FF4D1C);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">📸 Share</button>
+    </div>`;
+    document.getElementById('trainingContent').innerHTML=h;
+    updateProgress();
+  } catch(err) {
+    console.error("renderTraining crash:", err);
+    document.getElementById("trainingContent").innerHTML = `<div style="padding:20px;color:#FF4D1C;font-family:monospace;font-size:12px;background:#1a0000;border-radius:8px;margin:10px">
+      <b>⚠️ Render-Fehler:</b><br>${err.message}<br><br>
+      <small>${err.stack?.split("\\n").slice(0,3).join("<br>")}</small>
     </div>`;
   }
-
-  h+=`<div style="display:flex;gap:8px;margin:8px 0 20px;">
-    <button class="reset-btn" style="flex:1" onclick="resetDay()">↺ Zurücksetzen</button>
-    <button onclick="showShareCard()" style="padding:10px 16px;background:linear-gradient(135deg,#FF4D1C,#FF4D1C);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">📸 Share</button>
-  </div>`;
-  document.getElementById('trainingContent').innerHTML=h;
-  updateProgress();
 }
 
 // ── BLOCK VARIANT TOGGLE (A/B) ──
