@@ -2616,21 +2616,31 @@ async function updateStreakPill(){
 }
 
 function updateProgress(){
-
+  const day = currentDayTemplate;
+  if(!day || !day.blocks) return;
   let total=0,done=0;
-  day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
-    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`))done++;}
-  }));
-  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
+  day.blocks.forEach(b=>{
+    const exs = b.exercises||(b.variantA||[]);
+    exs.forEach((e,i)=>{
+      for(let s=0;s<e.sets;s++){
+        total++;
+        if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`)) done++;
+      }
+    });
+  });
+  (day.meals||[]).forEach((_,i)=>{
+    total++;
+    if(getCached(currentWeek,String(currentDay),`m_${i}`)) done++;
+  });
   const pct=total>0?Math.round(done/total*100):0;
   const pts=calcDayPoints(currentWeek,String(currentDay));
-  document.getElementById('progFill').style.width=pct+'%';
-  document.getElementById('progText').textContent=`${done} von ${total} · ⚡${pts} Pts`;
-  document.getElementById('progPct').textContent=pct+'%';
+  const pf=document.getElementById('progFill'); if(pf) pf.style.width=pct+'%';
+  const pt=document.getElementById('progText'); if(pt) pt.textContent=`${done} von ${total} · ⚡${pts} Pts`;
+  const pp=document.getElementById('progPct'); if(pp) pp.textContent=pct+'%';
   if(pct===100&&total>0&&!getCached(currentWeek,String(currentDay),'cele')){
     dbSet(currentWeek,String(currentDay),'cele',true);
     LC[`${currentWeek}_${currentDay}_cele`]=true;
-    setTimeout(()=>{document.getElementById('celebrate').classList.add('show'); launchConfetti();},600);
+    setTimeout(()=>{ const cel=document.getElementById('celebrate'); if(cel) cel.classList.add('show'); launchConfetti(); },600);
     updateStreakPill();
   }
 }
