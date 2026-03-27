@@ -2690,6 +2690,38 @@ async function renderTraining(){
 
   
 
+  // ── ERNÄHRUNG ──
+  const savedNutrition = getCached(currentWeek, String(currentDay), 'ki_nutrition');
+  const _isHiit2 = day.type&&(day.type.includes('HIIT')||day.type.includes('CARDIO'));
+  const _isKraft2 = day.type&&day.type.includes('KRAFT');
+  const _kcal = _isHiit2?2500:_isKraft2?2400:1900;
+  const _carbs = _isHiit2?240:_isKraft2?220:140;
+  h+=`<div class="sec">
+    <div class="sec-hdr"><div class="sec-title">ERNÄHRUNG</div><div class="sec-line"></div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+      ${[['🔥','Kcal',_kcal,''],['🥩','Protein','180+','g'],['🍚','Carbs',_carbs,'g'],['🥑','Fett','80','g']]
+        .map(([ic,lbl,val,unit])=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center">
+          <div style="font-size:13px">${ic}</div>
+          <div style="font-family:var(--display);font-size:15px;color:var(--neon)">${val}${unit}</div>
+          <div style="font-size:8px;color:var(--muted);font-family:var(--mono)">${lbl}</div>
+        </div>`).join('')}
+    </div>
+    <div id="kiNutritionArea">
+      ${savedNutrition ? renderSavedNutrition(savedNutrition) :
+        `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text)">KI-Tagesplan</div>
+            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${_kcal} kcal · 180g+ Protein · max. 10 Min</div>
+          </div>
+          <button onclick="generateDailyNutrition()" id="kiNutritionBtn" style="padding:9px 14px;background:var(--neon);border:none;border-radius:8px;color:#0A0A0A;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer">ERSTELLEN</button>
+        </div>`}
+    </div>
+    <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px">
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px">SUPPLEMENTS</div>
+      ${renderSupplements()}
+    </div>
+  </div>`;
+
   // Exercises
   h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("training_sec")}</div><div class="sec-line"></div></div>`;
   day.blocks.forEach(block=>{
