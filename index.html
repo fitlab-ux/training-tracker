@@ -2457,7 +2457,7 @@ function showProGate(featureName){
         ${[
           ['🥗','KI-Ernährungsplan','täglich personalisiert'],
           ['🎯','KI-Trainingsplan','auf dich zugeschnitten'],
-          ['📊','Body Intelligence','Report & Analyse'],
+          ['📊','Body Intelligence Report','inklusive — unbegrenzt (€4,99 für Free)'],
           ['📈','Progression Engine','automatisch optimiert'],
           ['🔓','Unbegrenzte Wochen','komplette Historie'],
           ['⚡','Priorität Support','direkt & schnell']
@@ -2861,7 +2861,7 @@ function updateProgress(){
 // ══════════════════════════════════════════════════════
 async function renderTraining(){
   try {
-    window._exR = [];
+    window._exR = {};
     renderTabs();
     // ── Get template for current weekday ──
     const tmplKey = getTemplateForDay(currentDay);
@@ -3093,7 +3093,7 @@ function renderExc(ex,blockName,ei,blockColor){
   const dispName = altIdx>0 && altIdx<allOpts.length ? allOpts[altIdx] : ex.name;
   const hasAlts = !!(ex.alts && ex.alts.length > 0);
   // Registry key for alt picker (name-based, survives re-renders)
-  if(!window._exR) window._exR = {};
+  if(typeof window._exR !== 'object' || Array.isArray(window._exR)) window._exR = {};
   const _rk = ex.name.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30);
   window._exR[_rk] = {n:ex.name, o:allOpts};
   // Register alts in global map (avoids inline JSON escaping issues)
@@ -4950,17 +4950,58 @@ function openReportModal(){
 }
 
 function claimFreeReport(){
+  if(isPro()){
+    // Pro: generate immediately
+    generateBodyReport();
+  } else {
+    // Free: show purchase flow
+    showReportPurchase();
+  }
+}
+
+function showReportPurchase(){
+  const modal = document.getElementById('reportModal');
+  // Replace CTA with purchase options
+  const ctaArea = document.getElementById('reportCtaArea');
+  if(!ctaArea) return;
+  ctaArea.innerHTML = `
+    <div style="background:rgba(255,77,28,.06);border:1px solid rgba(255,77,28,.2);border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:#FF4D1C;margin-bottom:12px">ZUGANG WÄHLEN</div>
+
+      <!-- One-time purchase -->
+      <button onclick="startReportCheckout('once')"
+        style="width:100%;padding:12px 16px;background:linear-gradient(135deg,#FF4D1C,#ff6b3d);border:none;border-radius:10px;color:#fff;font-family:var(--display);font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+        <span>EINMALIG KAUFEN</span>
+        <span style="font-size:14px">€4,99</span>
+      </button>
+
+      <!-- Pro upsell -->
+      <div style="text-align:center;font-size:9px;color:var(--muted);font-family:var(--mono);margin:8px 0">— ODER —</div>
+      <button onclick="document.getElementById('reportModal').style.display='none';showProGate('Body Intelligence Report')"
+        style="width:100%;padding:12px 16px;background:rgba(200,255,0,.08);border:2px solid var(--neon);border-radius:10px;color:var(--neon);font-family:var(--display);font-size:14px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+        <span>⚡ PRO — UNBEGRENZT</span>
+        <span style="font-size:12px">ab €4,17/Mo</span>
+      </button>
+      <div style="font-size:8px;color:var(--muted);font-family:var(--mono);text-align:center;margin-top:8px">
+        2 Reports = Pro-Abo bereits amortisiert
+      </div>
+    </div>`;
+}
+
+function startReportCheckout(type){
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;border:1px solid #FF4D1C;border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:#FF4D1C;z-index:9999;text-align:center';
+  toast.innerHTML = '🚀 PAYMENT COMING SOON<br><span style="color:var(--muted);font-size:9px">Body Intelligence Report €4,99 · kontakt@fitlab.app</span>';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 4000);
+}
+
+function generateBodyReport(){
   const btn = document.getElementById('reportCtaBtn');
-  btn.textContent = '⏳ Bericht wird vorbereitet...';
-  btn.disabled = true;
-  // Future: trigger actual KI report generation
+  if(btn){ btn.textContent='⏳ KI analysiert...'; btn.disabled=true; }
+  // Future: generate with Anthropic API
   setTimeout(()=>{
-    btn.textContent = '✅ Du wirst benachrichtigt!';
-    btn.style.background = 'rgba(200,255,0,.15)';
-    btn.style.border = '1px solid var(--neon)';
-    btn.style.color = 'var(--neon)';
-    btn.style.fontFamily = 'var(--mono)';
-    btn.style.fontSize = '12px';
+    if(btn){ btn.textContent='✅ Report wird geladen...'; }
   }, 1500);
 }
 
