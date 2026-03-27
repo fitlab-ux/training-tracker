@@ -896,8 +896,7 @@ body::before{
     <button onclick="showGoalsScreen(false)" style="flex-shrink:0;margin:6px 10px 6px 0;padding:7px 12px;background:linear-gradient(135deg,#C8FF00,#a8d900);border:none;border-radius:8px;color:#0A0A0A;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 12px rgba(200,255,0,.3)">🎯 NEUES ZIEL</button>
   </div>
 
-  <div id="planSelectorBar" style="display:none;padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--border)">
-    <div id="planSelector" style="display:flex;gap:6px;"></div>
+  
   </div>
   <div id="viewTraining" class="view active"><div class="main" id="trainingContent"></div></div>
   <div id="viewBody" class="view"><div class="main" id="bodyContent"></div></div>
@@ -1642,7 +1641,7 @@ async function enterApp(){
   } catch(e){}
   // Preload current day
   LC = {};
-  await preloadDay(currentWeek, `${currentDay}_${currentPlan||'X'}`);
+  await preloadDay(currentWeek, String(currentDay));
   document.getElementById('celebSub').textContent = `Stark, ${name}! Sauna verdient! 💪`;
   applyLang();
   // Sync lang buttons
@@ -1653,6 +1652,13 @@ async function enterApp(){
   updateStreakPill();
   // Load exercise preferences
   await loadExPrefs();
+  // Migrate old week plans: replace 'B' with 'A'
+  try {
+    const plan = getWeekPlan();
+    let changed = false;
+    Object.keys(plan).forEach(k=>{ if(plan[k]==='B'){plan[k]='A';changed=true;} });
+    if(changed) await setWeekPlan(plan);
+  } catch(e){}
   // Always land on Training tab
   switchView('training');
   // Show KI-Report FAB
@@ -2062,7 +2068,7 @@ async function fetchLeaderboard(period){
 // ══════════════════════════════════════════════════════
 const DAY_TEMPLATES = {
 
-  A:{name:'KRAFT',subtitle:'Ganzkörper — Plan A oder B wählbar',type:'KRAFT',duration:'75–85 Min',sauna:false,
+  A:{name:'KRAFT',subtitle:'Ganzkörper Kraft',type:'KRAFT',duration:'75–85 Min',sauna:false,
   timeHint:'Beine · Brust/Rücken · Schulter · Arme · Core · Waden',
   meals:[
     {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 60g + 4 Eier (2 ganz/2 Eiweiß) + Beeren — ~520 kcal · 38g Protein'},
@@ -2164,8 +2170,8 @@ C:{name:'CARDIO',subtitle:'HIIT oder Zone 2 — deine Wahl',type:'CARDIO',durati
   ]},
 
   
-  D:{name:'TAG 4',subtitle:'Plan B Variation + Cardio-Tag',type:'KRAFT + HIIT + ZONE 2',duration:'85–95 Min',sauna:true,saunaTemp:'90–100°C',
-  timeHint:'Plan B Basis + HIIT + Zone 2 Combo',
+  D:{name:'KRAFT',subtitle:'Kraft + HIIT + Zone 2',type:'KRAFT + HIIT + ZONE 2',duration:'85–95 Min',sauna:true,saunaTemp:'90–100°C',
+  timeHint:'Kraft · HIIT · Zone 2',
   meals:[
     {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 80g + 4 Eier + Banane — HIIT-Tag: maximale Carbs! ~570 kcal'},
     {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 + Vitamin C 500mg'},
@@ -2181,7 +2187,7 @@ C:{name:'CARDIO',subtitle:'HIIT oder Zone 2 — deine Wahl',type:'CARDIO',durati
       {name:'Sensopro oder Cardio locker',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8 Min',emoji:'⚖️',tip:'4. Tag — Gelenke und Muskeln gründlich vorbereiten. Sensopro Ganzkörper bevorzugt.',weights:[]}
     ]},
     {name:'PLAN B KERN — COMPOUND',color:'#3b82f6',exercises:[
-      {name:'Ausfallschritte auf Erhöhung',alts:['🦵 Bulgarische Split Squat','📐 Reverse Lunge','🦵 Kabelzug Split Squat'],pause:'2–3 Min',sets:3,reps:'8–12 Wdh je Seite',emoji:'📐',tip:'Plan B Basis. Gewichte hängen lassen. Volle Tiefe!',weights:[0,8,12,16,20,24]},
+      {name:'Ausfallschritte auf Erhöhung',alts:['🦵 Bulgarische Split Squat','📐 Reverse Lunge','🦵 Kabelzug Split Squat'],pause:'2–3 Min',sets:3,reps:'8–12 Wdh je Seite',emoji:'📐',tip:'Gewichte hängen lassen. Volle Tiefe!',weights:[0,8,12,16,20,24]},
       {name:'Kreuzheben Langhantel',alts:['🏗️ Trap Bar Deadlift','🦵 Sumo Kreuzheben','🤸 Rack Pull'],pause:'2–3 Min',sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'Bis unter Kniescheibe, LH nah am Bein. Blick folgt der Stange!',weights:[60,70,80,90,100,110]},
       {name:'Butterfly + Butterfly Reverse',alts:['🏋️ KH Flyes + Rear Delt Fly','🔗 Kabelzug Crossover + Facepulls','🤸 TRX Flyes + Y-T-W'],pause:'2–3 Min',sets:3,reps:'8–12 Wdh je',emoji:'🦋',superset:true,tip:'Supersatz! Butterfly → direkt Butterfly Reverse. Brust + hintere Schulter in einem Block.',weights:[30,40,50,60,70]},
       {name:'Enger Latzug Neutralgriff',alts:['🔝 Klimmzüge eng','🔗 Kabelzug Pulldown neutral','🚣 Sitzrudern eng'],pause:'2–3 Min',sets:3,reps:'8–12 Wdh',emoji:'🔗',tip:'Neutralgriff = Handflächen zueinander. Langer Lat = V-Taille!',weights:[40,50,60,70,80,90]}
@@ -2200,7 +2206,7 @@ C:{name:'CARDIO',subtitle:'HIIT oder Zone 2 — deine Wahl',type:'CARDIO',durati
     ]}
   ]},
 
-  E:{name:'TAG 5',subtitle:'Aktive Regeneration',type:'RECOVERY',duration:'40–50 Min',sauna:true,saunaTemp:'80–90°C',
+  E:{name:'RECOVERY',subtitle:'Aktive Regeneration + Mobility',type:'RECOVERY',duration:'40–50 Min',sauna:true,saunaTemp:'80–90°C',
   timeHint:'Nur wenn erholt — kein Pflicht-Tag',
   meals:[
     {time:'8:30',icon:'🥣',name:'Frühstück (später)',desc:'2 Eier + Joghurt + Beeren — Ruhetag: ~380 kcal. Weniger Carbs!'},
@@ -2365,7 +2371,6 @@ const DEFAULT_WEEK_PLAN = {
 
 // Start on today's weekday (JS: Sun=0 → our Mo=0 system)
 let currentDay = (()=>{ const d=new Date().getDay(); return d===0?6:d-1; })();
-let currentPlan = null; // 'A','B','C','D',null=rest — chosen per day
 let lbPeriod = 'week';
 let isLoading = false;
 
@@ -2384,8 +2389,10 @@ async function setWeekPlan(plan){
 
 function getTemplateForDay(dayIdx){
   const plan = getWeekPlan();
-  // JSON.parse converts integer keys to strings — use String() to match
-  return plan[String(dayIdx)] || null;
+  const key = plan[String(dayIdx)] || null;
+  // Map legacy 'B' references to 'A' (B was merged into A)
+  if(key === 'B') return 'A';
+  return key;
 }
 
 // ══════════════════════════════════════════════════════
@@ -2429,6 +2436,7 @@ function renderTabs(){
       style="position:relative;min-width:40px;">
       ${isToday?`<span style="position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--neon)"></span>`:''}
       <span style="display:block;font-size:11px;font-weight:700">${label}</span>
+      <span style="display:block;font-size:11px;margin-top:1px">${planEmoji[getTemplateForDay(idx)||'']||'—'}</span>
       ${hasDone?'<span class="tdot"></span>':''}
     </button>`;
   }).join('');
@@ -2436,41 +2444,17 @@ function renderTabs(){
   document.getElementById('dayTabs').innerHTML=h;
   document.getElementById('weekLabel').textContent=(currentLang==='en'?'WEEK':'WOCHE')+` ${currentWeek}`;
 
-  // Plan selector bar
-  const bar = document.getElementById('planSelectorBar');
-  if(bar) bar.style.display = 'block';
-  renderPlanSelector();
+
 }
 
-function renderPlanSelector(){
-  const sel = document.getElementById('planSelector');
-  if(!sel) return;
-  const opts = [
-    {key:'A', label:'PLAN A', sub:'Kraft', color:'var(--blue)'},
-    {key:'B', label:'PLAN B', sub:'Kraft', color:'var(--blue)'},
-    {key:'C', label:'CARDIO', sub:'HIIT / Zone 2', color:'var(--neon)'},
-    {key:null, label:'RUHETAG', sub:'Recovery', color:'var(--muted)'},
-  ];
-  sel.innerHTML = opts.map(o => `
-    <button onclick="selectPlan(${o.key===null?'null':`'${o.key}'`})"
-      style="flex:1;padding:8px 4px;border-radius:8px;border:1px solid ${currentPlan===o.key?o.color:'var(--border)'};
-      background:${currentPlan===o.key?(o.color==='var(--neon)'?'rgba(200,255,0,.1)':o.color==='var(--blue)'?'rgba(61,127,255,.1)':'rgba(100,100,100,.08)'):'var(--surface)'};
-      cursor:pointer;transition:all .2s;min-width:0">
-      <div style="font-family:var(--display);font-size:13px;letter-spacing:2px;color:${currentPlan===o.key?o.color:'var(--dim)'}">${o.label}</div>
-      <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${o.sub}</div>
-    </button>`).join('');
-}
+// renderPlanSelector removed — using showDayPicker instead
+
 
 async function selectPlan(planKey){
-  currentPlan = planKey === null ? 'REST' : planKey;
-  if(currentPlan === 'REST'){
-    renderTraining(); // will show rest day screen via renderTraining logic
-    window.scrollTo(0,0);
-    return;
-  }
-  isLoading=true;
+
+    isLoading=true;
   document.getElementById('trainingContent').innerHTML='<div class="loading"><div class="spinner"></div>Laden...</div>';
-  await preloadDay(currentWeek, `${currentDay}_${currentPlan}`);
+  await preloadDay(currentWeek, String(currentDay));
   isLoading=false;
   renderTraining();
   window.scrollTo(0,0);
@@ -2480,8 +2464,7 @@ async function selectPlan(planKey){
 async function switchDay(dayIdx){
   currentDay = dayIdx;
   // Reset plan selection when switching days
-  currentPlan = null;
-  // Show the plan selector bar
+    // Show the plan selector bar
   const bar = document.getElementById('planSelectorBar');
   if(bar) bar.style.display='block';
   renderTraining();
@@ -2605,15 +2588,15 @@ function updateProgress(){
 
   let total=0,done=0;
   day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
-    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`s_${b.name}_${i}_${s}`))done++;}
+    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`))done++;}
   }));
-  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`m_${i}`))done++;});
+  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
   const pct=total>0?Math.round(done/total*100):0;
   const pts=calcDayPoints(currentWeek,String(currentDay));
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progText').textContent=`${done} von ${total} · ⚡${pts} Pts`;
   document.getElementById('progPct').textContent=pct+'%';
-  if(pct===100&&total>0&&!getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,'cele')){
+  if(pct===100&&total>0&&!getCached(currentWeek,String(currentDay),'cele')){
     dbSet(currentWeek,String(currentDay),'cele',true);
     LC[`${currentWeek}_${currentDay}_cele`]=true;
     setTimeout(()=>{document.getElementById('celebrate').classList.add('show'); launchConfetti();},600);
@@ -2663,81 +2646,7 @@ async function renderTraining(){
   }
 
   // ── Rest day chosen ──
-  if(currentPlan === 'REST'){
-    const ot = checkOvertraining();
-    document.getElementById('trainingContent').innerHTML=`
-      <div style="padding:24px 16px;max-width:480px;margin:0 auto">
-
-        ${ot.warning ? `<div style="background:rgba(255,77,28,.08);border:1px solid rgba(255,77,28,.3);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:11px;color:#FF4D1C;font-family:var(--mono)">${ot.msg}</div>` : ''}
-
-        <div style="text-align:center;margin-bottom:24px">
-          <div style="font-size:56px;margin-bottom:8px">😴</div>
-          <div style="font-family:var(--display);font-size:28px;letter-spacing:4px;color:var(--text)">RUHETAG</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:4px">${dayLabels[currentDay]} · Regeneration = Wachstum</div>
-        </div>
-
-        <!-- Sleep Protocol -->
-        <div style="background:rgba(200,255,0,.04);border:1px solid rgba(200,255,0,.15);border-radius:12px;padding:16px;margin-bottom:14px">
-          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--neon);margin-bottom:12px">😴 SCHLAF-PROTOKOLL — DEIN #1 HEBEL</div>
-          ${[
-            {time:'21:30',act:'📵 Kein Bildschirm mehr (Blue Light)',why:'Melatonin-Produktion startet'},
-            {time:'22:00',act:'🧴 Magnesium Glycinat 300mg + Melatonin 5mg',why:'60 Min vor Schlaf = optimal'},
-            {time:'22:00',act:'🌡️ Zimmer auf 18–19°C',why:'Kerntemperatur sinkt = tiefer Schlaf'},
-            {time:'22:30',act:'📖 Lesen oder Meditation 20 Min',why:'Cortisol senken'},
-            {time:'23:00',act:'🛏️ LIGHTS OUT — Ziel!',why:'8h Schlaf bis 7:00 Uhr'},
-          ].map(s=>`
-            <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid rgba(200,255,0,.06);align-items:flex-start">
-              <div style="font-family:var(--display);font-size:14px;letter-spacing:1px;color:var(--neon);min-width:44px">${s.time}</div>
-              <div>
-                <div style="font-size:11px;color:var(--text)">${s.act}</div>
-                <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${s.why}</div>
-              </div>
-            </div>`).join('')}
-        </div>
-
-        <!-- Recovery Checklist -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
-          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:12px">✅ RECOVERY CHECKLISTE</div>
-          ${[
-            ['💧','2.5–3 Liter Wasser trinken','Muskel-Regeneration braucht Hydration'],
-            ['🥩','180g+ Protein heute','Muskeln wachsen auch am Ruhetag'],
-            ['🚶','20–30 Min Spaziergang','Aktive Erholung — kein intensives Training!'],
-            ['🧘','10 Min Stretching / Foam Roller','Verklebungen lösen, Durchblutung fördern'],
-            ['🧴','Magnesium + Schlaf-Stack um 22:00','Ruhetag = früher schlafen möglich!'],
-            ['📵','Handy weg um 21:30 Uhr','Blue Light blockiert Melatonin'],
-          ].map(([ic,txt,sub])=>`
-            <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);align-items:flex-start">
-              <div style="font-size:18px;flex-shrink:0">${ic}</div>
-              <div>
-                <div style="font-size:11px;color:var(--text)">${txt}</div>
-                <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${sub}</div>
-              </div>
-            </div>`).join('')}
-        </div>
-
-        <!-- Nutrition rest day -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
-          <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">🥗 ERNÄHRUNG HEUTE · ~1.900 KCAL</div>
-          ${[
-            {time:'8:30',desc:'Eier 2–3 + Joghurt + Beeren — kein Oatmeal (weniger Carbs Ruhetag)'},
-            {time:'13:00',desc:'200g Protein + Salat + gesunde Fette — kein Reis oder Kartoffeln'},
-            {time:'19:00',desc:'200g Fisch + Gemüse — Low Carb Abend für Fettabbau'},
-            {time:'22:00',desc:'Optional: 150g Hüttenkäse — Casein-Protein für nächtliche Recovery'},
-          ].map(m=>`
-            <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-              <div style="font-family:var(--display);font-size:13px;color:var(--neon);min-width:44px">${m.time}</div>
-              <div style="font-size:10px;color:var(--dim)">${m.desc}</div>
-            </div>`).join('')}
-        </div>
-
-        <div style="display:flex;gap:8px">
-          <button onclick="showDayPicker(currentDay)" style="flex:1;padding:12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">⚙️ WOCHENPLAN</button>
-          <button onclick="switchView('body')" style="flex:1;padding:12px;background:rgba(200,255,0,.08);border:1px solid rgba(200,255,0,.2);border-radius:8px;color:var(--neon);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">⚖️ KÖRPER TRACKEN</button>
-        </div>
-      </div>`;
-    return;
-  }
-  const day = DAY_TEMPLATES[currentPlan] || DAY_TEMPLATES.A;
+  const day = DAY_TEMPLATES[getTemplateForDay(currentDay)] || DAY_TEMPLATES.A;
   let h='';
 
   // Count progression opportunities for today
@@ -2769,11 +2678,11 @@ async function renderTraining(){
   </div>`;
 
   // Water
-  const wc=[0,1,2,3,4,5,6,7].filter(i=>getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`water_${i}`)).length;
+  const wc=[0,1,2,3,4,5,6,7].filter(i=>getCached(currentWeek,String(currentDay),`water_${i}`)).length;
   h+=`<div class="water-card">
     <div class="water-hdr"><div class="water-ttl">💧 Wasser</div><div class="water-count">${wc} / 8 Gläser</div></div>
     <div class="glasses">
-      ${[0,1,2,3,4,5,6,7].map(i=>{const on=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`water_${i}`);
+      ${[0,1,2,3,4,5,6,7].map(i=>{const on=getCached(currentWeek,String(currentDay),`water_${i}`);
         return `<div class="glass ${on?'on':''}" onclick="togItem('water_${i}')">${on?'💧':i+1}</div>`;
       }).join('')}
     </div>
@@ -2816,7 +2725,7 @@ async function renderTraining(){
         <div class="sauna-temp" style="font-size:10px;color:var(--muted)">80–100°C · nach Training</div>
       </div>
       <div class="sauna-rounds">
-        ${[1,2,3].map(r=>{const on=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`sauna_${r}`);
+        ${[1,2,3].map(r=>{const on=getCached(currentWeek,String(currentDay),`sauna_${r}`);
           return `<div class="sround ${on?'on':''}" onclick="togItem('sauna_${r}')">
             ${on?'<div style="font-size:20px">✅</div>':`<div class="sround-n">${r}</div>`}
             <div class="sround-l">Runde ${r}</div>
@@ -2891,15 +2800,15 @@ function openVideo(exName, event){
   window.open(getVideoUrl(exName), '_blank');
 }
 function renderExc(ex,blockName,ei,blockColor){
-  const allOn=Array.from({length:ex.sets},(_,s)=>getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`s_${blockName}_${ei}_${s}`)).every(Boolean);
-  const tipOpen=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`tip_${blockName}_${ei}`);
+  const allOn=Array.from({length:ex.sets},(_,s)=>getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`)).every(Boolean);
+  const tipOpen=getCached(currentWeek,String(currentDay),`tip_${blockName}_${ei}`);
   const hasW=ex.weights&&ex.weights.length>0;
 
   const setsHtml=Array.from({length:ex.sets},(_,s)=>{
-    const done=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`s_${blockName}_${ei}_${s}`);
+    const done=getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`);
     const wtKey=`wt_${blockName}_${ei}_${s}`;
     const lastW=getLastWeight(blockName,ei,s);
-    const currW=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,wtKey)!==null?getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,wtKey):(lastW?lastW.kg:null);
+    const currW=getCached(currentWeek,String(currentDay),wtKey)!==null?getCached(currentWeek,String(currentDay),wtKey):(lastW?lastW.kg:null);
     const wLabel=currW!==null?(currW===0?'KGW':currW+'kg'):'';
 
     let wRow='';
@@ -3052,7 +2961,7 @@ function calcProgression(blockName, ei, s, ex){
 }
 
 async function togItem(key){
-  const cur=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,key);
+  const cur=getCached(currentWeek,String(currentDay),key);
   const nv=!cur;
   LC[`${currentWeek}_${currentDay}_${key}`]=nv;
   renderTraining();
@@ -3077,7 +2986,7 @@ function updateWtChips(key,v){
 }
 
 async function toggleAllSets(blockName,ei,num){
-  const allOn=Array.from({length:num},(_,s)=>getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`s_${blockName}_${ei}_${s}`)).every(Boolean);
+  const allOn=Array.from({length:num},(_,s)=>getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`)).every(Boolean);
   for(let s=0;s<num;s++){
     LC[`${currentWeek}_${currentDay}_s_${blockName}_${ei}_${s}`]=!allOn;
     await dbSet(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`,!allOn);
@@ -4416,9 +4325,9 @@ async function showShareCard(){
   // Count completions for progress
   let total=0,done=0;
   day.blocks.forEach(b=>b.exercises.forEach((e,i)=>{
-    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`s_${b.name}_${i}_${s}`))done++;}
+    for(let s=0;s<e.sets;s++){total++;if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`))done++;}
   }));
-  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`m_${i}`))done++;});
+  day.meals.forEach((_,i)=>{total++;if(getCached(currentWeek,String(currentDay),`m_${i}`))done++;});
   const pct=total>0?Math.round(done/total*100):0;
 
   // Build canvas share card
