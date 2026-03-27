@@ -1185,6 +1185,143 @@ async function saveOnboarding(){
 }
 
 // ── HELPER: get latest body stats ──
+// ── KI DAILY NUTRITION GENERATOR ──
+function renderSavedNutrition(data){
+  try {
+    const plan = typeof data === 'string' ? JSON.parse(data) : data;
+    if(!plan || !plan.meals) return '';
+    return `
+      <div style="background:rgba(200,255,0,.03);border:1px solid rgba(200,255,0,.1);border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(200,255,0,.08)">
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--neon)">🥗 KI-TAGESPLAN · ${plan.kcal||2400} KCAL</div>
+          <button onclick="generateDailyNutrition()" style="font-size:9px;font-family:var(--mono);padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">↺ NEU</button>
+        </div>
+        ${plan.meals.map((m,i)=>{
+          const done = getCached(currentWeek,String(currentDay),`ki_meal_${i}`);
+          return `<div class="meal ${done?'done':''}" style="border-bottom:1px solid var(--border)">
+            <div class="meal-row" onclick="togItem('ki_meal_${i}')">
+              <div class="meal-time" style="font-size:9px;min-width:40px">${m.time}</div>
+              <div class="meal-icon">${m.icon}</div>
+              <div class="meal-info">
+                <div class="meal-name" style="display:flex;align-items:center;gap:6px">
+                  ${m.name}
+                  ${m.prep?`<span style="font-size:8px;color:var(--muted);font-family:var(--mono);background:var(--surface);border:1px solid var(--border);padding:1px 5px;border-radius:3px">⏱ ${m.prep}</span>`:''}
+                </div>
+                <div class="meal-desc">${m.desc}</div>
+                <div style="font-size:9px;color:var(--neon);font-family:var(--mono);margin-top:2px">${m.macros}</div>
+              </div>
+              <div class="mcheck">${done?'✓':''}</div>
+            </div>
+          </div>`;
+        }).join('')}
+        <div style="padding:10px 14px;border-top:1px solid var(--border)">
+          <div style="display:flex;gap:16px;font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:${plan.prep_note||plan.tip?'8px':'0'}">
+            <span>🥩 ${plan.protein}g P</span>
+            <span>🍚 ${plan.carbs}g C</span>
+            <span>🥑 ${plan.fat}g F</span>
+            <span style="margin-left:auto">${plan.kcal} kcal</span>
+          </div>
+          ${plan.prep_note?`<div style="font-size:9px;color:#FF4D1C;font-family:var(--mono);padding:6px 8px;background:rgba(255,77,28,.06);border-radius:5px;margin-bottom:6px">📦 ${plan.prep_note}</div>`:''}
+          ${plan.tip?`<div style="font-size:9px;color:var(--neon);font-family:var(--mono);padding:6px 8px;background:rgba(200,255,0,.06);border-radius:5px">💡 ${plan.tip}</div>`:''}
+        </div>
+      </div>`;
+  } catch(e){ return ''; }
+}
+
+async function generateDailyNutrition(){
+  const btn = document.getElementById('kiNutritionBtn');
+  const area = document.getElementById('kiNutritionArea');
+  if(!area) return;
+
+  if(btn){ btn.disabled=true; btn.textContent='⏳ KI denkt nach...'; }
+  area.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);font-size:11px">
+    <div style="font-size:24px;margin-bottom:8px">🤔</div>KI erstellt deinen Tagesplan...</div>`;
+
+  const p = currentProfile||{};
+  const bs = await getLatestBodyStats();
+  const day = DAY_TEMPLATES[getTemplateForDay(currentDay)] || DAY_TEMPLATES.A;
+  const isTraining = !!getTemplateForDay(currentDay);
+  const isHiit = day.type&&(day.type.includes('HIIT')||day.type.includes('CARDIO'));
+  const isKraft = day.type&&day.type.includes('KRAFT');
+  const isRest = !isTraining;
+
+  const kcal = isHiit ? 2500 : isKraft ? 2400 : 1900;
+  const protein = 180;
+  const carbs = isHiit ? 240 : isKraft ? 220 : 140;
+  const fat = Math.round((kcal - protein*4 - carbs*4) / 9);
+
+  const prompt = `Du bist Ernährungscoach für einen vielbeschäftigten Mann (Unternehmer, wenig Zeit).
+
+PERSON: Michael, ${p.age||43}J, ${bs.kg||81.6}kg, 186cm. Ziel: Rekomposition — Fett runter, Muskeln aufbauen.
+TAG: ${isRest?'Ruhetag (kein Training)':isHiit?'Cardio/HIIT-Tag':isKraft?'Kraft-Training':'Training'} — Training: 11–14 Uhr
+
+MAKRO-ZIELE (STRIKT einhalten):
+- Kalorien: ~${kcal} kcal
+- Protein: MINDESTENS ${protein}g — das ist nicht verhandelbar!
+- Kohlenhydrate: ~${carbs}g ${isRest?'(Ruhetag = weniger Carbs für Fettabbau)':'(Trainingstag = Carbs für Leistung)'}
+- Fett: ~${fat}g
+- NICHTS mehr nach 20:00 Uhr
+
+ZUBEREITUNG — DIESE REGELN SIND PFLICHT:
+- MAX. 10 Minuten pro Mahlzeit — kein aufwändiges Kochen!
+- Kein täglicher Einkauf — nur Zutaten die man auf Vorrat hat oder 1x/Woche kauft
+- IMMER zuhause verfügbar: Eier, Quark/Skyr/Hüttenkäse, Haferflocken, Whey Protein
+- MEAL PREP Zutaten (1x/Woche vorbereiten): Hähnchenbrust vorgekocht, Thunfisch/Lachs aus Dose, Rinderhack angebraten, Eier hart gekocht
+- Mittagessen nach Training (13:30): ENTWEDER schnell selbst (Dose + Mikrowelle) ODER Restaurant-Option nennen (z.B. "oder: Döner ohne Soße / Sushi / Steakhaus")
+- Abendessen: proteinreich, kohlenhydratarm, max. 5 Minuten (Dose aufmachen, Salat aus Tüte, Quark)
+
+MAHLZEITEN-TIMING (Training 11–14 Uhr):
+- 08:00 Frühstück — sättigend, Protein-fokus
+- 10:30 Pre-Workout — leicht, schnelle Energie (Banane + Shake reicht)
+- 13:30 Post-Workout — sofort nach Training, wichtigstes Meal des Tages
+- 15:30 Mittagessen — große Mahlzeit, Carbs hier
+- 19:00 Abendessen — proteinreich, kein Stärke, max. 5 Min
+
+WICHTIG: Variiere jeden Tag! Nutze abwechselnd:
+Frühstück: Rührei / Overnight Oats / Quark mit Früchten / Skyr Bowl / Protein Pancakes (aus Quark+Ei+Haferflocken, 5 Min)
+Mittagessen: Hähnchen aus Kühlschrank + Mikrowelle-Reis / Thunfisch-Salat (Dose + Tüten-Salat) / Rinderhack-Bowl / Restaurant
+Abendessen: Hüttenkäse + Gurke + Walnüsse / Lachs aus Dose + Salat / Eier (Rührei 3 Min) + Gemüse
+
+Antworte NUR mit validem JSON, kein Text davor oder danach:
+{
+  "kcal": ${kcal},
+  "protein": ${protein},
+  "carbs": ${carbs},
+  "fat": ${fat},
+  "prep_note": "Meal Prep diese Woche: [was 1x vorzubereiten ist, max 1 Satz]",
+  "tip": "1 konkreter Tipp für heute (z.B. Schlaf, Timing, Supplement)",
+  "meals": [
+    {"time": "08:00", "icon": "🍳", "name": "Frühstück", "desc": "KONKRETE Zutaten mit Gramm-Angaben. Z.B.: 3 Eier Rührei + 150g Skyr + 100g Beeren", "macros": "~XXX kcal · XXg P · XXg C · XXg F", "prep": "X Min"},
+    {"time": "10:30", "icon": "🍌", "name": "Pre-Workout", "desc": "kurz und konkret", "macros": "~XXX kcal · XXg P", "prep": "0 Min"},
+    {"time": "13:30", "icon": "🥤", "name": "Post-Workout Shake", "desc": "40g Whey + [Ergänzung]", "macros": "~XXX kcal · XXg P", "prep": "1 Min"},
+    {"time": "15:30", "icon": "🥩", "name": "Mittagessen", "desc": "KONKRETE Zutaten. Oder Restaurant-Option in Klammern.", "macros": "~XXX kcal · XXg P · XXg C · XXg F", "prep": "X Min"},
+    {"time": "19:00", "icon": "🥗", "name": "Abendessen", "desc": "KONKRETE Zutaten — schnell und einfach", "macros": "~XXX kcal · XXg P · XXg F", "prep": "X Min"}
+  ]
+}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await resp.json();
+    const raw = data.content?.find(b=>b.type==='text')?.text||'';
+    // Extract JSON
+    const jsonMatch = raw.match(/\{[\s\S]+\}/);
+    if(!jsonMatch) throw new Error('Kein JSON in Antwort');
+    const plan = JSON.parse(jsonMatch[0]);
+    // Save to DB
+    await dbSet(currentWeek, String(currentDay), 'ki_nutrition', JSON.stringify(plan));
+    LC[`${currentWeek}_${String(currentDay)}_ki_nutrition`] = JSON.stringify(plan);
+    area.innerHTML = renderSavedNutrition(plan);
+  } catch(e){
+    area.innerHTML = `<div style="padding:14px;background:rgba(255,77,28,.08);border:1px solid rgba(255,77,28,.2);border-radius:8px;font-size:11px;color:#FF4D1C;font-family:var(--mono)">
+      Fehler: ${e.message} — <button onclick="generateDailyNutrition()" style="color:#FF4D1C;background:none;border:none;cursor:pointer;text-decoration:underline">Nochmal versuchen</button>
+    </div>`;
+  }
+}
+
 async function getLatestBodyStats(){
   const result = {};
   try {
