@@ -1264,14 +1264,9 @@ async function generateDailyNutrition(){
   const area = document.getElementById('kiNutritionArea');
   if(!area) return;
 
-  // Check for API key
-  if(!ANTHROPIC_KEY){
-    area.innerHTML = `<div style="padding:12px 14px;background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:10px">
-      <div style="font-size:11px;font-weight:600;color:#FFA500;margin-bottom:8px">🔑 Anthropic API Key benötigt</div>
-      <input id="apiKeyInput" type="password" placeholder="sk-ant-..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:11px;font-family:var(--mono);box-sizing:border-box;margin-bottom:8px">
-      <button onclick="saveApiKey()" style="width:100%;padding:8px;background:var(--neon);border:none;border-radius:6px;color:#0A0A0A;font-family:var(--display);font-size:12px;letter-spacing:2px;cursor:pointer">SPEICHERN & GENERIEREN</button>
-      <div style="font-size:9px;color:var(--muted);font-family:var(--mono);margin-top:6px">Key wird lokal gespeichert · console.anthropic.com</div>
-    </div>`;
+  // Pro gate
+  if(!isPro()){
+    showProGate('KI-Ernährungsplan');
     return;
   }
 
@@ -1533,6 +1528,10 @@ function kpSelect(field, val, el, gridId){
 }
 
 async function generateKIPlan(fromOnboarding=false){
+  if(!fromOnboarding && !isPro()){
+    showProGate('KI-Trainingsplan');
+    return;
+  }
   const btn=document.getElementById('kpGenBtn');
   const out=document.getElementById('kpOutput');
   const kgGoal=document.getElementById('kp_kg')?.value;
@@ -2427,9 +2426,151 @@ let currentDay = (()=>{ const d=new Date().getDay(); return d===0?6:d-1; })();
 let currentDayTemplate = null;
 window.checkOvertraining = window.checkOvertraining || function(){ return {warning:false, msg:''}; };
 
+// ── PRO SUBSCRIPTION SYSTEM ──
+function isPro(){
+  // Check Supabase profile for pro status
+  return currentProfile?.is_pro === true || currentProfile?.pro_until > new Date().toISOString();
+}
+
+function showProGate(featureName){
+  document.querySelectorAll('.pro-gate-modal').forEach(e=>e.remove());
+  const modal = document.createElement('div');
+  modal.className = 'pro-gate-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.92);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
+  // Selected plan state
+  let _selectedPlan = 'annual';
+
+  modal.innerHTML = `
+    <div style="width:100%;max-width:480px;background:#111;border:1px solid #C8FF0033;border-bottom:none;border-radius:16px 16px 0 0;padding:24px 20px 40px;max-height:90vh;overflow-y:auto">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div>
+          <div style="font-family:var(--display);font-size:22px;letter-spacing:3px;color:var(--neon)">⚡ FITLAB PRO</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${featureName} freischalten</div>
+        </div>
+        <button onclick="this.closest('.pro-gate-modal').remove()" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:14px">✕</button>
+      </div>
+
+      <!-- Features -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px">
+        ${[
+          ['🥗','KI-Ernährungsplan','täglich personalisiert'],
+          ['🎯','KI-Trainingsplan','auf dich zugeschnitten'],
+          ['📊','Body Intelligence','Report & Analyse'],
+          ['📈','Progression Engine','automatisch optimiert'],
+          ['🔓','Unbegrenzte Wochen','komplette Historie'],
+          ['⚡','Priorität Support','direkt & schnell']
+        ].map(([ic,name,sub])=>`
+          <div style="background:rgba(200,255,0,.04);border:1px solid rgba(200,255,0,.08);border-radius:8px;padding:8px 10px">
+            <div style="font-size:16px;margin-bottom:2px">${ic}</div>
+            <div style="font-size:11px;font-weight:600;color:var(--text)">${name}</div>
+            <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${sub}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Plan selector -->
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:2px;margin-bottom:8px">ABO WÄHLEN</div>
+      <div id="planSelector" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+
+        <!-- Monthly -->
+        <label id="plan_monthly" onclick="selectPlanOpt('monthly')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="dot_monthly" style="width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text)">Monatlich</div>
+              <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">jederzeit kündbar · 1 Mon. Frist</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--display);font-size:18px;color:var(--text)">€7,99</div>
+            <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">/Monat</div>
+          </div>
+        </label>
+
+        <!-- Annual — default selected -->
+        <label id="plan_annual" onclick="selectPlanOpt('annual')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:2px solid var(--neon);background:rgba(200,255,0,.06);cursor:pointer;transition:all .15s;position:relative">
+          <div style="position:absolute;top:-8px;right:12px;background:var(--neon);color:#0A0A0A;font-family:var(--display);font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:4px">BELIEBT · 47% RABATT</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="dot_annual" style="width:16px;height:16px;border-radius:50%;border:2px solid var(--neon);background:var(--neon);flex-shrink:0"></div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text)">12 Monate</div>
+              <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">Laufzeit 12 Mon. · 1 Mon. Kündigungsfrist</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--display);font-size:18px;color:var(--neon)">€4,17</div>
+            <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">€49,99/Jahr</div>
+          </div>
+        </label>
+
+        <!-- 2-Year -->
+        <label id="plan_biennial" onclick="selectPlanOpt('biennial')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="dot_biennial" style="width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text)">24 Monate</div>
+              <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">Laufzeit 24 Mon. · 3 Mon. Kündigungsfrist</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--display);font-size:18px;color:var(--text)">€3,33</div>
+            <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">€79,99/2 Jahre</div>
+          </div>
+        </label>
+
+      </div>
+
+      <!-- CTA -->
+      <button onclick="startProCheckout()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--neon),#a8d900);border:none;border-radius:10px;color:#0A0A0A;font-family:var(--display);font-size:17px;letter-spacing:3px;cursor:pointer;margin-bottom:8px">
+        JETZT PRO WERDEN
+      </button>
+
+      <!-- Legal -->
+      <div style="font-size:8px;color:var(--muted);font-family:var(--mono);text-align:center;line-height:1.6">
+        Automatische Verlängerung zum gleichen Preis · Kündigung jederzeit möglich<br>
+        Monatlich: Frist 1 Monat zum Laufzeitende · 24 Mon.: Frist 3 Monate<br>
+        Es gilt dt. Verbraucherrecht (§ 312 BGB) · Preise inkl. MwSt.
+      </div>
+
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+}
+
+function selectPlanOpt(plan){
+  _selectedPlan = plan;
+  ['monthly','annual','biennial'].forEach(p=>{
+    const el = document.getElementById('plan_'+p);
+    const dot = document.getElementById('dot_'+p);
+    if(!el||!dot) return;
+    if(p===plan){
+      el.style.border = '2px solid var(--neon)';
+      el.style.background = 'rgba(200,255,0,.06)';
+      dot.style.background = 'var(--neon)';
+      dot.style.borderColor = 'var(--neon)';
+    } else {
+      el.style.border = '1px solid var(--border)';
+      el.style.background = 'var(--surface)';
+      dot.style.background = 'transparent';
+      dot.style.borderColor = 'var(--border)';
+    }
+  });
+}
+
+function startProCheckout(){
+  const planLabel = {monthly:'Monatlich €7,99/Mo',annual:'12 Monate €49,99/Jahr',biennial:'24 Monate €79,99/2 Jahre'}[_selectedPlan||'annual'];
+  document.querySelectorAll('.pro-gate-modal').forEach(e=>e.remove());
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;border:1px solid var(--neon);border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--neon);z-index:9999;text-align:center;max-width:300px';
+  toast.innerHTML = '🚀 PAYMENT COMING SOON<br><span style="color:var(--muted);font-size:9px">'+planLabel+' · kontakt@fitlab.app</span>';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 4000);
+}
+
 // ── ANTHROPIC API CONFIG ──
-// Add your Anthropic API key here for KI nutrition + plan features
-const ANTHROPIC_KEY = localStorage.getItem('fitlab_anthropic_key') || '';
+// Key used for Pro features — protected by Pro gate
+const ANTHROPIC_KEY = 'YOUR_ANTHROPIC_KEY_HERE';
 
 // Overtraining check stub (extended version optional)
 function checkOvertraining(){
@@ -2797,7 +2938,9 @@ async function renderTraining(){
               <div style="font-size:12px;font-weight:600;color:var(--text)">KI-Tagesplan</div>
               <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${_kcal} kcal · 180g+ Protein · max. 10 Min</div>
             </div>
-            <button onclick="generateDailyNutrition()" id="kiNutritionBtn" style="padding:9px 14px;background:var(--neon);border:none;border-radius:8px;color:#0A0A0A;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer">ERSTELLEN</button>
+            <button onclick="generateDailyNutrition()" id="kiNutritionBtn" style="padding:9px 14px;background:var(--neon);border:none;border-radius:8px;color:#0A0A0A;font-family:var(--display);font-size:13px;letter-spacing:2px;cursor:pointer">
+            ⚡ PRO: ERSTELLEN
+          </button>
           </div>`}
       </div>
       <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px">
