@@ -1249,10 +1249,31 @@ function renderSavedNutrition(data){
   } catch(e){ return ''; }
 }
 
+function saveApiKey(){
+  const key = document.getElementById('apiKeyInput')?.value?.trim();
+  if(!key || !key.startsWith('sk-')){
+    alert('Bitte einen gültigen Anthropic API Key eingeben (beginnt mit sk-)');
+    return;
+  }
+  localStorage.setItem('fitlab_anthropic_key', key);
+  location.reload();
+}
+
 async function generateDailyNutrition(){
   const btn = document.getElementById('kiNutritionBtn');
   const area = document.getElementById('kiNutritionArea');
   if(!area) return;
+
+  // Check for API key
+  if(!ANTHROPIC_KEY){
+    area.innerHTML = `<div style="padding:12px 14px;background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:10px">
+      <div style="font-size:11px;font-weight:600;color:#FFA500;margin-bottom:8px">🔑 Anthropic API Key benötigt</div>
+      <input id="apiKeyInput" type="password" placeholder="sk-ant-..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:11px;font-family:var(--mono);box-sizing:border-box;margin-bottom:8px">
+      <button onclick="saveApiKey()" style="width:100%;padding:8px;background:var(--neon);border:none;border-radius:6px;color:#0A0A0A;font-family:var(--display);font-size:12px;letter-spacing:2px;cursor:pointer">SPEICHERN & GENERIEREN</button>
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono);margin-top:6px">Key wird lokal gespeichert · console.anthropic.com</div>
+    </div>`;
+    return;
+  }
 
   if(btn){ btn.disabled=true; btn.textContent='⏳ KI denkt nach...'; }
   area.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);font-size:11px">
@@ -1326,7 +1347,8 @@ Antworte NUR mit validem JSON, kein Text davor oder danach:
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'anthropic-dangerous-direct-browser-access':'true'
+        'anthropic-dangerous-direct-browser-access':'true',
+        'x-api-key': ANTHROPIC_KEY
       },
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
     });
@@ -1582,7 +1604,7 @@ Format: Kompakt, mit Emojis, max 600 Wörter total.`;
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true','x-api-key':ANTHROPIC_KEY},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})
     });
     const data=await resp.json();
@@ -2404,6 +2426,10 @@ const DEFAULT_WEEK_PLAN = {
 let currentDay = (()=>{ const d=new Date().getDay(); return d===0?6:d-1; })();
 let currentDayTemplate = null;
 window.checkOvertraining = window.checkOvertraining || function(){ return {warning:false, msg:''}; };
+
+// ── ANTHROPIC API CONFIG ──
+// Add your Anthropic API key here for KI nutrition + plan features
+const ANTHROPIC_KEY = localStorage.getItem('fitlab_anthropic_key') || '';
 
 // Overtraining check stub (extended version optional)
 function checkOvertraining(){
