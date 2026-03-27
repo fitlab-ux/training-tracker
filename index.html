@@ -3205,3 +3205,217 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
+<!-- RUNTIME PATCH -->
+<script>
+// ── MISSING CORE FUNCTIONS ──
+
+function t(key){
+  const lang = typeof currentLang !== 'undefined' ? currentLang : 'de';
+  const LANG = {
+    de:{training_sec:'TRAINING',nutrition:'ERNÄHRUNG',body:'KÖRPER',ranking:'RANKING',progress:'VERLAUF',settings:'EINSTELLUNGEN',week:'WOCHE'},
+    en:{training_sec:'TRAINING',nutrition:'NUTRITION',body:'BODY',ranking:'RANKING',progress:'PROGRESS',settings:'SETTINGS',week:'WEEK'}
+  };
+  return (LANG[lang]||LANG.de)[key]||key;
+}
+
+function switchView(v){
+  currentView = v;
+  ['training','body','leaderboard','progress','settings'].forEach(x=>{
+    const vel = document.getElementById('view'+x.charAt(0).toUpperCase()+x.slice(1));
+    const nel = document.getElementById('nav-'+x);
+    if(vel) vel.classList.toggle('active', x===v);
+    if(nel) nel.classList.toggle('active', x===v);
+  });
+  if(v==='training') renderTraining();
+  if(v==='body') renderBody();
+  if(v==='leaderboard') renderLeaderboard();
+  if(v==='progress') renderProgressView();
+  if(v==='settings') renderSettings();
+}
+
+function changeWeek(d){
+  const nw = Math.min(MAX_WEEKS, Math.max(1, currentWeek+d));
+  if(nw===currentWeek) return;
+  currentWeek=nw; LC={};
+  renderTraining();
+}
+
+async function switchDay(dayIdx){
+  currentDay = dayIdx;
+  renderTraining();
+  window.scrollTo(0,0);
+}
+
+function getWeekPlan(){
+  const key = `weekplan_w${currentWeek}`;
+  const v = LC[`${currentWeek}_META_${key}`];
+  if(v) try{ return JSON.parse(v); }catch(e){}
+  return Object.assign({}, DEFAULT_WEEK_PLAN);
+}
+
+async function setWeekPlan(plan){
+  const key = `weekplan_w${currentWeek}`;
+  LC[`${currentWeek}_META_${key}`] = JSON.stringify(plan);
+  await dbSet(currentWeek, 'META', key, JSON.stringify(plan));
+}
+
+function getTemplateForDay(dayIdx){
+  const plan = getWeekPlan();
+  const key = plan[String(dayIdx)] || null;
+  if(key === 'B') return 'A';
+  return key;
+}
+
+function isPro(){
+  return (typeof currentProfile !== 'undefined') && currentProfile &&
+    (currentProfile.is_pro === true || (currentProfile.pro_until && currentProfile.pro_until > new Date().toISOString()));
+}
+
+function showProGate(featureName){
+  document.querySelectorAll('.pro-gate-modal').forEach(e=>e.remove());
+  const modal = document.createElement('div');
+  modal.className = 'pro-gate-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.92);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
+  modal.innerHTML = `<div style="width:100%;max-width:480px;background:#111;border:1px solid #C8FF0033;border-bottom:none;border-radius:16px 16px 0 0;padding:28px 20px 40px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div><div style="font-family:var(--display);font-size:22px;letter-spacing:3px;color:var(--neon)">⚡ FITLAB PRO</div>
+      <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${featureName} freischalten</div></div>
+      <button onclick="this.closest('.pro-gate-modal').remove()" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer">✕</button>
+    </div>
+    <div id="plan_annual" onclick="selectPlanOpt('annual')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:2px solid var(--neon);background:rgba(200,255,0,.06);cursor:pointer;margin-bottom:8px;position:relative">
+      <div style="position:absolute;top:-8px;right:12px;background:var(--neon);color:#0A0A0A;font-family:var(--display);font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:4px">BELIEBT · 47% RABATT</div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text)">12 Monate</div>
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">Laufzeit 12 Mon. · 1 Mon. Kündigungsfrist</div></div>
+      <div style="text-align:right"><div style="font-family:var(--display);font-size:18px;color:var(--neon)">€4,17</div>
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">€49,99/Jahr</div></div>
+    </div>
+    <div id="plan_monthly" onclick="selectPlanOpt('monthly')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;margin-bottom:16px">
+      <div><div style="font-size:12px;font-weight:600;color:var(--text)">Monatlich</div>
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">jederzeit kündbar · 1 Mon. Frist</div></div>
+      <div style="text-align:right"><div style="font-family:var(--display);font-size:18px;color:var(--text)">€7,99</div>
+      <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">/Monat</div></div>
+    </div>
+    <button onclick="startProCheckout()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--neon),#a8d900);border:none;border-radius:10px;color:#0A0A0A;font-family:var(--display);font-size:17px;letter-spacing:3px;cursor:pointer;margin-bottom:8px">JETZT PRO WERDEN</button>
+    <div style="font-size:8px;color:var(--muted);font-family:var(--mono);text-align:center;line-height:1.6">Automatische Verlängerung · Kündigung jederzeit · Preise inkl. MwSt.</div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+}
+
+async function togItem(key){
+  const cur = getCached(currentWeek, String(currentDay), key);
+  const nv = !cur;
+  LC[`${currentWeek}_${currentDay}_${key}`] = nv;
+  renderTraining();
+  await dbSet(currentWeek, String(currentDay), key, nv);
+}
+
+async function setWt(key, val){
+  const v = parseFloat(val);
+  if(isNaN(v)) return;
+  LC[`${currentWeek}_${currentDay}_${key}`] = v;
+  renderTraining();
+  await dbSet(currentWeek, String(currentDay), key, v);
+}
+
+function calcProgression(blockName, ei, s, ex){
+  if(!ex.weights||ex.weights.length===0) return null;
+  const lastW = getLastWeight(blockName, ei, s);
+  if(!lastW) return {label:'💪 ZIEL', color:'var(--neon)', target:ex.weights[Math.floor(ex.weights.length/2)], tip:''};
+  const curr = ex.weights.indexOf(lastW.kg);
+  const next = ex.weights[Math.min(curr+1, ex.weights.length-1)];
+  if(curr >= ex.weights.length-2) return {label:'⚠️ PLATEAU', color:'var(--fire)', target:lastW.kg, tip:'Variation einbauen!'};
+  return {label:'📈 STEIGERN', color:'var(--neon)', target:next, tip:`+${next-lastW.kg}kg möglich`};
+}
+
+function updateProgress(){
+  const day = currentDayTemplate;
+  if(!day || !day.blocks) return;
+  let total=0, done=0;
+  day.blocks.forEach(b=>{
+    const exs = b.exercises||(b.variantA||[]);
+    exs.forEach((e,i)=>{
+      for(let s=0;s<e.sets;s++){
+        total++;
+        if(getCached(currentWeek,String(currentDay),`s_${b.name}_${i}_${s}`)) done++;
+      }
+    });
+  });
+  const pct = total>0 ? Math.round(done/total*100) : 0;
+  const pts = calcDayPoints(currentWeek, String(currentDay));
+  const pf=document.getElementById('progFill'); if(pf) pf.style.width=pct+'%';
+  const pt=document.getElementById('progText'); if(pt) pt.textContent=`${done} von ${total} · ⚡${pts} Pts`;
+  const pp=document.getElementById('progPct'); if(pp) pp.textContent=pct+'%';
+  if(pct===100&&total>0&&!getCached(currentWeek,String(currentDay),'cele')){
+    dbSet(currentWeek,String(currentDay),'cele',true);
+    LC[`${currentWeek}_${currentDay}_cele`]=true;
+    setTimeout(()=>{ const cel=document.getElementById('celebrate'); if(cel) cel.classList.add('show'); launchConfetti(); },600);
+    updateStreakPill();
+  }
+}
+
+function renderTabs(){
+  const today = new Date().getDay()===0?6:new Date().getDay()-1;
+  const labels = typeof currentLang!=='undefined'&&currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+  const planEmoji = {'A':'💪','B':'💪','C':'🏃','D':'💪',null:'—',undefined:'—'};
+  let h = labels.map((label, idx)=>{
+    const isToday = idx===today;
+    const isActive = idx===currentDay;
+    const tmplKey = getTemplateForDay(idx);
+    const done = getCached(currentWeek, String(idx), 'cele');
+    const emoji = planEmoji[tmplKey] || '—';
+    return `<button class="tab ${isActive?'active':''} ${done?'done-tab':''} ${!tmplKey?'rest-tab':''}"
+      onclick="switchDay(${idx})"
+      style="position:relative;min-width:40px;${isToday&&!isActive?'border-color:rgba(200,255,0,.3);':''}">
+      ${isToday?`<span style="position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--neon)"></span>`:''}
+      <span style="display:block;font-size:11px;font-weight:700">${label}</span>
+      <span style="display:block;font-size:12px;margin-top:1px">${emoji}</span>
+      ${done?'<span class="tdot"></span>':''}
+    </button>`;
+  }).join('');
+  h += `<button class="tab-add" onclick="showDayPicker(currentDay)" title="Training wählen" style="font-size:14px">✏️</button>`;
+  const dt = document.getElementById('dayTabs');
+  if(dt) dt.innerHTML = h;
+  const wl = document.getElementById('weekLabel');
+  if(wl) wl.textContent = (typeof currentLang!=='undefined'&&currentLang==='en'?'WEEK':'WOCHE') + ` ${currentWeek}`;
+}
+
+function showDayPicker(dayIdx){
+  document.querySelectorAll('.day-picker-modal').forEach(e=>e.remove());
+  const dayLabels = typeof currentLang!=='undefined'&&currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+  const currentChoice = getTemplateForDay(dayIdx);
+  const options = [
+    {key:'A', emoji:'💪', label:'KRAFT', sub:'Ganzkörper · je Übung zwischen 2 Optionen wechseln'},
+    {key:'C', emoji:'🏃', label:'CARDIO', sub:'HIIT Zone 4/5 oder Zone 2 Dauermethode (30+ Min)'},
+    {key:null, emoji:'😴', label:'RUHETAG', sub:'Aktive Regeneration · Dehnung · Schlaf-Protokoll'},
+  ];
+  const modal = document.createElement('div');
+  modal.className = 'day-picker-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.92);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
+  modal.innerHTML = `<div style="width:100%;max-width:480px;background:#111;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;padding:24px 20px 40px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div><div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:4px">WAS TRAINIERST DU?</div>
+      <div style="font-family:var(--display);font-size:22px;letter-spacing:3px;color:var(--neon)">${dayLabels[dayIdx].toUpperCase()}</div></div>
+      <button onclick="this.closest('.day-picker-modal').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${options.map(o=>`<button onclick="selectDayPlan(${dayIdx},'${o.key||''}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:${currentChoice===(o.key||null)?'rgba(200,255,0,.08)':'var(--surface)'};border:1px solid ${currentChoice===(o.key||null)?'var(--neon)':'var(--border)'};border-radius:10px;cursor:pointer;text-align:left;width:100%">
+        <div style="font-size:26px;flex-shrink:0">${o.emoji}</div>
+        <div><div style="font-family:var(--display);font-size:18px;letter-spacing:3px;color:${currentChoice===(o.key||null)?'var(--neon)':'var(--text)'}">${o.label}${currentChoice===(o.key||null)?' ✓':''}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">${o.sub}</div></div>
+      </button>`).join('')}
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+}
+
+async function selectDayPlan(dayIdx, planKey){
+  const plan = getWeekPlan();
+  plan[String(dayIdx)] = planKey || null;
+  await setWeekPlan(plan);
+  document.querySelectorAll('.day-picker-modal').forEach(e=>e.remove());
+  currentDay = dayIdx;
+  renderTraining();
+}
+</script>
