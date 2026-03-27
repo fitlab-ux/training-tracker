@@ -2115,61 +2115,40 @@ const DAY_TEMPLATES = {
        tip:'Schulter, Hüfte, Knie, Sprunggelenk mobilisieren. Moderate-hohe HF erreichen.'}
     ]},
     {name:'BLOCK 1 — BEINE',color:'#3b82f6',exercises:[
-      {name:'Aufwärmsatz — Beine',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['🦵 Goblet Squat leicht 2×10','🔄 Bodyweight Squat 2×15','🧘 Hip Flexor Activation'],
-       tip:'Pflicht vor jeder Hauptübung! 50% Gewicht, volle Bewegungstiefe, Technik einschleifen.'},
-      {name:'Kniebeuge Langhantel',sets:3,reps:'8–12 Wdh',emoji:'🏋️',weights:[40,50,60,70,80,90,100],pause:'2–3 Min',
+      {name:'Kniebeuge Langhantel',warmup:true,sets:3,reps:'8–12 Wdh',emoji:'🏋️',weights:[40,50,60,70,80,90,100],pause:'2–3 Min',
        alts:['Ausfallschritte Vorderfuß auf Erhöhung','🏗️ Hack Squat Maschine','🦵 Beinpresse 45°','🏗️ Smith Machine Kniebeuge'],
        tip:'Frontsquat: Gewicht auf Schultern, Hände unterstützen nur! Back Squat: Stange auf oberem Trapez. Tief bis parallel.'},
-      {name:'Einbeiniges Kreuzheben',sets:3,reps:'8–12 Wdh je Seite',emoji:'🦵',weights:[0,8,12,16,20,24],pause:'2–3 Min',
+      {name:'Einbeiniges Kreuzheben',warmup:true,sets:3,reps:'8–12 Wdh je Seite',emoji:'🦵',weights:[0,8,12,16,20,24],pause:'2–3 Min',
        alts:['Kreuzheben Langhantel','🦵 Bulgarische Split Squat','🔗 Kabelzug RDL einbeinig','📐 Reverse Lunge'],
        tip:'KH oder KB. Schwierigkeit: beide Hände < Standbein-Hand < andere Hand. Fußspitze bleibt am Boden!'}
     ]},
     {name:'BLOCK 2 — BRUST',color:'#1976D2',exercises:[
-      {name:'Aufwärmsatz — Brust',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['🤸 Liegestütze 2×10','🔗 Kabelzug Flyes leicht','🏋️ KH Bankdrücken leicht'],
-       tip:'Schulterblätter einziehen, Brustkorb aufgerichtet. Technik vor Gewicht!'},
-      {name:'Bankdrücken / Brustpresse',sets:3,reps:'8–12 Wdh',emoji:'🏋️',weights:[40,50,60,70,80,90],pause:'1–3 Min',
+      {name:'Bankdrücken / Brustpresse',warmup:true,sets:3,reps:'8–12 Wdh',emoji:'🏋️',weights:[40,50,60,70,80,90],pause:'1–3 Min',
        alts:['Butterfly Maschine / Kabelzug','🏋️ Kurzhantel Bankdrücken','🏗️ Brustpresse Maschine','🤸 Gewichtete Liegestütze'],
        tip:'Leichtes Hohlkreuz bilden. Stange zum unteren Brustbein. Auch am Bankdrück-Gerät im Freihantelbereich möglich.'}
     ]},
     {name:'BLOCK 3 — RÜCKEN',color:'#0f766e',exercises:[
-      {name:'Aufwärmsatz — Rücken',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['🤸 TRX Rudern leicht','↔️ Band Pull-Aparts 2×15','🔗 Facepulls leicht'],
-       tip:'Schulterblätter einziehen üben. Brustkorb aufgerichtet halten. Rotatorenmanschette aktivieren.'},
-      {name:'Enges Rudern Kabelzug',sets:3,reps:'8–12 Wdh',emoji:'💪',weights:[40,50,60,70,80,90],pause:'1–3 Min',
+      {name:'Enges Rudern Kabelzug',warmup:true,sets:3,reps:'8–12 Wdh',emoji:'💪',weights:[40,50,60,70,80,90],pause:'1–3 Min',
        alts:['Butterfly Reverse Maschine','🚣 Langhantelrudern','🏗️ Chest-Supported Row','🤸 TRX Rudern 45°'],
        tip:'Ellbogen HINTER die Wirbelsäule ziehen — Brustkorb bleibt dabei aufgerichtet! Schulterblätter zusammenziehen.'}
     ]},
     {name:'BLOCK 4 — SCHULTER',color:'#7c3aed',exercises:[
-      {name:'Aufwärmsatz — Schulter',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['⬆️ Seitheben leicht 2×10','🔗 Kabelzug Schulter leicht','🔄 Arm Circles'],
-       tip:'Ellbogen im 160° Winkel zum Brustbein. Schultergelenk vorsichtig aufwärmen!'},
-      {name:'Schulterdrücken KH / Kabelzug',sets:3,reps:'8–12 Wdh',emoji:'⬆️',weights:[16,18,20,22,24,26,28],pause:'2–3 Min',
+      {name:'Schulterdrücken KH / Kabelzug',warmup:true,sets:3,reps:'8–12 Wdh',emoji:'⬆️',weights:[16,18,20,22,24,26,28],pause:'2–3 Min',
        alts:['Schulterdrücken Langhantel','⬆️ Militärpress Langhantel','🏗️ Schulterdrücken Maschine','🔗 Kabelzug Overhead Press'],
        tip:'Ellbogen im 160° Winkel zu Brustbein. Im Stehen: Oberkörper nicht nach hinten fallen! Im Sitzen: Bank nicht ganz auf 90°.'}
     ]},
     {name:'BLOCK 5 — RÜCKEN BREIT (V-FORM)',color:'#0369a1',exercises:[
-      {name:'Aufwärmsatz — Latzug',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['🤸 Scapula Pull-Ups','🔗 Kabelzug Pulldown leicht','🔝 Assisted Klimmzüge leicht'],
-       tip:'Schulterblätter ZUERST nach unten einziehen — dann erst Ellbogen ziehen. Brustbein aufgerichtet!'},
-      {name:'Breiter Latzug Kabelzug',sets:3,reps:'8–12 Wdh',emoji:'🔝',weights:[40,50,60,70,80,90],pause:'1–3 Min',
+      {name:'Breiter Latzug Kabelzug',warmup:true,sets:3,reps:'8–12 Wdh',emoji:'🔝',weights:[40,50,60,70,80,90],pause:'1–3 Min',
        alts:['Enger Latzug Neutralgriff','🔝 Klimmzüge weit','🔗 Assisted Klimmzüge','🏗️ Latzug-Maschine weit'],
        tip:'Brustbein immer aufgerichtet — Ellbogen zieht Richtung Becken. Schulterblätter zusammenziehen. V-FORM!'}
     ]},
     {name:'BLOCK 6 — BIZEPS',color:'#FF4D1C',exercises:[
-      {name:'Aufwärmsatz — Bizeps',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['💪 Leichte KH Curls 2×10','🔗 Kabelzug Curl leicht','🏋️ EZ-Bar leicht'],
-       tip:'Ellbogen FEST am Körper einschleifen. Supination oben üben.'},
-      {name:'Bizeps Curl KH / EZ-Bar',sets:3,reps:'10–12 Wdh',emoji:'💪',weights:[10,12,14,16,18,20,22],pause:'1–2 Min',
+      {name:'Bizeps Curl KH / EZ-Bar',warmup:true,sets:3,reps:'10–12 Wdh',emoji:'💪',weights:[10,12,14,16,18,20,22],pause:'1–2 Min',
        alts:['Hammercurls Kurzhantel','🔗 Kabelzug Curl','🏗️ Bizeps Maschine','💪 Langhantel Curl stehend'],
        tip:'Ellbogen FEST am Körper. 3 Sek exzentrisch (runter). Supination oben! Trizeps = 2/3 des Oberarms.'}
     ]},
     {name:'BLOCK 7 — TRIZEPS',color:'#b45309',exercises:[
-      {name:'Aufwärmsatz — Trizeps',sets:1,reps:'1× mit 50% Gewicht',emoji:'🔥',weights:[],pause:'',
-       alts:['🔗 Pushdown leicht 2×10','💪 Enge Liegestütze 2×8','⬇️ Overhead Extension leicht'],
-       tip:'Ellbogen FEST einschleifen. Volle Streckung üben.'},
-      {name:'Trizeps Pushdown Kabelzug',sets:3,reps:'10–12 Wdh',emoji:'⬇️',weights:[20,25,30,35,40,45],pause:'1–2 Min',
+      {name:'Trizeps Pushdown Kabelzug',warmup:true,sets:3,reps:'10–12 Wdh',emoji:'⬇️',weights:[20,25,30,35,40,45],pause:'1–2 Min',
        alts:['Overhead Trizeps Extension','⬇️ Skull Crushers','💺 Trizeps Dips','🔗 Kabelzug Overhead'],
        tip:'Ellbogen FEST. Voll strecken unten, 1 Sek halten. Trizeps = 2/3 des Oberarms — wichtigste Arm-Übung!'}
     ]},
@@ -2351,10 +2330,18 @@ function _showAlt(key, btnEl){
   const reg = window._exR||{};
   const entry = reg[key];
   if(!entry){
-    // Fallback: search by partial match
-    const found = Object.values(reg).find(e => e.n && e.n.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30) === key);
-    if(found){ showExAltPicker(found.n, found.o.slice(1), btnEl); return; }
-    console.warn('No alt entry for key:', key, 'Available:', Object.keys(reg).slice(0,5));
+    // Try direct key lookup
+    const found = Object.entries(reg).find(([k,v]) => k === key || (v.n && v.n.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30) === key));
+    if(found){
+      showExAltPicker(found[1].n, found[1].o.slice(1), btnEl);
+      return;
+    }
+    // Show debug toast
+    const t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:100px;left:10px;right:10px;background:#300;border:1px solid red;border-radius:8px;padding:10px;font-family:monospace;font-size:10px;color:#f88;z-index:99999';
+    t.textContent='⚠️ Key "'+key+'" not found. Registry has: '+Object.keys(reg).slice(0,3).join(', ')+'... ('+Object.keys(reg).length+' total)';
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),4000);
     return;
   }
   showExAltPicker(entry.n, entry.o.slice(1), btnEl);
@@ -2981,6 +2968,7 @@ async function renderTraining(){
       <button onclick="showShareCard()" style="padding:10px 16px;background:linear-gradient(135deg,#FF4D1C,#FF4D1C);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">📸 Share</button>
     </div>`;
     document.getElementById('trainingContent').innerHTML=h;
+  console.log('Registry after render:', Object.keys(window._exR||{}).length, 'entries');
     updateProgress();
   } catch(err) {
     console.error("renderTraining crash:", err);
@@ -3116,6 +3104,14 @@ function renderExc(ex,blockName,ei,blockColor){
       </div>
     </div>
     <div class="exc-body">
+      ${ex.warmup ? `<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:4px;background:rgba(200,255,0,.03);border:1px solid rgba(200,255,0,.08);border-radius:6px">
+        <div style="font-family:var(--display);font-size:11px;letter-spacing:1px;color:rgba(200,255,0,.5);min-width:28px">0</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--muted)">Aufwärmsatz</div>
+          <div style="font-size:9px;color:rgba(200,255,0,.4);font-family:var(--mono)">50% Arbeitsgewicht · 1× · Technik einschleifen</div>
+        </div>
+        <div style="font-size:9px;color:rgba(200,255,0,.3);font-family:var(--mono)">nicht zählen</div>
+      </div>` : ''}
       <div class="sets-list">${setsHtml}</div>
       <div class="tip-toggle ${tipOpen?'open':''}" onclick="togItem('tip_${blockName}_${ei}')">Technik-Tipp</div>
       ${tipOpen?`<div class="tip-box"><div class="tip-box-inner">
