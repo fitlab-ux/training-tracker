@@ -2642,39 +2642,11 @@ async function renderTraining(){
   // ── Get template for current weekday ──
   const tmplKey = getTemplateForDay(currentDay);
   if(!tmplKey){
-    const dayLabels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
-    // No plan chosen yet — show selector prompt
-    document.getElementById('trainingContent').innerHTML=`
-      <div style="padding:32px 16px;max-width:480px;margin:0 auto;text-align:center">
-        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:8px">
-          ${['Mo','Di','Mi','Do','Fr','Sa','So'][currentDay]} · WOCHE ${currentWeek}
-        </div>
-        <div style="font-family:var(--display);font-size:26px;letter-spacing:4px;color:var(--text);margin-bottom:6px">WAS TRAINIERST DU?</div>
-        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:28px">Wähle deinen Plan für heute</div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-          <button onclick="selectPlan('A')" style="padding:20px 12px;border-radius:12px;border:1px solid rgba(61,127,255,.3);background:rgba(61,127,255,.06);cursor:pointer;text-align:center">
-            <div style="font-family:var(--display);font-size:24px;letter-spacing:3px;color:#6699ff">PLAN A</div>
-            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px">Kniebeuge · Brust · Rudern<br>Schulter · Latzug · Arme</div>
-          </button>
-          <button onclick="selectPlan('B')" style="padding:20px 12px;border-radius:12px;border:1px solid rgba(61,127,255,.3);background:rgba(61,127,255,.06);cursor:pointer;text-align:center">
-            <div style="font-family:var(--display);font-size:24px;letter-spacing:3px;color:#6699ff">PLAN B</div>
-            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px">Ausfallschritte · Kreuzheben<br>Butterfly · Latzug · Arme</div>
-          </button>
-          <button onclick="selectPlan('C')" style="padding:20px 12px;border-radius:12px;border:1px solid rgba(200,255,0,.25);background:rgba(200,255,0,.05);cursor:pointer;text-align:center">
-            <div style="font-family:var(--display);font-size:24px;letter-spacing:3px;color:var(--neon)">CARDIO</div>
-            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px">HIIT Zone 4/5<br>Zone 2 Dauermethode</div>
-          </button>
-          <button onclick="selectPlan(null)" style="padding:20px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:center">
-            <div style="font-family:var(--display);font-size:24px;letter-spacing:3px;color:var(--muted)">RUHETAG</div>
-            <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px">Recovery<br>Schlaf · Ernährung</div>
-          </button>
-        </div>
-      </div>`;
+    renderRestDay();
     return;
   }
 
-  // ── Rest day chosen ──
+  // ── Render training day ──
   const day = DAY_TEMPLATES[getTemplateForDay(currentDay)] || DAY_TEMPLATES.A;
   let h='';
 
