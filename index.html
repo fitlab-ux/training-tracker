@@ -1261,6 +1261,7 @@ async function generateDailyNutrition(){
   const p = currentProfile||{};
   const bs = await getLatestBodyStats();
   const day = DAY_TEMPLATES[getTemplateForDay(currentDay)] || DAY_TEMPLATES.A;
+  currentDayTemplate = day; // make accessible to updateProgress
   const isTraining = !!getTemplateForDay(currentDay);
   const isHiit = day.type&&(day.type.includes('HIIT')||day.type.includes('CARDIO'));
   const isKraft = day.type&&day.type.includes('KRAFT');
@@ -2371,6 +2372,7 @@ const DEFAULT_WEEK_PLAN = {
 
 // Start on today's weekday (JS: Sun=0 → our Mo=0 system)
 let currentDay = (()=>{ const d=new Date().getDay(); return d===0?6:d-1; })();
+let currentDayTemplate = null; // set by renderTraining, used by updateProgress
 let lbPeriod = 'week';
 let isLoading = false;
 
