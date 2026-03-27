@@ -1899,185 +1899,184 @@ async function fetchLeaderboard(period){
 // ══════════════════════════════════════════════════════
 const DAY_TEMPLATES = {
 
-  A:{name:'TAG 1',subtitle:'Push + Arme + Core A',type:'KRAFT + CORE',duration:'85–95 Min',sauna:false,
-  timeHint:'Brust · Schulter · Trizeps · Core',
+  A:{name:'TAG 1',subtitle:'Plan A — Pfitzenmeier + Arme + Waden',type:'KRAFT + CORE',duration:'75–85 Min',sauna:false,
+  timeHint:'Kniebeuge · Brust · Rücken · Schulter · Arme · Core',
   meals:[
-    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 60g + 4 Eier (2 ganz, 2 Eiweiß) + Beeren 100g — ~520 kcal · 38g Protein'},
-    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'2–3 Tropfen D3/K2 + 2g Omega-3 zum Frühstück — Entzündungshemmung, Fettverbrennung'},
-    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat ins Wasser — täglich, auch Ruhetage'},
-    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey in Wasser — 45 Min vor Training. ~200 kcal · 25g Protein'},
-    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 30g Maltodextrin + Wasser — sofort nach Training. ~280 kcal · 40g Protein'},
-    {time:'15:00',icon:'🥩',name:'Mittagessen (15:00)',desc:'200g Hähnchenbrust + 150g Reis (roh) + 200g Brokkoli + Olivenöl 1 EL — ~620 kcal · 55g Protein'},
-    {time:'19:00',icon:'🥗',name:'Abendessen (19:00)',desc:'200g Lachs + großer Salat + ½ Avocado + Olivenöl — ~520 kcal · 45g Protein · kein Zucker'},
-    {time:'Nacht',icon:'🧴',name:'Schlaf-Stack (22:30)',desc:'300mg Magnesium Glycinat + 5mg Melatonin — JETZT ins Bett-Protokoll starten. Ziel: 23:00 Uhr'},
-    {time:'Nacht',icon:'💊',name:'ZMA (optional)',desc:'Zink 30mg + Magnesium + B6 — erhöht Testosteron + Wachstumshormon im Schlaf'}
+    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 60g + 4 Eier (2 ganz/2 Eiweiß) + Beeren — ~520 kcal · 38g Protein'},
+    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'2–3 Tropfen D3/K2 + 2g Omega-3 — Entzündungshemmung, Testosteron'},
+    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g täglich — auch Ruhetage'},
+    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey — 45 Min vor Training · ~200 kcal · 25g Protein'},
+    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 30g Maltodextrin sofort — ~280 kcal · 40g Protein'},
+    {time:'15:00',icon:'🥩',name:'Mittagessen',desc:'200g Hähnchen + 150g Reis + 200g Brokkoli + Olivenöl — ~620 kcal · 55g Protein'},
+    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'200g Lachs + Salat + ½ Avocado — ~520 kcal · 45g Protein · kein Zucker'},
+    {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'300mg Magnesium Glycinat + 5mg Melatonin — Ziel: 23:00 Uhr ins Bett'}
   ],
   blocks:[
-    {name:'WARM-UP',color:'#64748b',exercises:[
-      {name:'Rudergerät locker',alts:['⛷️ SkiErg locker 5 Min','🚴 Bike locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'🚣',tip:'Schultern und Brust aufwärmen. Schulterblätter kreisen lassen.',weights:[]},
-      {name:'Band Pull-Aparts + Schulter Circles',alts:['↔️ Facepulls Kabelzug 2×15','🔄 Arm Circles 2×30s','🤸 Doorway Pec Stretch 2×30s'],sets:2,reps:'15 Wdh',emoji:'🔄',tip:'Hintere Schulter aktivieren, Rotatorenmanschette vorbereiten.',weights:[]}
+    {name:'WARM-UP — SENSOPRO / CARDIO',color:'#64748b',exercises:[
+      {name:'Sensopro Ganzkörper-Programm',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8–10 Min',emoji:'⚖️',tip:'Sensopro: Gleichgewichts- + Koordinationsreiz VOR Kraft. Aktiviert stabilisierende Muskulatur. Oder: Cardiogerät + vor jeder Übung 1 Aufwärmsatz!',weights:[]},
+      {name:'Aufwärmsatz vor jeder Übung',alts:['🔄 Mobility Routine 5 Min','⚖️ Sensopro Fitness-Programm','🧘 Gelenk-Mobilisation Ganzkörper'],sets:1,reps:'1× leicht je Übung',emoji:'🔄',tip:'Pflicht wenn kein Sensopro: 1 Aufwärmsatz mit 50% Arbeitsgewicht vor jeder Hauptübung!',weights:[]}
     ]},
-    {name:'BLOCK 1 — BRUST & SCHULTER',color:'#3b82f6',exercises:[
-      {name:'Bankdrücken (Langhantel)',alts:['🏋️ Kurzhantel Bankdrücken','🤸 Gewichtete Liegestütze','🏗️ Smith Machine Bankdrücken'],sets:4,reps:'6–8 Wdh',emoji:'🏋️',superset:false,tip:'Schulterblätter zusammen, Brust raus. Explosiv drücken, kontrolliert senken. 85% 1RM.',weights:[40,50,60,70,80,90,100]},
-      {name:'Schrägbank Kurzhantel',alts:['📐 Schrägbank Langhantel','🔗 Kabelzug Schrägbank Flyes','🏗️ Schrägbank Smith Machine'],sets:3,reps:'10–12 Wdh',emoji:'📐',superset:true,tip:'30° Schrägbank. Volle Dehnung unten, konstante Spannung.',weights:[16,18,20,22,24,26,28,30]},
-      {name:'Schulterdrücken (Kurzhantel)',alts:['⬆️ Langhantel Militärpress','🔗 Kabelzug Overhead Press','🏗️ Schultermaschine'],sets:3,reps:'10–12 Wdh',emoji:'⬆️',superset:true,tip:'Sitzend, Kern angespannt. Kurzhanteln für freien Bewegungsweg.',weights:[16,18,20,22,24,26]},
-      {name:'Seitheben (Kabelzug)',alts:['✈️ Kurzhantel Seitheben','🏗️ Maschinen-Seitheben','↕️ Upright Row Kurzhantel'],sets:3,reps:'15 Wdh',emoji:'✈️',superset:false,tip:'Kabelzug von unten: konstante Spannung. Arme bis Schulterhöhe, nicht höher.',weights:[8,10,12,14,16,18]}
+    {name:'PFITZENMEIER BLOCK — BEINE',color:'#3b82f6',exercises:[
+      {name:'Kniebeuge Langhantel (back/front)',alts:['🏗️ Hack Squat Maschine','🦵 Beinpresse 45°','🏗️ Smith Machine Kniebeuge'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'TRAINER-TIPP: Bei Frontsquat liegt Gewicht auf Schultern — Hände unterstützen nur! 2–3 Min Pause. Tief bis parallel.',weights:[40,50,60,70,80,90,100]},
+      {name:'Einbeiniges Kreuzheben (Hinterfuß am Boden)',alts:['🦵 Bulgarische Split Squat','🔗 Kabelzug einbeiniges RDL','🏋️ Kurzhantel einbeiniges RDL'],sets:3,reps:'8–12 Wdh je Seite',emoji:'🦵',tip:'TRAINER-TIPP: KH oder KH — Schwierigkeit: beide Hände < Standbein-Hand < andere Hand. Fußspitze bleibt am Boden!',weights:[0,8,12,16,20,24,28]}
     ]},
-    {name:'BLOCK 2 — TRIZEPS (1. Reiz)',color:'#FF4D1C',exercises:[
-      {name:'Trizeps Dips (gewichtet)',alts:['⬇️ Skull Crushers Langhantel','🔗 Kabelzug Overhead Extension','💺 Trizeps Dips Bank'],sets:4,reps:'8–10 Wdh',emoji:'⬇️',superset:true,tip:'Körper senkrecht, Ellbogen eng. Gewichtet = Masse. Voll strecken oben!',weights:[0,5,10,15,20,25]},
-      {name:'Kabelzug Pushdown (Seil)',alts:['⬇️ Kabelzug Pushdown gerades Stück','🔗 Overhead Trizeps Extension','🏗️ Trizeps Maschine'],sets:3,reps:'12–15 Wdh',emoji:'🔗',superset:true,tip:'Ellbogen FEST am Körper. 1 Sek halten unten. Pump-Fokus = Definition.',weights:[20,25,30,35,40,45]}
+    {name:'PFITZENMEIER BLOCK — OBERKÖRPER',color:'#1976D2',exercises:[
+      {name:'Bankdrücken / Brustpresse',alts:['🏋️ Kurzhantel Bankdrücken','🏗️ Brustpresse Maschine Freihantel','🤸 Gewichtete Liegestütze'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',superset:true,tip:'TRAINER-TIPP: Leichtes Hohlkreuz bilden. Auch am Bankdrück-Gerät im Freihantelbereich möglich. 1–3 Min Pause.',weights:[40,50,60,70,80,90,100]},
+      {name:'Enges Rudern Kabelzug / Gerät',alts:['🚣 Langhantelrudern','🏗️ Chest-Supported Row','🤸 TRX Rudern 45°'],sets:3,reps:'8–12 Wdh',emoji:'💪',superset:true,tip:'TRAINER-TIPP: Ellbogen HINTER die Wirbelsäule ziehen — Brustkorb bleibt aufgerichtet! 1–3 Min Pause.',weights:[40,50,60,70,80,90]},
+      {name:'Schulterdrücken KH / Kabelzug',alts:['⬆️ Langhantel Militärpress','🏗️ Schulterdrücken Maschine','🔗 Kabelzug Overhead Press'],sets:3,reps:'8–12 Wdh',emoji:'⬆️',superset:false,tip:'TRAINER-TIPP: Ellbogen im 160° Winkel zum Brustbein. Im Stehen: Oberkörper nicht nach hinten fallen! 2–3 Min Pause.',weights:[16,18,20,22,24,26,28]},
+      {name:'Breiter Latzug Kabelzug',alts:['🔝 Klimmzüge weit','🔗 Assisted Klimmzüge Maschine','🏗️ Latzug-Maschine weit'],sets:3,reps:'8–12 Wdh',emoji:'🔝',superset:false,tip:'TRAINER-TIPP: Brustbein aufgerichtet — Ellbogen zieht Richtung Becken, Schulterblätter ziehen zusammen. V-FORM! 1–3 Min Pause.',weights:[40,50,60,70,80,90]}
     ]},
-    {name:'BLOCK 3 — CORE A (Six-Pack)',color:'#22c55e',exercises:[
-      {name:'Hängendes Beinheben (gestreckt)',alts:['⬆️ Captain Chair Beinheben','🤸 TRX Jackknife','🔗 Kabelzug Knieheben'],sets:4,reps:'15 Wdh',emoji:'⬆️',superset:true,tip:'BESTES Six-Pack Unterbauch! Beine gestreckt heben — kein Schwingen. Langsam ablassen.',weights:[]},
-      {name:'Ab Wheel Rollout',alts:['🔗 Kabelzug Crunch','⬛ Decline Crunch mit Gewicht','🤸 Dragon Flag Progression'],sets:3,reps:'12–15 Wdh',emoji:'🔄',superset:true,tip:'NIEMALS ins Hohlkreuz! Kern zieht, langsam ausrollen. Härteste Core-Übung.',weights:[0,5,10]},
-      {name:'Plank (gewichtet)',alts:['⬛ RKC Plank 40s','🤸 Plank Shoulder Taps','💪 Plank + Gewichtsplatte'],sets:3,reps:'45–60 Sek',emoji:'⬛',superset:false,tip:'Gewichtsplatte auf den Rücken für progressive Überlastung. Gesäß anspannen, Hüfte gerade.',weights:[0,5,10,15,20]},
-      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend','🦵 Einbeiniges Wadenheben','🚶 Zehenstand Gehen 3×20m'],sets:4,reps:'20–25 Wdh',emoji:'👟',superset:false,tip:'Waden jeden Tag! Ganz unten dehnen 2s, ganz oben strecken 2s. Volle Amplitude!',weights:[0,20,30,40,50,60]}
+    {name:'ERGÄNZUNG — ARME (direkt)',color:'#FF4D1C',exercises:[
+      {name:'Bizeps Curl Kurzhantel / EZ-Bar',alts:['🔗 Kabelzug Curl','🏗️ Bizeps Maschine','💪 Langhantel Curl stehend'],sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'NEU: Direktes Armtraining fehlt im Pfitzenmeier-Plan. Ellbogen FEST am Körper, 3 Sek exzentrisch. Supination oben!',weights:[10,12,14,16,18,20,22]},
+      {name:'Trizeps Pushdown Kabelzug',alts:['⬇️ Skull Crushers Langhantel','🔗 Overhead Trizeps Extension','💺 Trizeps Dips Bank'],sets:3,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'NEU: Trizeps = 2/3 des Oberarms! Ellbogen FEST. Voll strecken unten, 1 Sek halten.',weights:[20,25,30,35,40,45]}
     ]},
-    {name:'ZONE 2 CARDIO',color:'#22c55e',exercises:[
-      {name:'Stepper Zone 2',alts:['🚴 Bike Zone 2 25 Min','🚣 Rudergerät Zone 2 25 Min','🏃 Laufband Incline Zone 2 25 Min'],sets:1,reps:'25 Min',emoji:'🪜',tip:'130–145 bpm. Fettverbrennung nach Kraft. Aufrecht, Gesäß aktivieren.',weights:[]}
+    {name:'BAUCHTRAINING ZIRKEL (Plan A+B)',color:'#22c55e',exercises:[
+      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank maximal','🤸 Hollow Body Hold gestreckt','💪 Ab Wheel Rollout'],sets:3,reps:'Zeit + 10s steigern',emoji:'⬛',superset:true,tip:'TRAINER-TIPP: Zeit stoppen! Nächstes Training: letzte Zeit + 10 Sek. Progressive Überlastung auch beim Plank.',weights:[0,5,10,15]},
+      {name:'Crunches (langsam, kontrolliert)',alts:['🔗 Kabelzug Crunch kniend','🏗️ Ab Crunch Maschine','⬛ Decline Sit-Up'],sets:3,reps:'Zeit + 10s steigern',emoji:'🔄',superset:true,tip:'TRAINER-TIPP: Langsam und kontrolliert auf Zeit. Kein Schwung — Bauch macht die Arbeit!',weights:[]},
+      {name:'Seitneigung mit Zusatzgewicht',alts:['↩️ Kabelzug Woodchopper','🏋️ Kurzhantel Seitneigung','🔗 Pallof Press'],sets:2,reps:'8–12 Wdh je Seite',emoji:'↩️',superset:false,tip:'TRAINER-TIPP: KH, KB oder geführte Langhantel. Seitliche Bauchmuskulatur = Six-Pack Seiten!',weights:[6,8,10,12,14,16]}
+    ]},
+    {name:'ERGÄNZUNG — WADEN',color:'#059669',exercises:[
+      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend (Soleus)','🦵 Einbeiniges Wadenheben','🦵 Beinpresse-Waden schwer'],sets:4,reps:'20–25 Wdh',emoji:'👟',tip:'NEU: Waden fehlen komplett im Pfitzenmeier-Plan. Ganz unten 2s dehnen, ganz oben 2s strecken. TÄGLICH möglich!',weights:[0,20,30,40,50,60]}
     ]}
   ]},
 
-  B:{name:'TAG 2',subtitle:'Pull + Bizeps + V-Rücken',type:'KRAFT + VOLUMEN',duration:'85–95 Min',sauna:false,
-  timeHint:'Rücken breit · Bizeps · V-Form',
+  B:{name:'TAG 2',subtitle:'Plan B — Pfitzenmeier + Arme + Waden',type:'KRAFT + CARDIO',duration:'80–90 Min',sauna:false,
+  timeHint:'Ausfallschritte · Kreuzheben · Brust · Schulter · Latzug · HIIT · Zone 2',
   meals:[
-    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'4 Eier + Haferflocken 60g + Banane + Zimt — ~540 kcal · 40g Protein'},
-    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 — Testosteron + Fettstoffwechsel'},
-    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat ins Wasser'},
-    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey — ~200 kcal · 25g Protein. Pull-Tag: mehr Carbs für Pump!'},
-    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 40g Maltodextrin — sofort. V-Rücken-Tag braucht Glykogen! ~300 kcal'},
-    {time:'15:00',icon:'🥩',name:'Mittagessen (15:00)',desc:'250g Lachs + 120g Quinoa + Salat + Olivenöl — ~640 kcal · 58g Protein · Omega-3'},
-    {time:'19:00',icon:'🥗',name:'Abendessen (19:00)',desc:'250g Hüttenkäse + Beeren 100g + 20g Walnüsse + Zimt — ~380 kcal · 35g Casein-Protein'},
-    {time:'Nacht',icon:'🧴',name:'Schlaf-Stack (22:30)',desc:'300mg Magnesium Glycinat + 5mg Melatonin — ins Bett bis 23:00 Uhr. Bizeps wächst im Schlaf!'},
-    {time:'Nacht',icon:'💊',name:'Ashwagandha',desc:'600mg KSM-66 — senkt Cortisol, verbessert Schlafqualität, steigert Testosteron'}
-  ],
-  blocks:[
-    {name:'WARM-UP',color:'#64748b',exercises:[
-      {name:'SkiErg locker',alts:['🚣 Rudergerät locker 5 Min','🚴 Bike locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'⛷️',tip:'Rücken und Bizeps aufwärmen. Schulterblätter einziehen üben.',weights:[]},
-      {name:'Facepulls + Thorax-Rotation',alts:['↔️ Band Pull-Aparts 2×20','🔄 Thread the Needle 2×10','🧘 Cat-Cow + Schulter Circles'],sets:2,reps:'15 Wdh',emoji:'↔️',tip:'Rotatorenmanschette und hintere Schulter aktivieren. Schlüssel für Klimmzüge.',weights:[]}
-    ]},
-    {name:'BLOCK 1 — V-RÜCKEN (Breit)',color:'#3b82f6',exercises:[
-      {name:'Klimmzüge (weiter Griff)',alts:['🔝 Latzug weit (Maschine)','🔗 Kabelzug Pulldown weit','🤸 Assisted Klimmzüge Maschine'],sets:5,reps:'6–10 Wdh',emoji:'🔝',superset:false,tip:'V-FORM ÜBUNG #1! Weiter Griff = Latissimus weit. Schulterblätter ZUERST einziehen, dann Ellbogen. Letzter Satz bis Versagen!',weights:[0,5,10,15,20]},
-      {name:'Einarmiges Kurzhantelrudern',alts:['🔗 Kabelzug Low Row einarmig','🚣 Langhantelrudern','🏗️ Chest-Supported Row'],sets:4,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Bank stützen, Rücken gerade. Ellbogen eng am Körper, Schulterblatt maximal einziehen. 2 Sek halten!',weights:[20,24,28,32,36,40]},
-      {name:'Latzug enges Griff (V-Bar)',alts:['🔝 Kabelzug Pullover','🔗 Straight-Arm Pulldown','🏗️ Rudermaschine enger Griff'],sets:3,reps:'12 Wdh',emoji:'🔗',superset:true,tip:'Enger Griff = langer Latissimus. Ellbogen zur Hüfte ziehen, Brust raus.',weights:[40,50,60,70,80]},
-      {name:'Facepulls (Kabelzug hoch)',alts:['↔️ Band Pull-Aparts 3×20','🏗️ Rear Delt Fly Maschine','🤸 TRX Y-T-W'],sets:3,reps:'20 Wdh',emoji:'↔️',superset:false,tip:'Schultergesundheit + hintere Schulter für V-Form. Ellbogen hoch, externe Rotation maximal.',weights:[15,20,25,30,35]}
-    ]},
-    {name:'BLOCK 2 — BIZEPS (1. Reiz, Masse)',color:'#FF4D1C',exercises:[
-      {name:'Langhantel Curls (stehend)',alts:['💪 EZ-Bar Curls','🔗 Kabelzug Curls','🏗️ Bizeps Maschine'],sets:4,reps:'8–10 Wdh',emoji:'💪',superset:true,tip:'MASSE-BIZEPS! Ellbogen FEST. Supination oben (kleine Finger nach außen). 3 Sek exzentrisch.',weights:[20,25,30,35,40,45,50]},
-      {name:'Hammercurls (Kurzhantel)',alts:['🔗 Kabelzug Hammer Curl','💪 Cross-Body Hammer Curl','🏋️ Kettlebell Curl'],sets:3,reps:'10–12 Wdh',emoji:'🔨',superset:true,tip:'Brachialis trainieren = Bizeps wirkt dicker und voller. Neutraler Griff, kontrolliert.',weights:[14,16,18,20,22,24]},
-      {name:'Konzentrations-Curl (sitzend)',alts:['💪 Kabelzug Spider Curl','🔗 Preacher Curl Maschine','💪 Inkline Kurzhantel Curl'],sets:3,reps:'12–15 Wdh',emoji:'💺',superset:false,tip:'Isolation für den Bizeps-Peak! Ellbogen am Oberschenkel. Volle Kontraktion oben.',weights:[10,12,14,16,18,20]}
-    ]},
-    {name:'BLOCK 3 — WADEN & CORE B',color:'#22c55e',exercises:[
-      {name:'Wadenheben (Beinpresse)',alts:['🦵 Wadenheben Stehend Maschine','💺 Donkey Calf Raise','👟 Einbeiniges Wadenheben'],sets:5,reps:'20–25 Wdh',emoji:'👟',superset:true,tip:'Beinpresse-Waden = maximales Gewicht! Fersen über Kante, volle Amplitude. 2s dehnen, 2s strecken.',weights:[80,100,120,140,160,180]},
-      {name:'Russian Twists (Gewicht)',alts:['↩️ Kabelzug Woodchopper','🏋️ Medizinball Rotations-Slam','🔗 Pallof Press'],sets:4,reps:'20 Wdh',emoji:'↩️',superset:true,tip:'Schräge Bauchmuskulatur = Six-Pack Seiten! Füße angehoben, Gewicht links-rechts.',weights:[6,8,10,12,14,16]},
-      {name:'Hollow Body Hold',alts:['🤸 L-Sit Progression','⬛ Dead Bug 3×10','🔗 Kabelzug Crunch'],sets:3,reps:'30–45 Sek',emoji:'🤸',superset:false,tip:'Kreuz flach auf Boden, Arme über Kopf, Beine gestreckt angehoben. Bestes Tiefenmuskel-Training.',weights:[]}
-    ]},
-    {name:'ZONE 2 CARDIO',color:'#22c55e',exercises:[
-      {name:'Rudergerät Zone 2',alts:['⛷️ SkiErg Zone 2 25 Min','🚴 Bike Zone 2 25 Min','🏃 Laufband Incline 25 Min'],sets:1,reps:'25 Min',emoji:'🚣',tip:'130–145 bpm. Fettverbrennung für Six-Pack. Nach Kraft arbeitet der Körper effizienter.',weights:[]}
-    ]}
-  ]},
-
-  C:{name:'TAG 3',subtitle:'Beine + Waden + Core C',type:'KRAFT + HIIT',duration:'90–100 Min',sauna:true,saunaTemp:'90–100°C',
-  timeHint:'Quad · Posterior · Waden · HIIT',
-  meals:[
-    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 80g + 4 Eier + 1 Banane — BEIN-TAG: maximale Carbs! ~570 kcal · 40g Protein'},
-    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 + Vitamin C 500mg — Gelenk-Schutz Bein-Tag'},
+    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'4 Eier + Haferflocken 60g + Banane — ~540 kcal · 40g Protein'},
+    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 — täglich'},
     {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat'},
-    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + Vollkornbrot 2 Scheiben + Quark — 60 Min vor Training! ~320 kcal · 20g Protein'},
-    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 50g Maltodextrin — sofort! Bein-Tag = höchster Glykogen-Bedarf. ~340 kcal'},
-    {time:'15:00',icon:'🥩',name:'Mittagessen (15:00)',desc:'300g Rinderhüfte + 200g Kartoffeln + Gemüse + Olivenöl — ~680 kcal · 65g Protein'},
-    {time:'19:00',icon:'🥗',name:'Abendessen (19:00)',desc:'200g Kabeljau/Forelle + 200g Gemüse + ½ Avocado — ~400 kcal · 42g Protein · leicht'},
-    {time:'Nacht',icon:'🧴',name:'Schlaf-Stack (22:30)',desc:'400mg Magnesium Glycinat + 5mg Melatonin — Bein-Tag: maximale Recovery im Schlaf. 23:00 ins Bett!'},
-    {time:'Nacht',icon:'💊',name:'Kollagen + Vitamin C',desc:'15g Kollagen-Peptide + 500mg Vitamin C — Gelenk-Recovery nach schwerem Bein-Training'}
+    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey — ~200 kcal · 25g Protein'},
+    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 40g Maltodextrin sofort — ~300 kcal · 40g Protein'},
+    {time:'15:00',icon:'🥩',name:'Mittagessen',desc:'250g Hähnchen/Lachs + 120g Quinoa + Salat — ~640 kcal · 58g Protein'},
+    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'250g Hüttenkäse + Beeren 100g + Walnüsse — ~380 kcal · 35g Casein'},
+    {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'300mg Magnesium + 5mg Melatonin + 600mg Ashwagandha — Cortisol senken, früher einschlafen'}
   ],
   blocks:[
-    {name:'WARM-UP',color:'#64748b',exercises:[
-      {name:'Bike locker + Glute Activation',alts:['🚣 Rudergerät locker 5 Min','⛷️ SkiErg locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'🚴',tip:'Hüfte und Knie aufwärmen. Glutes VOR Squats aktivieren!',weights:[]},
-      {name:'Goblet Squat + Hip Circles',alts:['🦵 Bodyweight Squat 2×15','🧘 90/90 Hip Stretch 2×30s','🔄 Leg Swings 2×10'],sets:2,reps:'10 Wdh',emoji:'🔄',tip:'Tiefe Kniebeuge einschleifen. Hüfte locker machen.',weights:[16,20,24]}
+    {name:'WARM-UP — SENSOPRO / CARDIO',color:'#64748b',exercises:[
+      {name:'Sensopro Ganzkörper-Programm',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8–10 Min',emoji:'⚖️',tip:'Sensopro: Koordination + Stabilität aktivieren. Oder Cardiogerät + Aufwärmsatz vor jeder Übung!',weights:[]},
+      {name:'Mobility: Hüfte + Schulter',alts:['🔄 Leg Swings + Arm Circles 2×10','🧘 90/90 Hip Stretch 2×30s','⚖️ Sensopro Basis-Programm'],sets:1,reps:'5 Min',emoji:'🔄',tip:'Hüfte für Ausfallschritte und Kreuzheben vorbereiten. Schulter für Drückübungen.',weights:[]}
     ]},
-    {name:'BLOCK 1 — BEINE',color:'#3b82f6',exercises:[
-      {name:'Kniebeugen (Langhantel)',alts:['🏗️ Hack Squat Maschine','🦵 Beinpresse 45°','🏗️ Smith Machine Kniebeugen'],sets:5,reps:'5–6 Wdh',emoji:'🏋️',tip:'KÖNIG! Brust raus, Knie über Zehen, parallel. 90% 1RM. Belt ab Satz 3.',weights:[60,70,80,90,100,110,120]},
-      {name:'Rumänisches Kreuzheben',alts:['🔗 Kabelzug RDL','🦵 Kurzhantel RDL einbeinig','🏗️ GHD Machine'],sets:4,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'Hamstrings dehnen bis Mitte Schienbein. Rücken gerade, Hüfte zurück.',weights:[50,60,70,80,90,100]},
-      {name:'Beinbeuger liegend',alts:['🔗 Kabelzug Beinbeuger stehend','🤸 Nordic Hamstring Curl','🦵 Swiss Ball Leg Curl'],sets:4,reps:'12 Wdh',emoji:'🦵',superset:true,tip:'3 Sek exzentrisch! Hüfte auf der Bank. Hamstrings = hintere Kette für V-Körper.',weights:[30,40,50,60,70,80]},
-      {name:'Bulgarische Split Squat',alts:['🦵 Ausfallschritte Langhantel','🤸 TRX Split Squat','🔗 Kabelzug Split Squat'],sets:3,reps:'10 Wdh je Bein',emoji:'📐',tip:'Einbeinig = Muskelbalance. Vorderes Knie über Fuß. Rumpf gerade.',weights:[0,10,14,18,22,26]}
+    {name:'PFITZENMEIER BLOCK — BEINE',color:'#3b82f6',exercises:[
+      {name:'Ausfallschritte Vorderfuß auf Erhöhung',alts:['🦵 Bulgarsiche Split Squat','📐 Reverse Lunge','🔗 Kabelzug Split Squat'],sets:3,reps:'8–12 Wdh je Seite',emoji:'📐',tip:'TRAINER-TIPP: Gewichte links und rechts hängen lassen. Erhöhung erhöht Bewegungstiefe = mehr Quad + Glute!',weights:[0,8,12,16,20,24]},
+      {name:'Kreuzheben Langhantel',alts:['🏗️ Trap Bar Deadlift','🦵 Rumänisches Kreuzheben','🤸 Rack Pull'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'TRAINER-TIPP: Langhantel nur bis knapp unter Kniescheibe — kein Bodenberühren! LH immer nah am Bein. Blick folgt der LH.',weights:[60,70,80,90,100,110,120]}
     ]},
-    {name:'BLOCK 2 — WADEN (Haupttag)',color:'#1976D2',exercises:[
-      {name:'Wadenheben stehend (schwer)',alts:['🦵 Donkey Calf Raise','💺 Einbeiniges Wadenheben','🏗️ Hack Squat Waden'],sets:6,reps:'15–20 Wdh',emoji:'👟',superset:false,tip:'6 SÄTZE! Waden wachsen durch Volumen UND Frequenz. Ganz unten 2s, oben 2s. Maximales Gewicht!',weights:[0,30,40,50,60,70,80]},
-      {name:'Wadenheben sitzend (Maschine)',alts:['💺 Seated Calf Raise','🦵 Beinpresse Waden','👟 Einbeinig sitzend'],sets:4,reps:'20 Wdh',emoji:'💺',superset:false,tip:'Sitzend = Soleus (tiefer Wadenmuskel). Vollständige Amplitude, kein Hüpfen!',weights:[30,40,50,60,70,80]}
+    {name:'PFITZENMEIER BLOCK — OBERKÖRPER',color:'#1976D2',exercises:[
+      {name:'Butterfly Maschine / Kabelzug',alts:['🏋️ Kurzhantel Flyes flach','🔗 Kabelzug Crossover','🤸 TRX Flyes'],sets:3,reps:'8–12 Wdh',emoji:'🦋',superset:true,tip:'TRAINER-TIPP: Leichtes Hohlkreuz bilden. Einarmig möglich für mehr Stabilität und Kontrolle. 1–3 Min Pause.',weights:[30,40,50,60,70,80]},
+      {name:'Butterfly Reverse Maschine / Kabel',alts:['↔️ Kurzhantel Rear Delt Fly','🔗 Facepulls Kabelzug hoch','🏗️ Rear Delt Maschine'],sets:3,reps:'8–12 Wdh',emoji:'↔️',superset:true,tip:'TRAINER-TIPP: Arm nur so weit zurück, dass Schulter nicht nach vorne klappt! Schultergesundheit + V-Form.',weights:[20,25,30,35,40,45]},
+      {name:'Schulterdrücken Langhantel (frei/geführt)',alts:['⬆️ Kurzhantel Schulterdrücken','🔗 Kabelzug Overhead Press','🏗️ Smith Machine Schulterdrücken'],sets:3,reps:'8–12 Wdh',emoji:'⬆️',superset:false,tip:'TRAINER-TIPP: Im Sitzen Bank nicht ganz auf 90° — leicht nach hinten geneigt für sicheres Schultergelenk. 2–3 Min Pause.',weights:[30,40,50,60,70,80]},
+      {name:'Enger Latzug (Neutralgriff)',alts:['🔝 Klimmzüge enger Griff','🔗 Kabelzug Pulldown neutral','🚣 Sitzrudern eng'],sets:3,reps:'8–12 Wdh',emoji:'🔗',superset:false,tip:'TRAINER-TIPP: Neutralgriff = Handflächen zeigen zueinander. Ellbogen zieht zur Hüfte. Langer Latissimus = V-Form.',weights:[40,50,60,70,80,90]}
     ]},
-    {name:'BLOCK 3 — CORE C (Six-Pack)',color:'#22c55e',exercises:[
-      {name:'Kabelzug Crunch (stehend)',alts:['🔗 Kabelzug Crunch kniend','🏗️ Ab Crunch Maschine','⬛ Decline Sit-Up Gewicht'],sets:4,reps:'15 Wdh',emoji:'🔗',superset:true,tip:'Gewicht macht Six-Pack sichtbarer! Oberkörper zur Hüfte beugen, nicht Hüfte zum Boden.',weights:[20,30,40,50,60]},
-      {name:'Hängendes Knieheben (Windshield)',alts:['⬆️ Captain Chair Rotation','🤸 TRX Oblique Crunch','🔗 Kabelzug seitlich Knieheben'],sets:3,reps:'15 Wdh',emoji:'⬆️',superset:true,tip:'Knie abwechselnd seitlich = Obliques! Das macht die V-Form am Bauch.',weights:[]},
-      {name:'Plank (mit Gewicht)',alts:['⬛ RKC Plank 3×45s','🤸 Plank + Beinheben','💪 Plank + Row Kurzhantel'],sets:3,reps:'45–60 Sek',emoji:'⬛',superset:false,tip:'Progressive Überlastung auch beim Plank! Gewichtsplatte auf Rücken = Tiefenmuskulatur wächst.',weights:[0,5,10,15,20]}
+    {name:'ERGÄNZUNG — ARME (direkt)',color:'#FF4D1C',exercises:[
+      {name:'Hammercurls Kurzhantel',alts:['🔗 Kabelzug Hammer Curl','💪 Cross-Body Hammer Curl','🏋️ Kettlebell Curl'],sets:3,reps:'10–12 Wdh',emoji:'🔨',superset:true,tip:'NEU: Brachialis-Training = Bizeps wirkt dicker. Neutralgriff, kontrolliert. 3 Sek exzentrisch.',weights:[12,14,16,18,20,22]},
+      {name:'Overhead Trizeps Extension',alts:['🔗 Kabelzug Overhead Extension','⬇️ Skull Crushers','💪 Einarmig KH Overhead'],sets:3,reps:'10–12 Wdh',emoji:'⬆️',superset:true,tip:'NEU: Langer Trizeps-Kopf = macht den Arm massiv. Volle Dehnung oben = maximales Wachstum!',weights:[16,20,24,28,32,36]}
     ]},
-    {name:'HIIT FINISHER',color:'#FF4D1C',exercises:[
-      {name:'SkiErg Intervalle 40/20',alts:['🚴 Bike Sprints 10×40s','🚣 Ruder-Intervalle 10×40s','🏃 Laufband Sprints 10×30s'],sets:10,reps:'40 Sek Vollgas / 20 Sek Pause',emoji:'⛷️',tip:'10 Runden VOLLGAS. Puls >85% HFmax. Maximaler Kalorienverbrauch nach Krafttraining.',weights:[]}
+    {name:'BAUCHTRAINING ZIRKEL (Plan A+B)',color:'#22c55e',exercises:[
+      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank','🤸 Dead Bug 3×10','💪 Ab Wheel Rollout'],sets:3,reps:'Zeit + 10s steigern',emoji:'⬛',superset:true,tip:'TRAINER-TIPP: Gleiche Logik wie Plan A — Zeit + 10 Sekunden jede Session!',weights:[0,5,10,15]},
+      {name:'Crunches (kontrolliert)',alts:['🔗 Kabelzug Crunch','🏗️ Ab Crunch Maschine','⬛ Decline Sit-Up'],sets:3,reps:'Zeit + 10s steigern',emoji:'🔄',superset:true,tip:'Langsam und kontrolliert — kein Schwung. Zeit stoppen wie in Plan A.',weights:[]},
+      {name:'Seitneigung mit Zusatzgewicht',alts:['↩️ Kabelzug Woodchopper','🏋️ Kurzhantel Seitneigung','⭕ Russische Twists'],sets:2,reps:'8–12 Wdh je Seite',emoji:'↩️',superset:false,tip:'Obliques = Six-Pack Seiten. Gleiches Gewicht wie Plan A — progressive Steigerung.',weights:[6,8,10,12,14,16]}
+    ]},
+    {name:'ERGÄNZUNG — WADEN',color:'#059669',exercises:[
+      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend (Soleus)','🦵 Einbeiniges Wadenheben','🦵 Beinpresse-Waden'],sets:4,reps:'20–25 Wdh',emoji:'👟',tip:'NEU: 4× pro Woche = sichtbare Waden in 11 Wochen. Ganz unten 2s, oben 2s. Kein Hüpfen!',weights:[0,20,30,40,50,60]}
+    ]},
+    {name:'AUSDAUER — INTENSIVES INTERVALL (1×/Woche)',color:'#FF4D1C',exercises:[
+      {name:'HIIT Zone 4/5 — SkiErg / Ruder / Bike',alts:['🚴 Bike Sprints Zone 4/5','🏃 Laufband Sprints Zone 4/5','🚣 Rudergerät Intervalle'],sets:6,reps:'Spitze Zone 4/5 → Tal Zone 3',emoji:'⛷️',tip:'TRAINER-TIPP: Spitze beginnt an Grenze Zone 4/5. Tal = wenn Puls Zone 3 erreicht. Verhältnis 2:1 (normal) oder 3:1 (gute Tage). Die Erholungszeit zeigt deine Regenerationsfähigkeit!',weights:[]}
+    ]},
+    {name:'AUSDAUER — EXTENSIVE DAUERMETHODE (1×/Woche)',color:'#22c55e',exercises:[
+      {name:'Zone 2 Dauermethode — mind. 30 Min',alts:['🚴 Bike Zone 2 30–45 Min','🚣 Rudergerät Zone 2 30 Min','🏃 Laufband Incline Zone 2 30 Min'],sets:1,reps:'mind. 30 Min',emoji:'🪜',tip:'TRAINER-TIPP: Puls in Zone 2 oder max. Beginn Zone 3. Gleichmäßig halten — kein Überschreiten! Fettverbrennung + Herzkapazität.',weights:[]}
     ]}
   ]},
 
-  D:{name:'TAG 4',subtitle:'Pull 2 + Arme + Core D',type:'KRAFT + VOLUMEN',duration:'90–100 Min',sauna:true,saunaTemp:'90–100°C',
-  timeHint:'Rücken Tiefe · Bizeps 2 · Trizeps 2 · Core',
+  C:{name:'TAG 3',subtitle:'Plan A Variation + Extra Arm-Tag',type:'KRAFT + VOLUMEN',duration:'70–80 Min',sauna:false,
+  timeHint:'Plan A Compound-Basis + Arme Fokus',
   meals:[
-    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'4 Eier (3 Eiweiß + 1 ganz) + Vollkornbrot 2 Scheiben + ½ Avocado — ~490 kcal · 42g Protein'},
-    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 — 4. Trainingstag: Entzündungsschutz wichtig'},
-    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat ins Wasser'},
-    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey — 45 Min vorher. Letzter harter Tag der Woche! ~200 kcal'},
-    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 30g Maltodextrin + 5g Glutamin — sofort. Maximale Recovery einleiten. ~290 kcal'},
-    {time:'15:00',icon:'🥩',name:'Mittagessen (15:00)',desc:'200g Lachs + 100g Quinoa + großer Salat + Olivenöl — ~580 kcal · 52g Protein'},
-    {time:'19:00',icon:'🥗',name:'Abendessen (19:00)',desc:'200g Hähnchenbrust + 250g Brokkoli/Zucchini — KEIN KOHLENHYDRAT abends! ~380 kcal · 48g Protein'},
-    {time:'Nacht',icon:'🧴',name:'Schlaf-Stack (22:30)',desc:'300mg Magnesium Glycinat + 5mg Melatonin + Ashwagandha 600mg — 4 Trainingstage: Schlaf ist jetzt KRITISCH'},
-    {time:'Nacht',icon:'💊',name:'BCAA / EAA (optional)',desc:'10g EAA vor dem Schlafen — nächtliche Proteinsynthese maximieren'}
+    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'4 Eier + Vollkornbrot + ½ Avocado — ~490 kcal · 42g Protein'},
+    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 täglich'},
+    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat'},
+    {time:'10:30',icon:'🍌',name:'Pre-Workout',desc:'Banane + 25g Whey — 45 Min vor Training'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey + 30g Maltodextrin sofort'},
+    {time:'15:00',icon:'🥩',name:'Mittagessen',desc:'200g Lachs + Quinoa + Salat — Omega-3 für Gelenke'},
+    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'Hähnchen + Brokkoli — kein Kohlenhydrat abends!'},
+    {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'300mg Magnesium + 5mg Melatonin — Ziel 23:00 Uhr'}
   ],
   blocks:[
     {name:'WARM-UP',color:'#64748b',exercises:[
-      {name:'SkiErg locker',alts:['🚣 Rudergerät locker 5 Min','🚴 Bike locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'⛷️',tip:'2. Rücken-Tag: Thorax und Schultern mobilisieren.',weights:[]},
-      {name:'Foam Roller Rücken + Schulter',alts:['🔄 Thread the Needle 2×10','🧘 Thorax-Rotation sitzend 2×10','↔️ Facepulls Warm-Up 2×15'],sets:1,reps:'3 Min',emoji:'🔵',tip:'Brustwirbelsäule mobilisieren für maximale Zugtiefe.',weights:[]}
+      {name:'Sensopro oder Cardio locker',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','⚖️ Sensopro Programm'],sets:1,reps:'8 Min',emoji:'⚖️',tip:'Dritter Trainingstag — Gelenke gut aufwärmen. Sensopro bevorzugt.',weights:[]}
     ]},
-    {name:'BLOCK 1 — RÜCKEN TIEFE & V-FORM',color:'#3b82f6',exercises:[
-      {name:'Kreuzheben (Langhantel)',alts:['🏗️ Trap Bar Deadlift','🦵 Sumo Kreuzheben','🤸 Rack Pull'],sets:4,reps:'5 Wdh',emoji:'🏋️',tip:'STÄRKSTE RÜCKEN-ÜBUNG! Dicker, dicker Rücken = V-Form von hinten. 87% 1RM. Rücken GERADE.',weights:[80,90,100,110,120,130,140]},
-      {name:'Sitzrudern (Maschine/Kabelzug)',alts:['🚣 Langhantelrudern','🏋️ Chest-Supported Row','🤸 TRX Rudern 45°'],sets:4,reps:'8–10 Wdh',emoji:'💪',superset:true,tip:'Rückendicke! Ellbogen eng, Schulterblatt maximal zurück und zusammen. 2 Sek halten.',weights:[40,50,60,70,80,90]},
-      {name:'Latzug weit (2. Reiz)',alts:['🔝 Klimmzüge gewichtet','🔗 Kabelzug Pulldown neutral','🏗️ Rudermaschine sitzend'],sets:4,reps:'10–12 Wdh',emoji:'🔝',superset:true,tip:'2. Breiten-Reiz der Woche! Mehr Volumen, etwas weniger Gewicht als Tag 2. Volle Amplitude.',weights:[50,60,70,80,90]}
+    {name:'PLAN A KERN — COMPOUND',color:'#3b82f6',exercises:[
+      {name:'Kniebeuge Langhantel',alts:['🏗️ Hack Squat','🦵 Beinpresse','🏗️ Smith Machine'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'Plan A Basis-Übung. Gewicht aus letzter Session als Ausgangspunkt — PT Progressive Overload!',weights:[40,50,60,70,80,90,100]},
+      {name:'Bankdrücken / Brustpresse',alts:['🏋️ Kurzhantel Bankdrücken','🏗️ Brustpresse Maschine','🤸 Liegestütze gewichtet'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',superset:true,tip:'2. Reiz Brust diese Woche. Etwas mehr Volumen, leicht weniger Gewicht als Tag 1.',weights:[40,50,60,70,80,90]},
+      {name:'Breiter Latzug',alts:['🔝 Klimmzüge weit','🔗 Kabelzug Pulldown weit','🏗️ Latzug-Maschine'],sets:3,reps:'8–12 Wdh',emoji:'🔝',superset:true,tip:'2. V-Form Reiz! Schulterblätter einziehen, Ellbogen zur Hüfte.',weights:[40,50,60,70,80,90]}
     ]},
-    {name:'BLOCK 2 — BIZEPS (2. Reiz, Pump)',color:'#FF4D1C',exercises:[
-      {name:'Inkline Kurzhantel Curl',alts:['💪 Spider Curl Schrägbank','🔗 Kabelzug Curl hoch','🏋️ EZ-Bar Preacher Curl'],sets:4,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Maximale Dehnung des Bizeps! Arme hängen nach hinten. Volle Streckung = langer Bizeps.',weights:[10,12,14,16,18,20]},
-      {name:'21s Bizeps Curl',alts:['💪 Kabelzug 21s','🏋️ EZ-Bar 21s','💺 Konzentrations-Curl langsam'],sets:3,reps:'21 Wdh (7+7+7)',emoji:'🔢',superset:true,tip:'7× untere Hälfte → 7× obere Hälfte → 7× voll. Maximaler Pump = Hypertrophie-Reiz!',weights:[10,12,14,16,18]},
-      {name:'Kabelzug Curl + Supination',alts:['💪 Kurzhantel Curl mit Supination','🔗 Kabelzug Cross-Body Curl','🏋️ Reverse Curl EZ-Bar'],sets:3,reps:'12 Wdh',emoji:'🔗',superset:false,tip:'Supination (Drehung) im oberen Teil maximiert Bizeps-Kontraktion.',weights:[15,20,25,30,35]}
+    {name:'ARM FOKUS — BIZEPS (2. Reiz)',color:'#FF4D1C',exercises:[
+      {name:'Inkline Kurzhantel Curl',alts:['💪 Spider Curl Schrägbank','🔗 Preacher Curl Maschine','💪 Kabelzug Curl hoch'],sets:4,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Maximale Dehnung des Bizeps! Arme hängen nach hinten. Langer Bizeps = definierte Arme.',weights:[10,12,14,16,18,20]},
+      {name:'21s Bizeps Curl',alts:['💪 EZ-Bar 21s','🔗 Kabelzug 21s','💺 Konzentrations-Curl langsam'],sets:3,reps:'21 (7+7+7)',emoji:'🔢',superset:true,tip:'7× untere Hälfte → 7× obere Hälfte → 7× voll. Maximaler Pump = Hypertrophie!',weights:[8,10,12,14,16]}
     ]},
-    {name:'BLOCK 3 — TRIZEPS (2. Reiz, Pump)',color:'#7c3aed',exercises:[
-      {name:'Overhead Trizeps Extension',alts:['🔗 Kabelzug Overhead Extension','💺 EZ-Bar Overhead','🏋️ Kurzhantel Overhead'],sets:4,reps:'12 Wdh',emoji:'⬆️',superset:true,tip:'Langer Trizeps-Kopf! Der macht 2/3 des Oberarms aus. Volle Dehnung oben = maximales Wachstum.',weights:[20,25,30,35,40,45]},
-      {name:'Dips (Körpergewicht/gewichtet)',alts:['💪 Ring Dips','⬇️ Enge Liegestütze','🔗 Kabelzug Pushdown schmal'],sets:3,reps:'Max / 12 Wdh',emoji:'⬇️',superset:true,tip:'Dips = dickere Arme. Körper leicht nach vorne für mehr Trizeps. Letzter Satz bis Versagen!',weights:[0,5,10,15,20]}
+    {name:'ARM FOKUS — TRIZEPS (2. Reiz)',color:'#7c3aed',exercises:[
+      {name:'Dips (gewichtet)',alts:['💪 Ring Dips','⬇️ Enge Liegestütze','🔗 Kabelzug Pushdown eng'],sets:4,reps:'8–12 Wdh',emoji:'⬇️',superset:true,tip:'Dips = dickste Arme. Körper leicht vorne für mehr Trizeps. Letzter Satz bis Versagen!',weights:[0,5,10,15,20]},
+      {name:'Kabelzug Pushdown (Seil)',alts:['🔗 Pushdown gerades Stück','🏗️ Trizeps Maschine','💪 Kurzhantel Kickback'],sets:3,reps:'12–15 Wdh',emoji:'🔗',superset:true,tip:'Pump-Fokus! Ellbogen FEST, voll strecken unten. Definition durch Volumen.',weights:[20,25,30,35,40,45]}
     ]},
-    {name:'BLOCK 4 — WADEN & CORE',color:'#22c55e',exercises:[
-      {name:'Wadenheben stehend',alts:['🦵 Donkey Calf Raise','💺 Sitzend Maschine','👟 Einbeinig Körpergewicht'],sets:5,reps:'20 Wdh',emoji:'👟',superset:true,tip:'4× pro Woche Waden = sichtbare Waden in 11 Wochen. Keine Kompromisse!',weights:[0,30,40,50,60]},
-      {name:'Hängendes Beinheben gestreckt',alts:['⬆️ Captain Chair','🤸 TRX Pike','🔗 Kabelzug Knieheben'],sets:4,reps:'15 Wdh',emoji:'⬆️',superset:true,tip:'Unterer Bauch = Six-Pack Basis! Gestreckte Beine = schwerer. Kein Schwingen.',weights:[]},
-      {name:'Kabelzug Crunch (kniend)',alts:['🏗️ Ab Crunch Maschine','⬛ Decline Crunch Gewicht','🔗 Standing Ab Crunch'],sets:4,reps:'15–20 Wdh',emoji:'🔗',superset:false,tip:'Weighted Ab Work = sichtbare Definition. Oberkörper zur Hüfte ziehen, Bauchnabel einziehen.',weights:[25,30,35,40,50]},
-      {name:'Ab Wheel Rollout',alts:['🤸 Dragon Flag','🔗 Kabelzug Rollout','⬛ TRX Pike Rollout'],sets:3,reps:'12 Wdh',emoji:'🔄',superset:false,tip:'Progression: Woche 1–4 Knie, Woche 5–8 halb gestreckt, Woche 9–11 voll gestreckt.',weights:[0]},
-      {name:'Plank Varianten',alts:['⬛ Side Plank + Heben','🤸 Plank Shoulder Taps','💪 RKC Plank Maximal'],sets:3,reps:'45 Sek',emoji:'⬛',superset:false,tip:'Abwechseln: Front → Side links → Side rechts. Tiefenmuskulatur = Six-Pack Fundament.',weights:[]}
+    {name:'BAUCHZIRKEL + WADEN',color:'#22c55e',exercises:[
+      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank','🤸 Ab Wheel Rollout','💪 Dead Bug'],sets:3,reps:'Zeit + 10s',emoji:'⬛',superset:true,tip:'Zeit stoppen — jede Session +10 Sekunden!',weights:[0,5,10,15]},
+      {name:'Crunches kontrolliert',alts:['🔗 Kabelzug Crunch','🏗️ Ab Maschine','⬛ Decline Crunch'],sets:3,reps:'Zeit + 10s',emoji:'🔄',superset:true,tip:'Langsam und kontrolliert. Kein Schwung!',weights:[]},
+      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend','🦵 Einbeinig','🦵 Beinpresse-Waden'],sets:4,reps:'20–25 Wdh',emoji:'👟',superset:false,tip:'3. Waden-Session diese Woche. Progression: +2.5–5kg wenn 25 Wdh sauber erreicht.',weights:[0,20,30,40,50,60]}
+    ]}
+  ]},
+
+  D:{name:'TAG 4',subtitle:'Plan B Variation + Cardio-Tag',type:'KRAFT + HIIT + ZONE 2',duration:'85–95 Min',sauna:true,saunaTemp:'90–100°C',
+  timeHint:'Plan B Basis + HIIT + Zone 2 Combo',
+  meals:[
+    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 80g + 4 Eier + Banane — HIIT-Tag: maximale Carbs! ~570 kcal'},
+    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 + Vitamin C 500mg'},
+    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat'},
+    {time:'10:30',icon:'🍌',name:'Pre-Workout',desc:'Banane + Vollkornbrot — 60 Min vorher. Härtester Tag!'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey + 50g Maltodextrin sofort — dann Sauna!'},
+    {time:'15:00',icon:'🥩',name:'Mittagessen',desc:'300g Rind + 200g Kartoffeln + Gemüse — ~680 kcal · 65g Protein'},
+    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'Leicht: Hüttenkäse + Gemüse + Mandeln — Casein für Recovery'},
+    {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'400mg Magnesium + 5mg Melatonin + Ashwagandha — 4. Tag: Schlaf kritisch!'}
+  ],
+  blocks:[
+    {name:'WARM-UP',color:'#64748b',exercises:[
+      {name:'Sensopro oder Cardio locker',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8 Min',emoji:'⚖️',tip:'4. Tag — Gelenke und Muskeln gründlich vorbereiten. Sensopro Ganzkörper bevorzugt.',weights:[]}
+    ]},
+    {name:'PLAN B KERN — COMPOUND',color:'#3b82f6',exercises:[
+      {name:'Ausfallschritte auf Erhöhung',alts:['🦵 Bulgarische Split Squat','📐 Reverse Lunge','🦵 Kabelzug Split Squat'],sets:3,reps:'8–12 Wdh je Seite',emoji:'📐',tip:'Plan B Basis. Gewichte hängen lassen. Volle Tiefe!',weights:[0,8,12,16,20,24]},
+      {name:'Kreuzheben Langhantel',alts:['🏗️ Trap Bar Deadlift','🦵 Sumo Kreuzheben','🤸 Rack Pull'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'Bis unter Kniescheibe, LH nah am Bein. Blick folgt der Stange!',weights:[60,70,80,90,100,110]},
+      {name:'Butterfly + Butterfly Reverse',alts:['🏋️ KH Flyes + Rear Delt Fly','🔗 Kabelzug Crossover + Facepulls','🤸 TRX Flyes + Y-T-W'],sets:3,reps:'8–12 Wdh je',emoji:'🦋',superset:true,tip:'Supersatz! Butterfly → direkt Butterfly Reverse. Brust + hintere Schulter in einem Block.',weights:[30,40,50,60,70]},
+      {name:'Enger Latzug Neutralgriff',alts:['🔝 Klimmzüge eng','🔗 Kabelzug Pulldown neutral','🚣 Sitzrudern eng'],sets:3,reps:'8–12 Wdh',emoji:'🔗',tip:'Neutralgriff = Handflächen zueinander. Langer Lat = V-Taille!',weights:[40,50,60,70,80,90]}
+    ]},
+    {name:'BAUCHZIRKEL + WADEN',color:'#22c55e',exercises:[
+      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank','🤸 Ab Wheel','💪 Dead Bug'],sets:3,reps:'Zeit + 10s',emoji:'⬛',superset:true,tip:'Letzter Kraft-Tag der Woche — trotzdem Core nicht überspringen!',weights:[0,5,10,15]},
+      {name:'Crunches kontrolliert',alts:['🔗 Kabelzug Crunch','🏗️ Ab Maschine','⬛ Decline Crunch'],sets:3,reps:'Zeit + 10s',emoji:'🔄',superset:true,tip:'Gleiche Zeit wie Tag 1–3 dieser Woche.',weights:[]},
+      {name:'Seitneigung Zusatzgewicht',alts:['↩️ Kabelzug Woodchopper','🏋️ KH Seitneigung','⭕ Russische Twists'],sets:2,reps:'8–12 Wdh je',emoji:'↩️',superset:false,tip:'Obliques für Six-Pack Seiten.',weights:[6,8,10,12,14,16]},
+      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend','🦵 Einbeinig KGW','🦵 Beinpresse-Waden'],sets:4,reps:'20–25 Wdh',emoji:'👟',superset:false,tip:'4. Waden-Session der Woche. Nach dieser Session sind Waden komplett ausbelastet!',weights:[0,20,30,40,50,60]}
+    ]},
+    {name:'HIIT — INTERVALL (wenn nicht Tag 2)',color:'#FF4D1C',exercises:[
+      {name:'HIIT Zone 4/5',alts:['🚴 Bike Sprints Zone 4/5','🏃 Laufband Zone 4/5','🚣 Ruder-Intervalle Zone 4/5'],sets:6,reps:'Spitze Zone 4/5 → Tal Zone 3',emoji:'⛷️',tip:'Trainer: Spitze Zone 4/5 → Tal wenn Zone 3 erreicht. Verhältnis 2:1 oder 3:1. Erholungszeit = Fitness-Indikator!',weights:[]}
     ]},
     {name:'ZONE 2 COOL-DOWN',color:'#22c55e',exercises:[
-      {name:'Bike Zone 2 Cool-Down',alts:['🚣 Rudergerät locker 20 Min','🪜 Stepper locker 20 Min','🏃 Laufband locker 20 Min'],sets:1,reps:'20 Min',emoji:'🚴',tip:'130–140 bpm nach Training. Laktat abbauen, Fettverbrennung läuft weiter!',weights:[]}
+      {name:'Zone 2 Cool-Down',alts:['🚴 Bike locker 20 Min','🪜 Stepper locker 20 Min','🚣 Rudergerät locker 20 Min'],sets:1,reps:'20 Min',emoji:'🚴',tip:'Nach HIIT: Zone 2 Laktat abbauen. 130–140 bpm. Fettverbrennung läuft weiter.',weights:[]}
     ]}
   ]},
 
   E:{name:'TAG 5',subtitle:'Aktive Regeneration',type:'RECOVERY',duration:'40–50 Min',sauna:true,saunaTemp:'80–90°C',
   timeHint:'Nur wenn erholt — kein Pflicht-Tag',
   meals:[
-    {time:'8:30',icon:'🥣',name:'Frühstück (später)',desc:'RUHETAG: 2 Eier + 150g griech. Joghurt + Beeren + 1 EL Honig — ~380 kcal · 28g Protein. Kein Stress!'},
-    {time:'8:30',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 — auch Ruhetage! Hormonsystem braucht D3 täglich'},
-    {time:'8:30',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin — auch Ruhetage laden die Speicher auf'},
-    {time:'13:00',icon:'🥩',name:'Mittagessen (13:00)',desc:'200g Hähnchen + großer Salat + ½ Avocado + Olivenöl — ~480 kcal · 45g Protein. KEIN Reis heute!'},
-    {time:'19:00',icon:'🥗',name:'Abendessen (19:00)',desc:'200g Lachs/Forelle + 300g Gemüse gedünstet — ~420 kcal · 42g Protein. Ruhetag = weniger Carbs.'},
-    {time:'Nacht',icon:'🧴',name:'Schlaf-Stack (22:00)',desc:'300mg Magnesium + 5mg Melatonin — RUHETAG: FRÜHER ins Bett! Ziel 22:30 Uhr. Schlaf = Wachstum.'},
-    {time:'Nacht',icon:'💊',name:'Ashwagandha + ZMA',desc:'600mg Ashwagandha + ZMA — Ruhetage sind für Anpassung. Cortisol senken, Testosteron heben.'}
+    {time:'8:30',icon:'🥣',name:'Frühstück (später)',desc:'2 Eier + Joghurt + Beeren — Ruhetag: ~380 kcal. Weniger Carbs!'},
+    {time:'8:30',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 — auch Ruhetage täglich'},
+    {time:'8:30',icon:'⚗️',name:'Kreatin',desc:'5g — auch Ruhetage laden Speicher'},
+    {time:'13:00',icon:'🥩',name:'Mittagessen',desc:'200g Protein + Salat + gesunde Fette — kein Reis/Kartoffeln heute'},
+    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'200g Fisch + Gemüse — Low Carb Ruhetag = Fettabbau'},
+    {time:'22:00',icon:'🧴',name:'Schlaf-Stack (früher!)',desc:'300mg Magnesium + 5mg Melatonin — RUHETAG = früher ins Bett! Ziel 22:30 Uhr'}
   ],
   blocks:[
     {name:'ZONE 2 LEICHT',color:'#3b82f6',exercises:[
-      {name:'Bike locker Zone 2',alts:['🚣 Rudergerät locker 30 Min','🪜 Stepper locker 30 Min','🏃 Laufband locker Incline 30 Min'],sets:1,reps:'30 Min',emoji:'🚴',tip:'130–140 bpm MAX. Recovery-Cardio fördert Durchblutung und beschleunigt Muskelwachstum.',weights:[]}
+      {name:'Bike locker Zone 2',alts:['🚣 Rudergerät locker 30 Min','🪜 Stepper locker 30 Min','🏃 Laufband locker Incline 30 Min'],sets:1,reps:'30 Min',emoji:'🚴',tip:'130–140 bpm MAX. Recovery-Cardio: Durchblutung fördern, Muskelwachstum beschleunigen.',weights:[]}
     ]},
-    {name:'MOBILITY & DEHNUNG',color:'#22c55e',exercises:[
-      {name:'Hüftbeuger + Hamstring',alts:['🧘 Pigeon Pose 2×60s','🤸 Couch Stretch 2×60s','🦵 90/90 Hip Stretch 2×60s'],sets:2,reps:'60 Sek je Seite',emoji:'🧘',tip:'Hüftbeuger nach 4 Tagen Kraft stark verkürzt. Tief dehnen, ausatmen.',weights:[]},
-      {name:'Thorax + Schulter Mobilisation',alts:['🔄 Thread the Needle 2×10','🤸 Open Book Rotation','🧘 Foam Roller Thorax 3 Min'],sets:2,reps:'10 je Seite',emoji:'🔄',tip:'Brustwirbelsäule locker = gesunde Schultern nächste Woche.',weights:[]},
-      {name:'Foam Roller Ganzkörper',alts:['🧘 Yin Yoga 15 Min','🤸 PNF Stretching','🪢 Band Mobility Flow'],sets:1,reps:'10 Min',emoji:'🔵',tip:'Quads, Hamstrings, IT-Band, Rücken, Waden. 30 Sek pro Bereich — langsam.',weights:[]}
+    {name:'MOBILITY + DEHNUNG',color:'#22c55e',exercises:[
+      {name:'Hüftbeuger + Hamstring Dehnung',alts:['🧘 Pigeon Pose 2×60s','🤸 Couch Stretch 2×60s','🦵 90/90 Hip Stretch 2×60s'],sets:2,reps:'60 Sek je Seite',emoji:'🧘',tip:'Nach 4 Trainingstagen stark verkürzte Hüftbeuger. Tief dehnen, ausatmen.',weights:[]},
+      {name:'Thorax + Schulter Mobilisation',alts:['🔄 Thread the Needle 2×10','🤸 Open Book Rotation','🧘 Foam Roller Thorax 3 Min'],sets:2,reps:'10 je Seite',emoji:'🔄',tip:'Schultern nach 4 Drück- und Zugtagen mobilisieren.',weights:[]},
+      {name:'Foam Roller Ganzkörper',alts:['🧘 Yin Yoga 15 Min','🤸 PNF Stretching','🪢 Band Mobility Flow'],sets:1,reps:'10 Min',emoji:'🔵',tip:'Quads, Hamstrings, Waden, IT-Band, Rücken. 30 Sek pro Bereich.',weights:[]}
     ]}
   ]}
 };
