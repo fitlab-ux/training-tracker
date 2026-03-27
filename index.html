@@ -2470,6 +2470,36 @@ async function switchDay(dayIdx){
   window.scrollTo(0,0);
 }
 
+function renderRestDay(){
+  const dayLabels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+  const ot = checkOvertraining ? checkOvertraining() : {warning:false};
+  document.getElementById('trainingContent').innerHTML=`
+    <div style="padding:20px 16px;max-width:480px;margin:0 auto">
+      ${ot&&ot.warning?`<div style="background:rgba(255,77,28,.08);border:1px solid rgba(255,77,28,.3);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#FF4D1C;font-family:var(--mono)">${ot.msg}</div>`:''}
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:52px;margin-bottom:8px">😴</div>
+        <div style="font-family:var(--display);font-size:28px;letter-spacing:4px;color:var(--text)">RUHETAG</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:4px">${dayLabels[currentDay]} · Regeneration = Wachstum</div>
+      </div>
+      <div style="background:rgba(200,255,0,.04);border:1px solid rgba(200,255,0,.15);border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--neon);margin-bottom:10px">😴 SCHLAF-PROTOKOLL</div>
+        ${[
+          {time:'21:30',act:'📵 Kein Bildschirm mehr',why:'Melatonin-Produktion startet'},
+          {time:'22:00',act:'🧴 Magnesium 300mg + Melatonin 5mg',why:'60 Min vor Schlaf'},
+          {time:'22:00',act:'🌡️ Zimmer auf 18–19°C',why:'Tiefschlaf'},
+          {time:'23:00',act:'🛏️ LIGHTS OUT',why:'Ziel: 8h Schlaf'},
+        ].map(s=>`<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid rgba(200,255,0,.06)">
+          <div style="font-family:var(--display);font-size:13px;color:var(--neon);min-width:44px">${s.time}</div>
+          <div><div style="font-size:11px;color:var(--text)">${s.act}</div><div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${s.why}</div></div>
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="showDayPicker(currentDay)" style="flex:1;padding:12px;background:rgba(200,255,0,.08);border:1px solid rgba(200,255,0,.2);border-radius:8px;color:var(--neon);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">✏️ TRAINING WÄHLEN</button>
+        <button onclick="switchView('body')" style="flex:1;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:2px;cursor:pointer">⚖️ KÖRPER TRACKEN</button>
+      </div>
+    </div>`;
+}
+
 function showWeekPlanner(){
   // Show day-level plan picker for currentDay
   showDayPicker(currentDay);
