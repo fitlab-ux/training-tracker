@@ -946,6 +946,8 @@ async function initSupabase(){
     if(window.location.hash.includes('type=recovery')||window.location.search.includes('reset=1')){
       await checkPasswordReset(); return;
     }
+    // Quick connectivity check
+    try { await fetch(SUPABASE_URL+'/rest/v1/', {headers:{'apikey':SUPABASE_ANON_KEY}}); } catch(fe){ throw new Error('Failed to fetch — Supabase nicht erreichbar'); }
     const {data:{session}} = await sb.auth.getSession();
     if(session){
       currentUser = session.user;
@@ -960,7 +962,7 @@ async function initSupabase(){
       showSetup();
     } else {
       showAuth();
-      setTimeout(()=>{ const err=document.getElementById('authErr'); if(err) err.textContent='Verbindungsfehler: '+e.message; },200);
+      setTimeout(()=>{ const err=document.getElementById('authErr'); if(err) { const msg = e.message||String(e); err.textContent = msg.includes('fetch')||msg.includes('network') ? '🔴 Supabase nicht erreichbar — Projekt pausiert? → supabase.com/dashboard' : 'Verbindungsfehler: '+msg; } },200);
     }
   }
 }
