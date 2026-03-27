@@ -1682,6 +1682,8 @@ async function enterApp(){
   await preloadDay(currentWeek, String(currentDay));
   document.getElementById('celebSub').textContent = `Stark, ${name}! Sauna verdient! 💪`;
   applyLang();
+  // Update newGoal button
+  const ngb=document.getElementById('newGoalBtn');if(ngb)ngb.innerHTML=`🎯 ${t('newGoal')}`;
   // Sync lang buttons
   const sl=currentLang||'de';
   const dDE=document.getElementById('langDE'),dEN=document.getElementById('langEN');
@@ -2198,13 +2200,13 @@ C:{name:'CARDIO',subtitle:'HIIT oder Zone 2 — deine Wahl',type:'CARDIO',durati
     {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'300mg Magnesium + 5mg Melatonin — Ziel 23:00 Uhr'}
   ],
   blocks:[
-    {name:'OPTION A — INTENSIVES INTERVALL (HIIT)',color:'#FF4D1C',exercises:[
-      {name:'Warm-Up locker 5 Min',alts:['🚴 Bike locker 5 Min','🚣 Rudergerät locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'🔄',tip:'Puls auf Zone 2 bringen bevor HIIT startet. Kalt starten = Verletzungsrisiko!',weights:[]},
-      {name:'HIIT — Spitze Zone 4/5 → Tal Zone 3',alts:['🚴 Bike Sprints Zone 4/5','🏃 Laufband Sprints Zone 4/5','🚣 Rudergerät Intervalle Zone 4/5'],sets:6,reps:'Spitze bis Zone 4/5 · Pause bis Zone 3',emoji:'⛷️',tip:'Spitze beginnt an Grenze Zone 4/5. Tal = wenn Puls Zone 3 erreicht. Verhältnis 2:1 (normal) oder 3:1 (gute Tage). Die Erholungszeit zeigt deine Regenerationsfähigkeit!',weights:[]},
-      {name:'Cool-Down Zone 2 — 10 Min',alts:['🚴 Bike locker 10 Min','🪜 Stepper locker 10 Min','🏃 Laufband locker 10 Min'],sets:1,reps:'10 Min',emoji:'🧘',tip:'Puls aktiv senken. Laktat abbauen. Nicht einfach aufhören!',weights:[]}
+    {name:'OPTION A — HIIT (45 Min)',color:'#FF4D1C',exercises:[
+      {name:'Warm-Up',cardio:true,duration:'5 Min',emoji:'🔄',alts:['🚴 Bike locker','🚣 Rudergerät locker','🏃 Laufband locker'],tip:'Puls auf Zone 2 bringen — kalt starten ist Verletzungsrisiko!',weights:[]},
+      {name:'HIIT Intervalle',cardio:true,duration:'45 Min',emoji:'⛷️',alts:['🚴 Bike Sprints','🏃 Laufband Sprints','🚣 Rudergerät','⛷️ SkiErg'],tip:'Spitze: Zone 4/5. Tal: wenn Puls Zone 3 erreicht. Verhältnis 2:1 oder 3:1 an guten Tagen. Erholungszeit = dein Fitness-Indikator.',weights:[]},
+      {name:'Cool-Down',cardio:true,duration:'10 Min',emoji:'🧘',alts:['🚴 Bike locker','🪜 Stepper locker','🏃 Laufband locker'],tip:'Puls aktiv auf Zone 2 senken. Laktat abbauen. Nicht abrupt aufhören!',weights:[]}
     ]},
-    {name:'OPTION B — ZONE 2 DAUERMETHODE',color:'#22c55e',exercises:[
-      {name:'Zone 2 Dauermethode — mind. 30 Min',alts:['🚴 Bike Zone 2 30–45 Min','🚣 Rudergerät Zone 2 30 Min','🏃 Laufband Incline Zone 2 30 Min'],sets:1,reps:'mind. 30 Min',emoji:'🪜',tip:'Puls Zone 2 oder max. Beginn Zone 3. GLEICHMÄSSIG halten — kein Überschreiten! Fettverbrennung + Herzkapazität. Heute kein HIIT gemacht? → Dann diese Option!',weights:[]}
+    {name:'OPTION B — ZONE 2 (60 Min)',color:'#22c55e',exercises:[
+      {name:'Zone 2 Dauerlauf',cardio:true,duration:'60 Min',emoji:'🪜',alts:['🚴 Bike Zone 2','🚣 Rudergerät Zone 2','🏃 Laufband Incline Zone 2','🪜 Stepper Zone 2'],tip:'Puls 130–145 bpm — GLEICHMÄSSIG halten. Kannst du dich noch unterhalten? Perfekte Zone. Fettverbrennung + Herzkapazität aufbauen.',weights:[]}
     ]}
   ]},
 
@@ -2410,6 +2412,31 @@ function selectExAlt(name, idx){
 // RENDER EXERCISE
 // ══════════════════════════════════════════════════════
 function renderExc(ex, blockName, ei, blockColor){
+  if(ex.cardio){
+    const done=getCached(currentWeek,String(currentDay),`cardio_${blockName}_${ei}`);
+    const altIdx=getExPref(ex.name);
+    const allOpts=[ex.name,...(ex.alts||[])];
+    const dispName=altIdx>0&&altIdx<allOpts.length?allOpts[altIdx]:ex.name;
+    if(!window._exR)window._exR={};
+    const _rk=ex.name.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30);
+    window._exR[_rk]={n:ex.name,o:allOpts};
+    return `<div class="exc ${done?'done':''}" style="margin-bottom:10px">
+      <div class="exc-hdr">
+        <div class="exc-icon">${ex.emoji}</div>
+        <div class="exc-info">
+          <div class="exc-name" style="display:flex;align-items:center;gap:6px">
+            <span>${dispName}</span>
+            ${ex.alts&&ex.alts.length?`<button onclick="_showAlt('${_rk}',this)" style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">⇄</button>`:''}
+          </div>
+        </div>
+        <div onclick="togItem('cardio_${blockName}_${ei}')" style="width:34px;height:34px;border-radius:50%;border:2px solid ${done?'var(--neon)':'var(--border)'};background:${done?'rgba(200,255,0,.15)':'transparent'};display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0">${done?'✓':''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 12px;margin:6px 0;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid ${done?'rgba(200,255,0,.2)':'var(--border)'}">
+        <div style="font-family:var(--display);font-size:42px;letter-spacing:2px;color:${done?'var(--neon)':'var(--text)'};flex-shrink:0;min-width:100px">${ex.duration}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);line-height:1.6">${ex.tip||''}</div>
+      </div>
+    </div>`;
+  }
   const allOn = Array.from({length:ex.sets},(_,s)=>getCached(currentWeek,String(currentDay),`s_${blockName}_${ei}_${s}`)).every(Boolean);
   const tipOpen = getCached(currentWeek,String(currentDay),`tip_${blockName}_${ei}`);
   const hasW = ex.weights && ex.weights.length > 0;
