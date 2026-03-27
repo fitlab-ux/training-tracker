@@ -2424,27 +2424,26 @@ function changeWeek(d){
 function renderTabs(){
   const today = new Date().getDay()===0?6:new Date().getDay()-1;
   const labels = currentLang==='en' ? WEEKDAYS_EN : WEEKDAYS;
+  const planEmoji = {'A':'💪','B':'💪','C':'🏃','D':'💪','E':'🔄'};
 
-  // Weekday tabs — orientation only
   let h = labels.map((label, idx) => {
     const isToday = idx === today;
     const isActive = idx === currentDay;
-    // Check if this day has any training logged
-    const hasDone = ['A','B','C','D'].some(p => getCached(currentWeek, `${idx}_${p}`, 'cele'));
-    return `<button class="tab ${isActive?'active':''} ${hasDone?'done-tab':''}"
+    const tmplKey = getTemplateForDay(idx);
+    const done = getCached(currentWeek, String(idx), 'cele');
+    const emoji = tmplKey ? (planEmoji[tmplKey]||'💪') : '—';
+    return `<button class="tab ${isActive?'active':''} ${done?'done-tab':''} ${!tmplKey?'rest-tab':''}"
       onclick="switchDay(${idx})"
-      style="position:relative;min-width:40px;">
+      style="position:relative;min-width:40px;${isToday&&!isActive?'border-color:rgba(200,255,0,.3);':''}">
       ${isToday?`<span style="position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--neon)"></span>`:''}
       <span style="display:block;font-size:11px;font-weight:700">${label}</span>
-      <span style="display:block;font-size:11px;margin-top:1px">${emoji}</span>
-      ${hasDone?'<span class="tdot"></span>':''}
+      <span style="display:block;font-size:12px;margin-top:1px">${emoji}</span>
+      ${done?'<span class="tdot"></span>':''}
     </button>`;
   }).join('');
-
+  h += `<button class="tab-add" onclick="showDayPicker(currentDay)" title="Training wählen" style="font-size:14px">✏️</button>`;
   document.getElementById('dayTabs').innerHTML=h;
   document.getElementById('weekLabel').textContent=(currentLang==='en'?'WEEK':'WOCHE')+` ${currentWeek}`;
-
-
 }
 
 // renderPlanSelector removed — using showDayPicker instead
