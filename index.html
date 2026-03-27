@@ -1903,95 +1903,85 @@ async function fetchLeaderboard(period){
 // ══════════════════════════════════════════════════════
 const DAY_TEMPLATES = {
 
-  A:{name:'TAG 1',subtitle:'Plan A — Pfitzenmeier + Arme + Waden',type:'KRAFT + CORE',duration:'75–85 Min',sauna:false,
-  timeHint:'Kniebeuge · Brust · Rücken · Schulter · Arme · Core',
+  A:{name:'KRAFT',subtitle:'Ganzkörper — Plan A oder B wählbar',type:'KRAFT',duration:'75–85 Min',sauna:false,
+  timeHint:'Beine · Brust/Rücken · Schulter · Arme · Core · Waden',
   meals:[
     {time:'8:00',icon:'🥣',name:'Frühstück',desc:'Haferflocken 60g + 4 Eier (2 ganz/2 Eiweiß) + Beeren — ~520 kcal · 38g Protein'},
     {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'2–3 Tropfen D3/K2 + 2g Omega-3 — Entzündungshemmung, Testosteron'},
     {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g täglich — auch Ruhetage'},
     {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey — 45 Min vor Training · ~200 kcal · 25g Protein'},
-    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 30g Maltodextrin sofort — ~280 kcal · 40g Protein'},
+    {time:'Post',icon:'🥤',name:'Protein Shake',desc:'40g Whey + 30g Maltodextrin sofort — ~280 kcal · 40g Protein'},
     {time:'15:00',icon:'🥩',name:'Mittagessen',desc:'200g Hähnchen + 150g Reis + 200g Brokkoli + Olivenöl — ~620 kcal · 55g Protein'},
-    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'200g Lachs + Salat + ½ Avocado — ~520 kcal · 45g Protein · kein Zucker'},
+    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'200g Lachs + Salat + ½ Avocado — ~520 kcal · 45g Protein'},
     {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'300mg Magnesium Glycinat + 5mg Melatonin — Ziel: 23:00 Uhr ins Bett'}
   ],
   blocks:[
-    {name:'WARM-UP — SENSOPRO / CARDIO',color:'#64748b',exercises:[
-      {name:'Sensopro Ganzkörper-Programm',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8–10 Min',emoji:'⚖️',tip:'Sensopro: Gleichgewichts- + Koordinationsreiz VOR Kraft. Aktiviert stabilisierende Muskulatur. Oder: Cardiogerät + vor jeder Übung 1 Aufwärmsatz!',weights:[]},
-      {name:'Aufwärmsatz vor jeder Übung',alts:['🔄 Mobility Routine 5 Min','⚖️ Sensopro Fitness-Programm','🧘 Gelenk-Mobilisation Ganzkörper'],sets:1,reps:'1× leicht je Übung',emoji:'🔄',tip:'Pflicht wenn kein Sensopro: 1 Aufwärmsatz mit 50% Arbeitsgewicht vor jeder Hauptübung!',weights:[]}
+    {name:'WARM-UP',color:'#64748b',exercises:[
+      {name:'Sensopro oder Cardio locker',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8–10 Min',emoji:'⚖️',tip:'Sensopro: Gleichgewicht + Koordination VOR Kraft aktivieren. Alternativ: Cardiogerät — dann vor jeder Übung 1 Aufwärmsatz!',weights:[]},
+      {name:'Gelenksmobilisation',alts:['🔄 Arm Circles + Hip Circles 2×10','🧘 90/90 Hip Stretch + Thorax-Rotation','⚖️ Sensopro Basis-Programm'],sets:1,reps:'3–5 Min',emoji:'🔄',tip:'Alle Gelenke mobilisieren: Schulter, Hüfte, Knie, Sprunggelenk. Trainer-Vorgabe: moderate-hohe HF + alle Gelenke mobilisiert.',weights:[]}
     ]},
-    {name:'PFITZENMEIER BLOCK — BEINE',color:'#3b82f6',exercises:[
-      {name:'Kniebeuge Langhantel (back/front)',alts:['🏗️ Hack Squat Maschine','🦵 Beinpresse 45°','🏗️ Smith Machine Kniebeuge'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'TRAINER-TIPP: Bei Frontsquat liegt Gewicht auf Schultern — Hände unterstützen nur! 2–3 Min Pause. Tief bis parallel.',weights:[40,50,60,70,80,90,100]},
-      {name:'Einbeiniges Kreuzheben (Hinterfuß am Boden)',alts:['🦵 Bulgarische Split Squat','🔗 Kabelzug einbeiniges RDL','🏋️ Kurzhantel einbeiniges RDL'],sets:3,reps:'8–12 Wdh je Seite',emoji:'🦵',tip:'TRAINER-TIPP: KH oder KH — Schwierigkeit: beide Hände < Standbein-Hand < andere Hand. Fußspitze bleibt am Boden!',weights:[0,8,12,16,20,24,28]}
+    {name:'BLOCK 1 — BEINE',color:'#3b82f6',variantA:[
+      {name:'Aufwärmsatz Kniebeuge',alts:['🏗️ Aufwärmsatz Hack Squat','🦵 Goblet Squat 2×10 leicht','🔄 Bodyweight Squat 2×15'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Aufwärmsatz vor JEDER Hauptübung! 50% des Arbeitsgewichts, volle Bewegungstiefe, Technik einschleifen.',weights:[]},
+      {name:'Kniebeuge Langhantel (back/front)',alts:['🏗️ Hack Squat Maschine','🦵 Beinpresse 45°','🏗️ Smith Machine Kniebeuge'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'Bei Frontsquat: Gewicht liegt auf den Schultern — Hände unterstützen nur! 2–3 Min Pause. Tief bis parallel.',weights:[40,50,60,70,80,90,100]},
+      {name:'Einbeiniges Kreuzheben',alts:['🦵 Bulgarische Split Squat','🔗 Kabelzug einbeiniges RDL','🏋️ Kurzhantel einbeiniges RDL'],sets:3,reps:'8–12 Wdh je Seite',emoji:'🦵',tip:'Schwierigkeit steigt: beide Hände < Standbein-Hand < andere Hand. Fußspitze bleibt am Boden!',weights:[0,8,12,16,20,24,28]}
+    ],variantB:[
+      {name:'Aufwärmsatz Ausfallschritte',alts:['🦵 Aufwärmsatz Beinpresse','🔄 Bodyweight Lunge 2×10','🧘 Hip Flexor Stretch + Activation'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Aufwärmsatz vor JEDER Hauptübung! Aktiviert Hüftbeuger und Quadrizeps.',weights:[]},
+      {name:'Ausfallschritte Vorderfuß auf Erhöhung',alts:['🦵 Bulgarische Split Squat','📐 Reverse Lunge','🔗 Kabelzug Split Squat'],sets:3,reps:'8–12 Wdh je Seite',emoji:'📐',tip:'Gewichte links und rechts hängen lassen. Erhöhung erhöht Bewegungstiefe = mehr Quad und Glute!',weights:[0,8,12,16,20,24]},
+      {name:'Kreuzheben Langhantel',alts:['🏗️ Trap Bar Deadlift','🦵 Rumänisches Kreuzheben','🤸 Rack Pull'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'Langhantel nur bis knapp unter Kniescheibe — kein Bodenberühren! LH immer nah am Bein. Blick folgt der LH.',weights:[60,70,80,90,100,110,120]}
     ]},
-    {name:'PFITZENMEIER BLOCK — OBERKÖRPER',color:'#1976D2',exercises:[
-      {name:'Bankdrücken / Brustpresse',alts:['🏋️ Kurzhantel Bankdrücken','🏗️ Brustpresse Maschine Freihantel','🤸 Gewichtete Liegestütze'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',superset:true,tip:'TRAINER-TIPP: Leichtes Hohlkreuz bilden. Auch am Bankdrück-Gerät im Freihantelbereich möglich. 1–3 Min Pause.',weights:[40,50,60,70,80,90,100]},
-      {name:'Enges Rudern Kabelzug / Gerät',alts:['🚣 Langhantelrudern','🏗️ Chest-Supported Row','🤸 TRX Rudern 45°'],sets:3,reps:'8–12 Wdh',emoji:'💪',superset:true,tip:'TRAINER-TIPP: Ellbogen HINTER die Wirbelsäule ziehen — Brustkorb bleibt aufgerichtet! 1–3 Min Pause.',weights:[40,50,60,70,80,90]},
-      {name:'Schulterdrücken KH / Kabelzug',alts:['⬆️ Langhantel Militärpress','🏗️ Schulterdrücken Maschine','🔗 Kabelzug Overhead Press'],sets:3,reps:'8–12 Wdh',emoji:'⬆️',superset:false,tip:'TRAINER-TIPP: Ellbogen im 160° Winkel zum Brustbein. Im Stehen: Oberkörper nicht nach hinten fallen! 2–3 Min Pause.',weights:[16,18,20,22,24,26,28]},
-      {name:'Breiter Latzug Kabelzug',alts:['🔝 Klimmzüge weit','🔗 Assisted Klimmzüge Maschine','🏗️ Latzug-Maschine weit'],sets:3,reps:'8–12 Wdh',emoji:'🔝',superset:false,tip:'TRAINER-TIPP: Brustbein aufgerichtet — Ellbogen zieht Richtung Becken, Schulterblätter ziehen zusammen. V-FORM! 1–3 Min Pause.',weights:[40,50,60,70,80,90]}
+    {name:'BLOCK 2 — BRUST',color:'#1976D2',variantA:[
+      {name:'Aufwärmsatz Bankdrücken',alts:['🏋️ Aufwärmsatz KH Bankdrücken','🤸 Liegestütze 2×10','🔗 Kabelzug Flyes leicht'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Schulterblätter zusammenziehen, Brustkorb aufgerichtet. Technik VOR Gewicht!',weights:[]},
+      {name:'Bankdrücken / Brustpresse',alts:['🏋️ Kurzhantel Bankdrücken','🏗️ Brustpresse Maschine Freihantel','🤸 Gewichtete Liegestütze'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',superset:true,tip:'Leichtes Hohlkreuz bilden. Auch am Bankdrück-Gerät im Freihantelbereich möglich. 1–3 Min Pause.',weights:[40,50,60,70,80,90,100]}
+    ],variantB:[
+      {name:'Aufwärmsatz Butterfly',alts:['🔗 Kabelzug Flyes leicht','🤸 Liegestütze 2×10','🏋️ KH Flyes leicht'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Brust aufwärmen, Schultergelenk schmieren. Leichtes Gewicht, volle Amplitude.',weights:[]},
+      {name:'Butterfly Maschine / Kabelzug',alts:['🏋️ Kurzhantel Flyes flach','🔗 Kabelzug Crossover','🤸 TRX Flyes'],sets:3,reps:'8–12 Wdh',emoji:'🦋',superset:true,tip:'Leichtes Hohlkreuz bilden. Einarmig möglich für mehr Stabilität und Kontrolle. 1–3 Min Pause.',weights:[30,40,50,60,70,80]}
     ]},
-    {name:'ERGÄNZUNG — ARME (direkt)',color:'#FF4D1C',exercises:[
-      {name:'Bizeps Curl Kurzhantel / EZ-Bar',alts:['🔗 Kabelzug Curl','🏗️ Bizeps Maschine','💪 Langhantel Curl stehend'],sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'NEU: Direktes Armtraining fehlt im Pfitzenmeier-Plan. Ellbogen FEST am Körper, 3 Sek exzentrisch. Supination oben!',weights:[10,12,14,16,18,20,22]},
-      {name:'Trizeps Pushdown Kabelzug',alts:['⬇️ Skull Crushers Langhantel','🔗 Overhead Trizeps Extension','💺 Trizeps Dips Bank'],sets:3,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'NEU: Trizeps = 2/3 des Oberarms! Ellbogen FEST. Voll strecken unten, 1 Sek halten.',weights:[20,25,30,35,40,45]}
+    {name:'BLOCK 3 — RÜCKEN',color:'#0f766e',variantA:[
+      {name:'Aufwärmsatz Rudern',alts:['🔗 Kabelzug Rudern leicht','🤸 TRX Rudern','🚣 LH Rudern leicht'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Schulterblätter einziehen üben. Brustkorb aufgerichtet halten.',weights:[]},
+      {name:'Enges Rudern Kabelzug / Gerät',alts:['🚣 Langhantelrudern','🏗️ Chest-Supported Row','🤸 TRX Rudern 45°'],sets:3,reps:'8–12 Wdh',emoji:'💪',superset:true,tip:'Ellbogen wird hinter die Wirbelsäule gezogen — Brustkorb bleibt dabei aufgerichtet! 1–3 Min Pause.',weights:[40,50,60,70,80,90]}
+    ],variantB:[
+      {name:'Aufwärmsatz Butterfly Reverse',alts:['↔️ Band Pull-Aparts 2×15','🔗 Facepulls leicht','🤸 TRX Y-Hold'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Rotatorenmanschette aktivieren. Wichtig für Schultergesundheit!',weights:[]},
+      {name:'Butterfly Reverse Maschine / Kabel',alts:['↔️ Kurzhantel Rear Delt Fly','🔗 Facepulls Kabelzug hoch','🏗️ Rear Delt Maschine'],sets:3,reps:'8–12 Wdh',emoji:'↔️',superset:true,tip:'Arm nur so weit zurück, dass Schulter nicht nach vorne klappt! Schultergesundheit + V-Form.',weights:[20,25,30,35,40,45]}
     ]},
-    {name:'BAUCHTRAINING ZIRKEL (Plan A+B)',color:'#22c55e',exercises:[
-      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank maximal','🤸 Hollow Body Hold gestreckt','💪 Ab Wheel Rollout'],sets:3,reps:'Zeit + 10s steigern',emoji:'⬛',superset:true,tip:'TRAINER-TIPP: Zeit stoppen! Nächstes Training: letzte Zeit + 10 Sek. Progressive Überlastung auch beim Plank.',weights:[0,5,10,15]},
-      {name:'Crunches (langsam, kontrolliert)',alts:['🔗 Kabelzug Crunch kniend','🏗️ Ab Crunch Maschine','⬛ Decline Sit-Up'],sets:3,reps:'Zeit + 10s steigern',emoji:'🔄',superset:true,tip:'TRAINER-TIPP: Langsam und kontrolliert auf Zeit. Kein Schwung — Bauch macht die Arbeit!',weights:[]},
-      {name:'Seitneigung mit Zusatzgewicht',alts:['↩️ Kabelzug Woodchopper','🏋️ Kurzhantel Seitneigung','🔗 Pallof Press'],sets:2,reps:'8–12 Wdh je Seite',emoji:'↩️',superset:false,tip:'TRAINER-TIPP: KH, KB oder geführte Langhantel. Seitliche Bauchmuskulatur = Six-Pack Seiten!',weights:[6,8,10,12,14,16]}
+    {name:'BLOCK 4 — SCHULTER',color:'#7c3aed',variantA:[
+      {name:'Aufwärmsatz Schulterdrücken',alts:['⬆️ Seitheben leicht 2×10','🔗 Kabelzug Schulter leicht','🔄 Arm Circles + Schulter Mobil.'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Ellbogen im 160° Winkel zum Brustbein positionieren. Schultergelenk vorsichtig aufwärmen!',weights:[]},
+      {name:'Schulterdrücken KH / Kabelzug',alts:['⬆️ Langhantel Militärpress','🏗️ Schulterdrücken Maschine','🔗 Kabelzug Overhead Press'],sets:3,reps:'8–12 Wdh',emoji:'⬆️',tip:'Ellbogen im 160° Winkel zu Brustbein. Im Stehen: Oberkörper nicht nach hinten fallen! 2–3 Min Pause.',weights:[16,18,20,22,24,26,28]}
+    ],variantB:[
+      {name:'Aufwärmsatz Schulterdrücken',alts:['⬆️ Seitheben leicht 2×10','🔗 Kabelzug Schulter leicht','🔄 Arm Circles'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Bank nicht ganz auf 90° — leicht nach hinten für sicheres Schultergelenk.',weights:[]},
+      {name:'Schulterdrücken Langhantel (frei/geführt)',alts:['⬆️ Kurzhantel Schulterdrücken','🔗 Kabelzug Overhead Press','🏗️ Smith Machine Schulterdrücken'],sets:3,reps:'8–12 Wdh',emoji:'⬆️',tip:'Im Sitzen Bank nicht ganz auf 90° — leicht nach hinten geneigt für sicheres Schultergelenk. 2–3 Min Pause.',weights:[30,40,50,60,70,80]}
     ]},
-    {name:'ERGÄNZUNG — WADEN',color:'#059669',exercises:[
-      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend (Soleus)','🦵 Einbeiniges Wadenheben','🦵 Beinpresse-Waden schwer'],sets:4,reps:'20–25 Wdh',emoji:'👟',tip:'NEU: Waden fehlen komplett im Pfitzenmeier-Plan. Ganz unten 2s dehnen, ganz oben 2s strecken. TÄGLICH möglich!',weights:[0,20,30,40,50,60]}
+    {name:'BLOCK 5 — RÜCKEN BREIT (V-FORM)',color:'#0369a1',variantA:[
+      {name:'Aufwärmsatz Latzug breit',alts:['🔝 Assisted Klimmzüge leicht','🔗 Kabelzug Pulldown leicht','🤸 Scapula Pull-Ups'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Schulterblätter ZUERST nach unten einziehen — dann Ellbogen ziehen. Brustbein aufgerichtet!',weights:[]},
+      {name:'Breiter Latzug Kabelzug',alts:['🔝 Klimmzüge weit','🔗 Assisted Klimmzüge Maschine','🏗️ Latzug-Maschine weit'],sets:3,reps:'8–12 Wdh',emoji:'🔝',tip:'Brustbein immer aufgerichtet — Ellbogen zieht Richtung Becken, Schulterblätter ziehen zusammen. V-FORM!',weights:[40,50,60,70,80,90]}
+    ],variantB:[
+      {name:'Aufwärmsatz Latzug eng',alts:['🔗 Kabelzug Pulldown leicht','🤸 Scapula Pull-Ups','🔝 Assisted Klimmzüge'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Neutralgriff vorbereiten. Langen Latissimus aktivieren.',weights:[]},
+      {name:'Enger Latzug (Neutralgriff)',alts:['🔝 Klimmzüge enger Griff','🔗 Kabelzug Pulldown neutral','🚣 Sitzrudern eng'],sets:3,reps:'8–12 Wdh',emoji:'🔗',tip:'Neutralgriff = Handflächen zeigen zueinander. Ellbogen zieht zur Hüfte. Langer Latissimus = V-Form.',weights:[40,50,60,70,80,90]}
+    ]},
+    {name:'BLOCK 6 — BIZEPS',color:'#FF4D1C',variantA:[
+      {name:'Aufwärmsatz Curls',alts:['💪 Leichte KH Curls 2×10','🔗 Kabelzug Curl leicht','🏋️ EZ-Bar leicht'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Ellbogen einschleifen: FEST am Körper halten. Supination oben üben.',weights:[]},
+      {name:'Bizeps Curl Kurzhantel / EZ-Bar',alts:['🔗 Kabelzug Curl','🏗️ Bizeps Maschine','💪 Langhantel Curl stehend'],sets:3,reps:'10–12 Wdh',emoji:'💪',superset:true,tip:'Ellbogen FEST am Körper. 3 Sek exzentrisch (runter). Supination oben! Direktes Armtraining für definierte Arme.',weights:[10,12,14,16,18,20,22]}
+    ],variantB:[
+      {name:'Aufwärmsatz Hammercurls',alts:['💪 Leichte Hammercurls 2×10','🔗 Kabelzug Hammer leicht','🏋️ Kettlebell leicht'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Neutralgriff vorbereiten. Brachialis aktivieren.',weights:[]},
+      {name:'Hammercurls Kurzhantel',alts:['🔗 Kabelzug Hammer Curl','💪 Cross-Body Hammer Curl','🏋️ Kettlebell Curl'],sets:3,reps:'10–12 Wdh',emoji:'🔨',superset:true,tip:'Brachialis Training = Bizeps wirkt dicker und voller. Neutraler Griff, 3 Sek exzentrisch.',weights:[12,14,16,18,20,22]}
+    ]},
+    {name:'BLOCK 7 — TRIZEPS',color:'#b45309',variantA:[
+      {name:'Aufwärmsatz Trizeps',alts:['🔗 Pushdown leicht 2×10','💪 Enge Liegestütze 2×8','⬇️ Overhead leicht'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Ellbogen einschleifen: FEST am Körper. Volle Streckung üben.',weights:[]},
+      {name:'Trizeps Pushdown Kabelzug',alts:['⬇️ Skull Crushers Langhantel','🔗 Overhead Trizeps Extension','💺 Trizeps Dips Bank'],sets:3,reps:'10–12 Wdh',emoji:'⬇️',superset:true,tip:'Ellbogen FEST. Voll strecken unten, 1 Sek halten. Trizeps = 2/3 des Oberarms!',weights:[20,25,30,35,40,45]}
+    ],variantB:[
+      {name:'Aufwärmsatz Overhead Extension',alts:['🔗 Overhead Kabelzug leicht','⬇️ Pushdown leicht 2×10','💪 Enge Liegestütze'],sets:1,reps:'1× mit 50% — Pflicht!',emoji:'🔥',tip:'Langen Trizeps-Kopf aktivieren. Ellbogen über dem Kopf positionieren.',weights:[]},
+      {name:'Overhead Trizeps Extension',alts:['🔗 Kabelzug Overhead Extension','⬇️ Skull Crushers','💪 Einarmig KH Overhead'],sets:3,reps:'10–12 Wdh',emoji:'⬆️',superset:true,tip:'Langer Trizeps-Kopf = macht den Arm massiv. Volle Dehnung oben = maximales Wachstum!',weights:[16,20,24,28,32,36]}
+    ]},
+    {name:'BAUCHTRAINING ZIRKEL',color:'#22c55e',exercises:[
+      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank maximal','🤸 Hollow Body Hold gestreckt','💪 Ab Wheel Rollout'],sets:3,reps:'Zeit + 10s steigern',emoji:'⬛',superset:true,tip:'Zeit stoppen! Nächstes Training: letzte Zeit + 10 Sek. Progressive Überlastung!',weights:[0,5,10,15]},
+      {name:'Crunches (langsam, kontrolliert)',alts:['🔗 Kabelzug Crunch kniend','🏗️ Ab Crunch Maschine','⬛ Decline Sit-Up'],sets:3,reps:'Zeit + 10s steigern',emoji:'🔄',superset:true,tip:'Langsam und kontrolliert auf Zeit. Kein Schwung — Bauch macht die Arbeit!',weights:[]},
+      {name:'Seitneigung mit Zusatzgewicht',alts:['↩️ Kabelzug Woodchopper','🏋️ Kurzhantel Seitneigung','🔗 Pallof Press'],sets:2,reps:'8–12 Wdh je Seite',emoji:'↩️',superset:false,tip:'KH, KB oder geführte Langhantel. Seitliche Bauchmuskulatur = Six-Pack Seiten!',weights:[6,8,10,12,14,16]}
+    ]},
+    {name:'WADEN',color:'#059669',exercises:[
+      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend (Soleus)','🦵 Einbeiniges Wadenheben','🦵 Beinpresse-Waden schwer'],sets:4,reps:'20–25 Wdh',emoji:'👟',tip:'Ganz unten 2s dehnen, ganz oben 2s strecken. Volle Amplitude — kein Hüpfen! 4× pro Woche für sichtbare Waden.',weights:[0,20,30,40,50,60]}
     ]}
   ]},
 
-  B:{name:'TAG 2',subtitle:'Plan B — Pfitzenmeier + Arme + Waden',type:'KRAFT + CARDIO',duration:'80–90 Min',sauna:false,
-  timeHint:'Ausfallschritte · Kreuzheben · Brust · Schulter · Latzug · HIIT · Zone 2',
-  meals:[
-    {time:'8:00',icon:'🥣',name:'Frühstück',desc:'4 Eier + Haferflocken 60g + Banane — ~540 kcal · 40g Protein'},
-    {time:'8:00',icon:'💊',name:'D3+K2 + Omega-3',desc:'D3/K2 + 2g Omega-3 — täglich'},
-    {time:'8:00',icon:'⚗️',name:'Kreatin',desc:'5g Kreatin-Monohydrat'},
-    {time:'10:30',icon:'🍌',name:'Pre-Workout (10:30)',desc:'1 Banane + 25g Whey — ~200 kcal · 25g Protein'},
-    {time:'Post',icon:'🥤',name:'Post-Workout Shake',desc:'40g Whey + 40g Maltodextrin sofort — ~300 kcal · 40g Protein'},
-    {time:'15:00',icon:'🥩',name:'Mittagessen',desc:'250g Hähnchen/Lachs + 120g Quinoa + Salat — ~640 kcal · 58g Protein'},
-    {time:'19:00',icon:'🥗',name:'Abendessen',desc:'250g Hüttenkäse + Beeren 100g + Walnüsse — ~380 kcal · 35g Casein'},
-    {time:'22:30',icon:'🧴',name:'Schlaf-Stack',desc:'300mg Magnesium + 5mg Melatonin + 600mg Ashwagandha — Cortisol senken, früher einschlafen'}
-  ],
-  blocks:[
-    {name:'WARM-UP — SENSOPRO / CARDIO',color:'#64748b',exercises:[
-      {name:'Sensopro Ganzkörper-Programm',alts:['🚴 Bike locker 8 Min','🚣 Rudergerät locker 8 Min','🏃 Laufband locker 8 Min'],sets:1,reps:'8–10 Min',emoji:'⚖️',tip:'Sensopro: Koordination + Stabilität aktivieren. Oder Cardiogerät + Aufwärmsatz vor jeder Übung!',weights:[]},
-      {name:'Mobility: Hüfte + Schulter',alts:['🔄 Leg Swings + Arm Circles 2×10','🧘 90/90 Hip Stretch 2×30s','⚖️ Sensopro Basis-Programm'],sets:1,reps:'5 Min',emoji:'🔄',tip:'Hüfte für Ausfallschritte und Kreuzheben vorbereiten. Schulter für Drückübungen.',weights:[]}
-    ]},
-    {name:'PFITZENMEIER BLOCK — BEINE',color:'#3b82f6',exercises:[
-      {name:'Ausfallschritte Vorderfuß auf Erhöhung',alts:['🦵 Bulgarsiche Split Squat','📐 Reverse Lunge','🔗 Kabelzug Split Squat'],sets:3,reps:'8–12 Wdh je Seite',emoji:'📐',tip:'TRAINER-TIPP: Gewichte links und rechts hängen lassen. Erhöhung erhöht Bewegungstiefe = mehr Quad + Glute!',weights:[0,8,12,16,20,24]},
-      {name:'Kreuzheben Langhantel',alts:['🏗️ Trap Bar Deadlift','🦵 Rumänisches Kreuzheben','🤸 Rack Pull'],sets:3,reps:'8–12 Wdh',emoji:'🏋️',tip:'TRAINER-TIPP: Langhantel nur bis knapp unter Kniescheibe — kein Bodenberühren! LH immer nah am Bein. Blick folgt der LH.',weights:[60,70,80,90,100,110,120]}
-    ]},
-    {name:'PFITZENMEIER BLOCK — OBERKÖRPER',color:'#1976D2',exercises:[
-      {name:'Butterfly Maschine / Kabelzug',alts:['🏋️ Kurzhantel Flyes flach','🔗 Kabelzug Crossover','🤸 TRX Flyes'],sets:3,reps:'8–12 Wdh',emoji:'🦋',superset:true,tip:'TRAINER-TIPP: Leichtes Hohlkreuz bilden. Einarmig möglich für mehr Stabilität und Kontrolle. 1–3 Min Pause.',weights:[30,40,50,60,70,80]},
-      {name:'Butterfly Reverse Maschine / Kabel',alts:['↔️ Kurzhantel Rear Delt Fly','🔗 Facepulls Kabelzug hoch','🏗️ Rear Delt Maschine'],sets:3,reps:'8–12 Wdh',emoji:'↔️',superset:true,tip:'TRAINER-TIPP: Arm nur so weit zurück, dass Schulter nicht nach vorne klappt! Schultergesundheit + V-Form.',weights:[20,25,30,35,40,45]},
-      {name:'Schulterdrücken Langhantel (frei/geführt)',alts:['⬆️ Kurzhantel Schulterdrücken','🔗 Kabelzug Overhead Press','🏗️ Smith Machine Schulterdrücken'],sets:3,reps:'8–12 Wdh',emoji:'⬆️',superset:false,tip:'TRAINER-TIPP: Im Sitzen Bank nicht ganz auf 90° — leicht nach hinten geneigt für sicheres Schultergelenk. 2–3 Min Pause.',weights:[30,40,50,60,70,80]},
-      {name:'Enger Latzug (Neutralgriff)',alts:['🔝 Klimmzüge enger Griff','🔗 Kabelzug Pulldown neutral','🚣 Sitzrudern eng'],sets:3,reps:'8–12 Wdh',emoji:'🔗',superset:false,tip:'TRAINER-TIPP: Neutralgriff = Handflächen zeigen zueinander. Ellbogen zieht zur Hüfte. Langer Latissimus = V-Form.',weights:[40,50,60,70,80,90]}
-    ]},
-    {name:'ERGÄNZUNG — ARME (direkt)',color:'#FF4D1C',exercises:[
-      {name:'Hammercurls Kurzhantel',alts:['🔗 Kabelzug Hammer Curl','💪 Cross-Body Hammer Curl','🏋️ Kettlebell Curl'],sets:3,reps:'10–12 Wdh',emoji:'🔨',superset:true,tip:'NEU: Brachialis-Training = Bizeps wirkt dicker. Neutralgriff, kontrolliert. 3 Sek exzentrisch.',weights:[12,14,16,18,20,22]},
-      {name:'Overhead Trizeps Extension',alts:['🔗 Kabelzug Overhead Extension','⬇️ Skull Crushers','💪 Einarmig KH Overhead'],sets:3,reps:'10–12 Wdh',emoji:'⬆️',superset:true,tip:'NEU: Langer Trizeps-Kopf = macht den Arm massiv. Volle Dehnung oben = maximales Wachstum!',weights:[16,20,24,28,32,36]}
-    ]},
-    {name:'BAUCHTRAINING ZIRKEL (Plan A+B)',color:'#22c55e',exercises:[
-      {name:'Plank / Hollow Body Hold',alts:['⬛ RKC Plank','🤸 Dead Bug 3×10','💪 Ab Wheel Rollout'],sets:3,reps:'Zeit + 10s steigern',emoji:'⬛',superset:true,tip:'TRAINER-TIPP: Gleiche Logik wie Plan A — Zeit + 10 Sekunden jede Session!',weights:[0,5,10,15]},
-      {name:'Crunches (kontrolliert)',alts:['🔗 Kabelzug Crunch','🏗️ Ab Crunch Maschine','⬛ Decline Sit-Up'],sets:3,reps:'Zeit + 10s steigern',emoji:'🔄',superset:true,tip:'Langsam und kontrolliert — kein Schwung. Zeit stoppen wie in Plan A.',weights:[]},
-      {name:'Seitneigung mit Zusatzgewicht',alts:['↩️ Kabelzug Woodchopper','🏋️ Kurzhantel Seitneigung','⭕ Russische Twists'],sets:2,reps:'8–12 Wdh je Seite',emoji:'↩️',superset:false,tip:'Obliques = Six-Pack Seiten. Gleiches Gewicht wie Plan A — progressive Steigerung.',weights:[6,8,10,12,14,16]}
-    ]},
-    {name:'ERGÄNZUNG — WADEN',color:'#059669',exercises:[
-      {name:'Wadenheben stehend',alts:['💺 Wadenheben sitzend (Soleus)','🦵 Einbeiniges Wadenheben','🦵 Beinpresse-Waden'],sets:4,reps:'20–25 Wdh',emoji:'👟',tip:'NEU: 4× pro Woche = sichtbare Waden in 11 Wochen. Ganz unten 2s, oben 2s. Kein Hüpfen!',weights:[0,20,30,40,50,60]}
-    ]},
-    {name:'AUSDAUER — INTENSIVES INTERVALL (1×/Woche)',color:'#FF4D1C',exercises:[
-      {name:'HIIT Zone 4/5 — SkiErg / Ruder / Bike',alts:['🚴 Bike Sprints Zone 4/5','🏃 Laufband Sprints Zone 4/5','🚣 Rudergerät Intervalle'],sets:6,reps:'Spitze Zone 4/5 → Tal Zone 3',emoji:'⛷️',tip:'TRAINER-TIPP: Spitze beginnt an Grenze Zone 4/5. Tal = wenn Puls Zone 3 erreicht. Verhältnis 2:1 (normal) oder 3:1 (gute Tage). Die Erholungszeit zeigt deine Regenerationsfähigkeit!',weights:[]}
-    ]},
-    {name:'AUSDAUER — EXTENSIVE DAUERMETHODE (1×/Woche)',color:'#22c55e',exercises:[
-      {name:'Zone 2 Dauermethode — mind. 30 Min',alts:['🚴 Bike Zone 2 30–45 Min','🚣 Rudergerät Zone 2 30 Min','🏃 Laufband Incline Zone 2 30 Min'],sets:1,reps:'mind. 30 Min',emoji:'🪜',tip:'TRAINER-TIPP: Puls in Zone 2 oder max. Beginn Zone 3. Gleichmäßig halten — kein Überschreiten! Fettverbrennung + Herzkapazität.',weights:[]}
-    ]}
-  ]},
-
-  C:{name:'CARDIO',subtitle:'HIIT oder Zone 2 — deine Wahl',type:'CARDIO',duration:'35–50 Min',sauna:false,
+C:{name:'CARDIO',subtitle:'HIIT oder Zone 2 — deine Wahl',type:'CARDIO',duration:'35–50 Min',sauna:false,
   timeHint:'HIIT Zone 4/5 · oder · Zone 2 Dauermethode',
   meals:[
     {time:'8:00',icon:'🥣',name:'Frühstück',desc:'2 Eier + Joghurt + Beeren — Cardio-Tag: leichter Magen! ~380 kcal'},
@@ -2006,11 +1996,11 @@ const DAY_TEMPLATES = {
   blocks:[
     {name:'OPTION A — INTENSIVES INTERVALL (HIIT)',color:'#FF4D1C',exercises:[
       {name:'Warm-Up locker 5 Min',alts:['🚴 Bike locker 5 Min','🚣 Rudergerät locker 5 Min','🏃 Laufband locker 5 Min'],sets:1,reps:'5 Min',emoji:'🔄',tip:'Puls auf Zone 2 bringen bevor HIIT startet. Kalt starten = Verletzungsrisiko!',weights:[]},
-      {name:'HIIT — Spitze Zone 4/5 → Tal Zone 3',alts:['🚴 Bike Sprints Zone 4/5','🏃 Laufband Sprints Zone 4/5','🚣 Rudergerät Intervalle Zone 4/5'],sets:6,reps:'Spitze bis Zone 4/5 · Pause bis Zone 3',emoji:'⛷️',tip:'TRAINER-TIPP: Spitze beginnt an Grenze Zone 4/5. Tal = wenn Puls Zone 3 erreicht. Verhältnis 2:1 (normal) oder 3:1 (gute Tage). Die Erholungszeit zeigt deine Regenerationsfähigkeit!',weights:[]},
+      {name:'HIIT — Spitze Zone 4/5 → Tal Zone 3',alts:['🚴 Bike Sprints Zone 4/5','🏃 Laufband Sprints Zone 4/5','🚣 Rudergerät Intervalle Zone 4/5'],sets:6,reps:'Spitze bis Zone 4/5 · Pause bis Zone 3',emoji:'⛷️',tip:'Spitze beginnt an Grenze Zone 4/5. Tal = wenn Puls Zone 3 erreicht. Verhältnis 2:1 (normal) oder 3:1 (gute Tage). Die Erholungszeit zeigt deine Regenerationsfähigkeit!',weights:[]},
       {name:'Cool-Down Zone 2 — 10 Min',alts:['🚴 Bike locker 10 Min','🪜 Stepper locker 10 Min','🏃 Laufband locker 10 Min'],sets:1,reps:'10 Min',emoji:'🧘',tip:'Puls aktiv senken. Laktat abbauen. Nicht einfach aufhören!',weights:[]}
     ]},
     {name:'OPTION B — ZONE 2 DAUERMETHODE',color:'#22c55e',exercises:[
-      {name:'Zone 2 Dauermethode — mind. 30 Min',alts:['🚴 Bike Zone 2 30–45 Min','🚣 Rudergerät Zone 2 30 Min','🏃 Laufband Incline Zone 2 30 Min'],sets:1,reps:'mind. 30 Min',emoji:'🪜',tip:'TRAINER-TIPP: Puls Zone 2 oder max. Beginn Zone 3. GLEICHMÄSSIG halten — kein Überschreiten! Fettverbrennung + Herzkapazität. Heute kein HIIT gemacht? → Dann diese Option!',weights:[]}
+      {name:'Zone 2 Dauermethode — mind. 30 Min',alts:['🚴 Bike Zone 2 30–45 Min','🚣 Rudergerät Zone 2 30 Min','🏃 Laufband Incline Zone 2 30 Min'],sets:1,reps:'mind. 30 Min',emoji:'🪜',tip:'Puls Zone 2 oder max. Beginn Zone 3. GLEICHMÄSSIG halten — kein Überschreiten! Fettverbrennung + Herzkapazität. Heute kein HIIT gemacht? → Dann diese Option!',weights:[]}
     ]}
   ]},
 
@@ -2345,8 +2335,7 @@ function showDayPicker(dayIdx){
   const currentChoice = getTemplateForDay(dayIdx);
 
   const options = [
-    {key:'A', emoji:'💪', label:'PLAN A', sub:'Kniebeuge · Brust · Rücken · Schulter + Arme + Waden'},
-    {key:'B', emoji:'🏋️', label:'PLAN B', sub:'Ausfallschritte · Kreuzheben · Butterfly · Latzug + Cardio'},
+    {key:'A', emoji:'💪', label:'KRAFT', sub:'Ganzkörper · Variante A/B je Block frei wählbar'},
     {key:'C', emoji:'🏃', label:'CARDIO', sub:'HIIT Zone 4/5 oder Zone 2 Dauermethode (30+ Min)'},
     {key:null, emoji:'😴', label:'RUHETAG', sub:'Aktive Regeneration · Dehnung · Schlaf-Protokoll'},
   ];
@@ -2652,8 +2641,25 @@ async function renderTraining(){
   // Exercises
   h+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${t("training_sec")}</div><div class="sec-line"></div></div>`;
   day.blocks.forEach(block=>{
-    h+=`<div class="block-label" style="color:${block.color}">${block.name}</div>`;
-    block.exercises.forEach((ex,ei)=>{ h+=renderExc(ex,block.name,ei,block.color); });
+    // Determine which exercises to show (variant A/B or fixed)
+    let exercises = block.exercises;
+    let showVariantToggle = false;
+    if(block.variantA && block.variantB){
+      const v = getBlockVariant(block.name);
+      exercises = v === 'A' ? block.variantA : block.variantB;
+      showVariantToggle = true;
+    }
+    h+=`<div class="block-label" style="color:${block.color};display:flex;align-items:center;justify-content:space-between">
+      <span>${block.name}</span>
+      ${showVariantToggle ? `<div style="display:flex;align-items:center;gap:0">
+        <button onclick="toggleBlockVariant('${block.name.replace(/'/g,"\'")}')" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid ${block.color}44;background:${block.color}11;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:${block.color}">
+          <span style="font-size:12px">${getBlockVariant(block.name)==='A'?'←':'→'}</span>
+          VARIANTE ${getBlockVariant(block.name)}
+          <span style="font-size:12px">${getBlockVariant(block.name)==='A'?'→':'←'}</span>
+        </button>
+      </div>` : ''}
+    </div>`;
+    (exercises||[]).forEach((ex,ei)=>{ h+=renderExc(ex,block.name,ei,block.color); });
   });
   h+='</div>';
 
@@ -2684,6 +2690,61 @@ async function renderTraining(){
   updateProgress();
 }
 
+// ── BLOCK VARIANT TOGGLE (A/B) ──
+function toggleBlockVariant(blockName){
+  const current = (window._blockVariants||{})[blockName] || 'A';
+  window._blockVariants = window._blockVariants || {};
+  window._blockVariants[blockName] = current === 'A' ? 'B' : 'A';
+  renderTraining();
+}
+function getBlockVariant(blockName){
+  return (window._blockVariants||{})[blockName] || 'A';
+}
+
+const VIDEO_DB = {
+  'Kniebeuge Langhantel (back/front)': 'https://www.youtube.com/watch?v=bEv6CCg2BC8',
+  'Einbeiniges Kreuzheben (Hinterfuß am Boden)': 'https://www.youtube.com/watch?v=y6mVoNVMEIs',
+  'Bankdrücken / Brustpresse': 'https://www.youtube.com/watch?v=rT7DgCr-3pg',
+  'Enges Rudern Kabelzug / Gerät': 'https://www.youtube.com/watch?v=GZbfZ033f74',
+  'Schulterdrücken KH / Kabelzug': 'https://www.youtube.com/watch?v=qEwKCR5JCog',
+  'Breiter Latzug Kabelzug': 'https://www.youtube.com/watch?v=CAwf7n6Luuc',
+  'Ausfallschritte Vorderfuß auf Erhöhung': 'https://www.youtube.com/watch?v=uBmQEFa71OU',
+  'Kreuzheben Langhantel': 'https://www.youtube.com/watch?v=op9kVnSso6Q',
+  'Butterfly Maschine / Kabelzug': 'https://www.youtube.com/watch?v=Z57CtFmRMxA',
+  'Butterfly Reverse Maschine / Kabel': 'https://www.youtube.com/watch?v=Hi70yX2YQWU',
+  'Schulterdrücken Langhantel (frei/geführt)': 'https://www.youtube.com/watch?v=2yjwXTZQDDI',
+  'Enger Latzug (Neutralgriff)': 'https://www.youtube.com/watch?v=kB2GNm5PCKM',
+  'Bizeps Curl Kurzhantel / EZ-Bar': 'https://www.youtube.com/watch?v=ykJmrZ5v0Oo',
+  'Trizeps Pushdown Kabelzug': 'https://www.youtube.com/watch?v=2-LAMcpzODU',
+  'Hammercurls Kurzhantel': 'https://www.youtube.com/watch?v=zC3nLlEvin4',
+  'Overhead Trizeps Extension': 'https://www.youtube.com/watch?v=YbX7Wd8jQ-Q',
+  'Inkline Kurzhantel Curl': 'https://www.youtube.com/watch?v=soxrZlIl35U',
+  '21s Bizeps Curl': 'https://www.youtube.com/watch?v=8d2we4UGfMc',
+  'Dips (gewichtet)': 'https://www.youtube.com/watch?v=2z8JmcrW-As',
+  'Kabelzug Pushdown (Seil)': 'https://www.youtube.com/watch?v=vB5OHsJ3EME',
+  'Plank / Hollow Body Hold': 'https://www.youtube.com/watch?v=pSHjTRCQxIw',
+  'Hängendes Beinheben (gestreckt)': 'https://www.youtube.com/watch?v=hdng3Nm1x_E',
+  'Ab Wheel Rollout': 'https://www.youtube.com/watch?v=IGEfForWuFI',
+  'Crunches (langsam, kontrolliert)': 'https://www.youtube.com/watch?v=MKmrqcoCZ-M',
+  'Seitneigung mit Zusatzgewicht': 'https://www.youtube.com/watch?v=cn4PEpI0IFM',
+  'Wadenheben stehend': 'https://www.youtube.com/watch?v=gwLzBJYoWlI',
+  'Wadenheben (Beinpresse)': 'https://www.youtube.com/watch?v=VGECqnJFME0',
+  'HIIT — Spitze Zone 4/5 → Tal Zone 3': 'https://www.youtube.com/watch?v=ml6cT4AZdqI',
+  'Zone 2 Dauermethode — mind. 30 Min': 'https://www.youtube.com/watch?v=zFkXbSbkCqc',
+};
+
+function getVideoUrl(exName){
+  // Direct link if available
+  if(VIDEO_DB[exName]) return VIDEO_DB[exName];
+  // Otherwise YouTube search
+  const q = encodeURIComponent(exName + ' Übung Technik Tutorial Deutsch');
+  return 'https://www.youtube.com/results?search_query=' + q;
+}
+
+function openVideo(exName, event){
+  event.stopPropagation();
+  window.open(getVideoUrl(exName), '_blank');
+}
 function renderExc(ex,blockName,ei,blockColor){
   const allOn=Array.from({length:ex.sets},(_,s)=>getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`s_${blockName}_${ei}_${s}`)).every(Boolean);
   const tipOpen=getCached(currentWeek,`${currentDay}_${currentPlan||'X'}`,`tip_${blockName}_${ei}`);
@@ -2739,7 +2800,10 @@ function renderExc(ex,blockName,ei,blockColor){
     <div class="exc-hdr">
       <div class="exc-icon">${ex.emoji}</div>
       <div class="exc-info">
-        <div class="exc-name">${dispName}${ex.superset?'<span class="ss-badge">SUPER</span>':''}</div>
+        <div class="exc-name" style="display:flex;align-items:center;gap:6px">
+          <span>${dispName}${ex.superset?'<span class="ss-badge">SUPER</span>':''}</span>
+          <button onclick="openVideo('${ex.name}',event)" style="flex-shrink:0;font-size:11px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,77,28,.3);background:rgba(255,77,28,.08);color:#FF4D1C;cursor:pointer;font-family:var(--mono);letter-spacing:.5px;line-height:1.4" title="Video ansehen">▶</button>
+        </div>
         <div class="exc-meta">${ex.sets} Sätze · ${ex.reps}${altIdx>0?` <span style="font-size:9px;color:var(--neon);font-family:var(--mono)">· ALT</span>`:''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
