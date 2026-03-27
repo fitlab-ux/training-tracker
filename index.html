@@ -929,6 +929,17 @@ const SUPABASE_URL = 'https://afbqhkbdiyabrkjjutyv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmYnFoa2JkaXlhYnJramp1dHl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNjYwNzQsImV4cCI6MjA4ODY0MjA3NH0.dNv1WTPGnOhCET-2aVEvEnTt32uWFuCvo0eCEj8x5ZI';
 
 let sb, currentUser, currentProfile;
+let currentDay = (()=>{ const d=new Date().getDay(); return d===0?6:d-1; })();
+let currentWeek = 1;
+let currentDayTemplate = null;
+let isLoading = false;
+const ANTHROPIC_KEY = localStorage.getItem('fitlab_anthropic_key') || 'YOUR_ANTHROPIC_KEY_HERE';
+const WEEKDAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+const WEEKDAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DEFAULT_WEEK_PLAN = {'0':'A','1':'C','2':null,'3':'A','4':'C','5':null,'6':null};
+window._selectedPlan = 'annual';
+window.checkOvertraining = window.checkOvertraining || function(){ return {warning:false,msg:''}; };
+
 
 async function initSupabase(){
   // Wait for SDK to be available (handles slow CDN loads)
