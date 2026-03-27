@@ -2886,6 +2886,10 @@ function renderExc(ex,blockName,ei,blockColor){
   const allOpts = [ex.name, ...(ex.alts||[])];
   const dispName = altIdx>0 && altIdx<allOpts.length ? allOpts[altIdx] : ex.name;
   const hasAlts = !!(ex.alts && ex.alts.length > 0);
+  // Registry key for alt picker (name-based, survives re-renders)
+  window._exR = window._exR||{};
+  const _rk = btoa(encodeURIComponent(ex.name)).replace(/[^a-zA-Z0-9]/g,'').slice(0,20);
+  window._exR[_rk] = {n:ex.name, o:allOpts};
   // Register alts in global map (avoids inline JSON escaping issues)
   // Index-based registry — no string escaping needed
   window._exR = window._exR||[];
